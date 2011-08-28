@@ -13,6 +13,7 @@ if not settings.configured:
             'friendship',
             'friendship.tests',
         ],
+        ROOTURL_CONF=['friendship.urls'],
     )
 
 from django.test.simple import run_tests
