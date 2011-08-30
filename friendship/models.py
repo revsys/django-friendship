@@ -94,6 +94,13 @@ class FriendshipManager(models.Manager):
                 has_viewed=False).all()
         return list(qs) 
 
+    def unread_request_count(self, user):
+        """ Return a count of unread friendship requests """ 
+        count = FriendshipRequest.objects.select_related(depth=1).filter(
+                to_user=user,
+                has_viewed=False).count()
+        return count 
+
     def read_requests(self, user):
         """ Return a list of read friendship requests """ 
         qs = FriendshipRequest.objects.select_related(depth=1).filter(

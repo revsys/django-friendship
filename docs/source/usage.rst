@@ -39,6 +39,7 @@ To use ``django-friendship`` in your templates::
    {% followers request.user %}
    {% following request.user %} 
    {% friend_requests request.user %} 
+   {% friend_request_count request.user %} 
 
 Signals
 =======

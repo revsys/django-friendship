@@ -24,6 +24,7 @@ class FriendshipModelTests(TestCase):
         # Ensure FriendshipRequest is created 
         self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 1)
         self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 1)
+        self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1) 
 
         # Ensure the proper sides have requests or not 
         self.assertEqual(len(Friend.objects.requests(self.user_bob)), 0)
