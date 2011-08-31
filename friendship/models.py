@@ -1,10 +1,49 @@
 import datetime
 from django.db import models
 from django.db.models import Q
+from django.core.cache import cache
 from django.contrib.auth.models import User 
 from django.utils.translation import ugettext_lazy as _
 
 from friendship.signals import friendship_request_created, friendship_request_rejected, friendship_request_canceled, friendship_request_viewed, friendship_request_accepted, friendship_removed, new_follower, new_following, remove_follower, remove_following 
+
+CACHE_TYPES = {
+    'friends': 'f-%d',
+    'followers': 'fo-%d',
+    'following': 'fl-%d', 
+    'requests': 'fr-%d',
+    'unread_requests': 'fru-%d',
+    'unread_request_count': 'fruc-%d',
+    'read_requests': 'frr-%d',
+    'rejected_requests': 'frj-%d',
+}
+
+BUST_CACHES = { 
+    'friends': ['friends'],
+    'followers': ['followers'],
+    'following': ['following'],
+    'requests': [
+        'requests', 
+        'unread_requests', 
+        'unread_request_count',
+        'read_requests',
+        'rejected_requests',
+        ],
+}
+
+def cache_key(type, user_pk):
+    """
+    Build the cache key for a particular type of cached value 
+    """ 
+    return CACHE_TYPES[type] % user_pk 
+
+def bust_cache(type, user_pk):
+    """
+    Bust our cache for a given type, can bust multiple caches
+    """ 
+    bust_keys = BUST_CACHES[type]
+    keys = [CACHE_TYPES[k] % user_pk for k in bust_keys]
+    cache.delete_many(keys) 
 
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """ 
@@ -78,42 +117,83 @@ class FriendshipManager(models.Manager):
 
     def friends(self, user):
         """ Return a list of all friends """
-        qs = Friend.objects.select_related(depth=1).filter(to_user=user).all()
-        return [u.from_user for u in qs]
+        key = cache_key('friends', user.pk)
+        friends = cache.get(key)
+
+        if not friends:
+            qs = Friend.objects.select_related(depth=1).filter(to_user=user).all()
+            friends = [u.from_user for u in qs]
+            cache.set(key, friends)
+
+        return friends 
 
     def requests(self, user):
         """ Return a list of friendship requests """
-        qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                to_user=user).all()
-        return list(qs) 
+        key = cache_key('requests', user.pk) 
+        requests = cache.get(key) 
+
+        if not requests: 
+            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+                    to_user=user).all()
+            requests = list(qs) 
+            cache.set(key, requests) 
+
+        return requests 
 
     def unread_requests(self, user):
         """ Return a list of unread friendship requests """ 
-        qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                to_user=user,
-                has_viewed=False).all()
-        return list(qs) 
+        key = cache_key('unread_requests', user.pk)
+        unread_requests = cache.get(key) 
+
+        if not unread_requests: 
+            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+                    to_user=user,
+                    has_viewed=False).all()
+            unread_requests = list(qs) 
+            cache.set(key, unread_requests)
+
+        return unread_requests
 
     def unread_request_count(self, user):
         """ Return a count of unread friendship requests """ 
-        count = FriendshipRequest.objects.select_related(depth=1).filter(
-                to_user=user,
-                has_viewed=False).count()
-        return count 
+        key = cache_key('unread_request_count', user.pk)
+        count = cache.get(key) 
+
+        if not count: 
+            count = FriendshipRequest.objects.select_related(depth=1).filter(
+                    to_user=user,
+                    has_viewed=False).count()
+            cache.set(key, count) 
+
+        return count
 
     def read_requests(self, user):
         """ Return a list of read friendship requests """ 
-        qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                to_user=user,
-                has_viewed=True).all()
-        return list(qs) 
+        key = cache_key('read_requests', user.pk)
+        read_requests = cache.get(key) 
+
+        if not read_requests:
+            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+                    to_user=user,
+                    has_viewed=True).all()
+            read_requests = list(qs) 
+            cache.set(key, read_requests)
+
+        return read_requests
 
     def rejected_requests(self, user):
         """ Return a list of rejected friendship requests """ 
-        qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                to_user=user,
-                is_rejected=True).all()
-        return list(qs) 
+        key = cache_key('rejected_requests', user.pk)
+        rejected_requests = cache.get(key) 
+
+        if not rejected_requests:
+            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+                    to_user=user,
+                    is_rejected=True).all()
+            rejected_requests = list(qs) 
+            cache.set(key, rejected_requests) 
+
+        return rejected_requests 
 
     def add_friend(self, from_user, to_user):
         """ Create a friendship request """ 
@@ -121,7 +201,9 @@ class FriendshipManager(models.Manager):
                     from_user=from_user, 
                     to_user=to_user
                 )
+        bust_cache('requests', to_user.pk)
         friendship_request_created.send(sender=self)
+
         return request
 
     def remove_friend(self, to_user, from_user):
@@ -138,6 +220,8 @@ class FriendshipManager(models.Manager):
                         to_user=to_user
                     )
                 qs.delete()
+                bust_cache('friends', to_user.pk)
+                bust_cache('friends', from_user.pk)
                 return True
             else:
                 return False 
@@ -172,17 +256,38 @@ class FollowingManager(models.Manager):
 
     def followers(self, user):
         """ Return a list of all followers """ 
-        qs = Follow.objects.filter(followee=user).all()
-        return [u.follower for u in qs]
+        key = cache_key('followers', user.pk) 
+        followers = cache.get(key)
+
+        if not followers: 
+            qs = Follow.objects.filter(followee=user).all()
+            followers = [u.follower for u in qs]
+            cache.set(key, followers) 
+
+        return followers 
 
     def following(self, user): 
         """ Return a list of all users the given user follows """ 
-        qs = Follow.objects.filter(follower=user).all()
-        return [u.followee for u in qs]
+        key = cache_key('following', user.pk) 
+        following = cache.get(key)
+
+        if not following: 
+            qs = Follow.objects.filter(follower=user).all()
+            following = [u.followee for u in qs]
+            cache.set(key, following)
+
+        return following
 
     def add_follower(self, follower, followee):
         """ Create 'follower' follows 'followee' relationship """ 
         relation = Follow.objects.create(follower=follower, followee=followee)
+
+        new_follower.send(sender=self, follower=follower)
+        new_following.send(sender=self, follow=followee)
+
+        bust_cache('followers', followee.pk)
+        bust_cache('following', follower.pk)
+
         return relation 
 
     def remove_follower(self, follower, followee):
@@ -192,6 +297,8 @@ class FollowingManager(models.Manager):
             remove_follower.send(sender=rel, follower=rel.follower)
             remove_following.send(sender=rel, following=rel.followee)
             rel.delete()
+            bust_cache('followers', followee.pk)
+            bust_cache('following', follower.pk)
             return True
         except Follow.DoesNotExist:
             return False 
@@ -217,9 +324,4 @@ class Follow(models.Model):
 
     def __unicode__(self):
         return "User #%d follows #%d" % (self.follwer_id, self.followee_id)
-
-    def save(self, *args, **kwargs):
-        super(Follow, self).save(*args, **kwargs)
-        new_follower.send(sender=self, follower=self.follower)
-        new_following.send(sender=self, follow=self.followee)
 

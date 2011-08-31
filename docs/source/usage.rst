@@ -56,3 +56,7 @@ Signals
 * remove_follower
 * remove_following
 
+Settings
+========
+settings.DEFAULT_CACHE_VALUE == 86400 seconds (24 hours) 
+
