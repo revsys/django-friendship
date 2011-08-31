@@ -1,11 +1,16 @@
 from django.db import models 
 from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.models import User 
+from django.shortcuts import render, redirect, get_object_or_404 
 
 from friendship.models import Friend, Follow, FriendshipRequest
 
-def view_friends(request, username):
+def view_friends(request, username, template_name='friendship/friends_list.html'):
     """ View the friends of a user """ 
-    pass 
+    user = get_object_or_404(User, username=username)
+    friends = Friend.objects.friends(user)
+
+    return render(request, template_name, {'user': user, 'friends': friends})
 
 @login_required 
 def add_friend(request, from_username, to_username):
@@ -42,13 +47,19 @@ def friendship_request(request, friendship_request_id):
     """ View a particular friendship request """ 
     pass 
 
-def followers(request, user):
+def followers(request, username, template_name='friendship/followers_list.html'):
     """ List this user's followers """ 
-    pass 
+    user = get_object_or_404(User, username=username)
+    followers = Follow.objects.followers(user)
 
-def following(request, user):
+    return render(request, template_name, {'user': user, 'followers': followers})
+
+def following(request, username, template_name='friendship/following_list.html'):
     """ List who this user follows """ 
-    pass 
+    user = get_object_or_404(User, username=username)
+    following = Follow.objects.following(user)
+
+    return render(request, template_name, {'user': user, 'following': following})
 
 @login_required 
 def add_follower(request, follower, followee):

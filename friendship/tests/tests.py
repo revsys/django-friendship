@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase 
+from django.test.client import Client 
+from django.core.urlresolvers import reverse
 
 from friendship.models import Friend, Follow, FriendshipRequest
 
@@ -95,10 +97,23 @@ class FriendshipModelTests(TestCase):
         self.assertEqual(len(Follow.objects.following(self.user_bob)), 0) 
         self.assertFalse(Follow.objects.follows(self.user_bob, self.user_steve))
 
+class FriendshipViewTests(TestCase):
 
-class FriendshipManagerTests(TestCase):
-    pass 
+    def setUp(self):
+        """ Setup some initial users """ 
+        self.user_bob = User.objects.create_user('bob', 'bob@bob.com', 'bobpass')
+        self.user_steve = User.objects.create_user('steve', 'steve@steve.com', 'stevepass') 
+        self.user_susan = User.objects.create_user('susan', 'susan@susan.com', 'susanpass')
+        self.user_amy = User.objects.create_user('amy', 'amy@amy.amy.com', 'amypass') 
 
-class FriendshipTemplateTagTests(TestCase):
-    pass 
+    def _is_200(self, url):
+        client = Client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200) 
+
+    def test_simple_200s(self):
+        """ Test that certain views return a 200 status code """
+        self._is_200(reverse('friendship_view_friends', kwargs={'username': 'bob'}))
+        self._is_200(reverse('friendship_followers', kwargs={'username': 'bob'}))
+        self._is_200(reverse('friendship_following', kwargs={'username': 'bob'}))
 

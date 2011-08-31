@@ -230,11 +230,18 @@ class FriendshipManager(models.Manager):
 
     def are_friends(self, user1, user2):
         """ Are these two users friends? """ 
-        try:
-            Friend.objects.get(to_user=user1, from_user=user2)
+        friends1 = cache.get(cache_key('friends', user1.pk))
+        friends2 = cache.get(cache_key('friends', user2.pk))
+        if friends1 and user2 in friends1:
             return True
-        except Friend.DoesNotExist:
-            return False
+        elif friends2 and user1 in friends2:
+            return True
+        else: 
+            try:
+                Friend.objects.get(to_user=user1, from_user=user2)
+                return True
+            except Friend.DoesNotExist:
+                return False
 
 class Friend(models.Model):
     """ Model to represent Friendships """ 
@@ -304,11 +311,20 @@ class FollowingManager(models.Manager):
             return False 
 
     def follows(self, follower, followee):
-        try:
-            Follow.objects.get(follower=follower, followee=followee)
-            return True 
-        except Follow.DoesNotExist:
-            return False 
+        """ Does follower follow followee? Smartly uses caches if exists """
+        followers = cache.get(cache_key('following', follower.pk))
+        following = cache.get(cache_key('followers', followee.pk))
+
+        if followers and followee in followers:
+            return True
+        elif following and follower in following:
+            return True
+        else:
+            try:
+                Follow.objects.get(follower=follower, followee=followee)
+                return True 
+            except Follow.DoesNotExist:
+                return False 
 
 class Follow(models.Model):
     """ Model to represent Following relationships """ 
