@@ -1,0 +1,2 @@
+include setup.py README.rst MANIFEST.in LICENSE.txt
+recursive-include friendship/templates
