@@ -1,17 +1,17 @@
 from django import template
-from django.core.cache import cache
-from django.contrib.auth.models import User
 
-from friendship.models import FriendshipRequest, Friend, Follow
+from friendship.models import  Friend, Follow
 
 register = template.Library()
+
 
 @register.inclusion_tag('friendship/templatetags/friends.html')
 def friends(user):
     """
-    Simple tag to grab all friends 
+    Simple tag to grab all friends
     """
     return {'friends': Friend.objects.friends(user)}
+
 
 @register.inclusion_tag('friendship/templatetags/followers.html')
 def followers(user):
@@ -20,6 +20,7 @@ def followers(user):
     """
     return {'followers': Follow.objects.followers(user)}
 
+
 @register.inclusion_tag('friendship/templatetags/following.html')
 def following(user):
     """
@@ -27,12 +28,14 @@ def following(user):
     """
     return {'following': Follow.objects.following(user)}
 
+
 @register.inclusion_tag('friendship/templatetags/friend_requests.html')
 def friend_requests(user):
     """
-    Inclusion tag to display friend requests 
+    Inclusion tag to display friend requests
     """
     return {'friend_requests': Friend.objects.requests(user)}
+
 
 @register.inclusion_tag('friendship/templatetags/friend_request_count.html')
 def friend_request_count(user):
@@ -40,4 +43,3 @@ def friend_request_count(user):
     Inclusion tag to display the count of unread friend requests
     """
     return {'friend_request_count': Friend.objects.unread_request_count(user)}
-

@@ -1,10 +1,10 @@
 import os
 from setuptools import setup, find_packages
 
-from taggit import VERSION
+from friendship import VERSION
 
 
-f = open(os.path.join(os.path.dirname(__file__), 'README.txt'))
+f = open(os.path.join(os.path.dirname(__file__), 'README.rst'))
 readme = f.read()
 f.close()
 
@@ -29,4 +29,3 @@ setup(
     ],
     test_suite='friendship.tests.runtests.runtests'
 )
-
