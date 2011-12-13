@@ -81,3 +81,8 @@ def add_follower(request, follower, followee):
 def remove_follower(request, follower, followee):
     """ Remove a following relationship """
     pass
+
+def all_users(request, template_name="friendship/user_actions.html"):
+    users = User.objects.all()
+
+    return render(request, template_name, {'users': users})

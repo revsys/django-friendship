@@ -2,9 +2,14 @@ from django.conf.urls.defaults import url, patterns
 from friendship.views import view_friends, add_friend, accept_friend, \
         reject_friend, cancel_friend, friendship_request_list, \
         friendship_request_list_rejected, friendship_request, followers,\
-        following, add_follower, remove_follower
+        following, add_follower, remove_follower, all_users
 
 urlpatterns = patterns('',
+    url(
+        regex=r'^users/$',
+        view=all_users,
+        name='friendship_view_users',
+    ),
     url(
         regex=r'^friends/(?P<username>[\w-]+)/$',
         view=view_friends,
