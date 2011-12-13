@@ -349,4 +349,4 @@ class Follow(models.Model):
         verbose_name_plural = _('Following Relationships')
 
     def __unicode__(self):
-        return "User #%d follows #%d" % (self.follwer_id, self.followee_id)
+        return "User #%d follows #%d" % (self.follower_id, self.followee_id)
