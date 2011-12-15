@@ -1,9 +1,11 @@
 <ul>
-{% for user in users %}
+{{ user.username }}
+<a href="{% url friendship_requests %}">friendship requests</a>
+<a href="{% url friendship_requests_rejected %}">rejected friendship requests</a>
+{% for list_user in users %}
     <li>
-        {{ user.username }}
-        {% if request.user %}
-            | <a href="{% url add_friend user.pk %}">add as friend</a> | <a href="{% url add_follower user.pk %}">folow user</a>
+        {% if user %}
+            {{ list_user.username }} | <a href="{% url friendship_add_friend list_user.username %}">add as friend</a> | <a href="{% url friendship_add_follower list_user.username %}">folow user</a>
         {% endif %}
     </li>
 {% endfor %}

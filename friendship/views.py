@@ -1,8 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
-from friendship.models import Friend, Follow
+from friendship.models import Friend, Follow, FriendshipRequest
 
 
 def view_friends(request, username, template_name='friendship/friends_list.html'):
@@ -14,45 +14,72 @@ def view_friends(request, username, template_name='friendship/friends_list.html'
 
 
 @login_required
-def add_friend(request, from_username, to_username):
+def add_friend(request, to_username, template_name='friendship/friends_add.html'):
     """ Create a FriendshipRequest """
-    pass
+    if request.POST:
+        to_user = User.objects.get(username=to_username)
+        from_user = request.user
+        Friend.objects.add_friend(from_user, to_user)
+        return redirect('friendship_requests')
+
+    return render(request, template_name, {'to_username': to_username})
 
 
 @login_required
 def accept_friend(request, friendship_request_id):
     """ Accept a friendship request """
-    pass
+    if request.POST:
+        f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+        f_request.accept()
+        return redirect('friendship_view_friends', username=request.user.username)
+
+    return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
 
 
 @login_required
 def reject_friend(request, friendship_request_id):
     """ Reject a friendship request """
-    pass
+    if request.POST:
+        f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+        f_request.reject()
+        return redirect('friendship_requests')
+
+    return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
 
 
 @login_required
 def cancel_friend(request, friendship_request_id):
     """ Cancel a previously created friendship_request_id """
-    pass
+    if request.POST:
+        f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+        f_request.cancel()
+        return redirect('friendship_requests')
+
+    return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
 
 
 @login_required
-def friendship_request_list(request, username):
+def friendship_request_list(request, template_name='friendship/friendship_requests_list.html'):
     """ View unread and read friendship requests """
-    pass
+    # friendship_requests = Friend.objects.requests(request.user)
+    friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
+    return render(request, template_name, {'requests': friendship_requests})
 
 
 @login_required
-def friendship_request_list_rejected(request, user):
+def friendship_request_list_rejected(request, template_name='friendship/friendship_requests_list.html'):
     """ View rejected friendship requests """
-    pass
+    # friendship_requests = Friend.objects.rejected_requests(request.user)
+    friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
+    return render(request, template_name, {'requests': friendship_requests})
 
 
 @login_required
-def friendship_request(request, friendship_request_id):
+def friendship_request(request, friendship_request_id, template_name='friendship/friendship_request.html'):
     """ View a particular friendship request """
-    pass
+    f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+
+    return render(request, template_name, {'friendship_request': f_request})
 
 
 def followers(request, username, template_name='friendship/followers_list.html'):
@@ -72,15 +99,22 @@ def following(request, username, template_name='friendship/following_list.html')
 
 
 @login_required
-def add_follower(request, follower, followee):
+def add_follower(request, followee_username, template_name='friendship/following_add.html'):
     """ Create a following relationship """
-    pass
+    if request.POST:
+        followee = User.objects.get(username=followee_username)
+        follower = request.user
+        Follow.objects.add_follower(follower, followee)
+        return redirect('friendship_following', username=follower.username)
+
+    return render(request, template_name, {'followee_username': followee_username})
 
 
 @login_required
-def remove_follower(request, follower, followee):
+def remove_follower(request, followee):
     """ Remove a following relationship """
     pass
+
 
 def all_users(request, template_name="friendship/user_actions.html"):
     users = User.objects.all()

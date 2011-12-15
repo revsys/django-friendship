@@ -1,4 +1,5 @@
 import datetime
+
 from django.db import models
 from django.db.models import Q
 from django.core.cache import cache
@@ -10,6 +11,7 @@ from friendship.signals import friendship_request_created, \
         friendship_request_viewed, friendship_request_accepted, \
         friendship_removed, new_follower, new_following, remove_follower,\
         remove_following
+
 
 CACHE_TYPES = {
     'friends': 'f-%d',
@@ -56,11 +58,6 @@ class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
     from_user = models.ForeignKey(User, related_name='friendship_requests_sent')
     to_user = models.ForeignKey(User, related_name='friendship_requests_received')
-    is_rejected = models.BooleanField(_('Rejected'),
-            help_text="Receiving user rejected the request", default=False)
-
-    has_viewed = models.BooleanField(_('Viewed'),
-            help_text="Receiving user has viewed the request", default=False)
 
     message = models.TextField(_('Message'), blank=True)
 
@@ -71,15 +68,7 @@ class FriendshipRequest(models.Model):
     class Meta:
         verbose_name = _('Friendship Request')
         verbose_name_plural = _('Friendship Requests')
-
-    def save(self, *args, **kwargs):
-        if self.is_rejected and not self.rejected:
-            self.rejected = datetime.datetime.now()
-
-        if self.has_viewed and not self.viewed:
-            self.viewed = datetime.datetime.now()
-
-        super(FriendshipRequest, self).save(*args, **kwargs)
+        unique_together = ('from_user', 'to_user')
 
     def accept(self):
         """ Accept this friendship request """
@@ -102,7 +91,7 @@ class FriendshipRequest(models.Model):
 
     def reject(self):
         """ rejcet this friendship request """
-        self.is_rejected = True
+        self.rejected = datetime.datetime.now()
         friendship_request_rejected.send(sender=self)
         self.save()
 
@@ -113,7 +102,7 @@ class FriendshipRequest(models.Model):
         return True
 
     def mark_viewed(self):
-        self.has_viewed = True
+        self.viewed = datetime.datetime.now()
         friendship_request_viewed.send(sender=self)
         self.save()
         return True
@@ -155,7 +144,7 @@ class FriendshipManager(models.Manager):
         if not unread_requests:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
-                    has_viewed=False).all()
+                    viewed__isnull=True).all()
             unread_requests = list(qs)
             cache.set(key, unread_requests)
 
@@ -169,7 +158,7 @@ class FriendshipManager(models.Manager):
         if not count:
             count = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
-                    has_viewed=False).count()
+                    viewed__isnull=True).count()
             cache.set(key, count)
 
         return count
@@ -182,7 +171,7 @@ class FriendshipManager(models.Manager):
         if not read_requests:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
-                    has_viewed=True).all()
+                    viewed__isnull=False).all()
             read_requests = list(qs)
             cache.set(key, read_requests)
 
@@ -196,7 +185,7 @@ class FriendshipManager(models.Manager):
         if not rejected_requests:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
-                    is_rejected=True).all()
+                    rejected__isnull=False).all()
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
 
@@ -262,6 +251,7 @@ class Friend(models.Model):
     class Meta:
         verbose_name = _('Friend')
         verbose_name_plural = _('Friends')
+        unique_together = ('from_user', 'to_user')
 
     def __unicode__(self):
         return "User #%d is friends with #%d" % (self.to_user_id, self.from_user_id)
@@ -347,6 +337,7 @@ class Follow(models.Model):
     class Meta:
         verbose_name = _('Following Relationship')
         verbose_name_plural = _('Following Relationships')
+        unique_together = ('follower', 'followee')
 
     def __unicode__(self):
         return "User #%d follows #%d" % (self.follower_id, self.followee_id)

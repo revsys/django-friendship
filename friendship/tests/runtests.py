@@ -1,36 +1,28 @@
 #!/usr/bin/env python
-import os
 import sys
 
 from django.conf import settings
 
-if not settings.configured:
-    settings.configure(
-        DATABASE_ENGINE='sqlite3',
-        INSTALLED_APPS=[
-            'django.contrib.auth',
-            'django.contrib.contenttypes',
-            'friendship',
-            'friendship.tests',
-        ],
-        ROOT_URLCONF='friendship.urls',
-    )
-
-from django.test.simple import run_tests
+settings.configure(
+    DATABASES = {
+        'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory;'}
+    },
+    INSTALLED_APPS=[
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'friendship',
+        'friendship.tests',
+    ],
+    ROOT_URLCONF='friendship.urls',
+)
 
 
 def runtests(*test_args):
-    if not test_args:
-        test_args = ['tests']
-    parent = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..",
-        "..",
-    )
-    sys.path.insert(0, parent)
-    failures = run_tests(test_args, verbosity=1, interactive=True)
+    import django.test.utils
+    runner_class = django.test.utils.get_runner(settings)
+    test_runner = runner_class(verbosity=1, interactive=True)
+    failures = test_runner.run_tests(['friendship'])
     sys.exit(failures)
 
-
 if __name__ == '__main__':
-    runtests(*sys.argv[1:])
+    runtests()
