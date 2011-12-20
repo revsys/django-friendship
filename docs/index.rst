@@ -10,8 +10,10 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   usage.rst 
-   
+
+   usage
+   signals
+
 Indices and tables
 ==================
 
