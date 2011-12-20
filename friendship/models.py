@@ -90,7 +90,7 @@ class FriendshipRequest(models.Model):
         return True
 
     def reject(self):
-        """ rejcet this friendship request """
+        """ reject this friendship request """
         self.rejected = datetime.datetime.now()
         friendship_request_rejected.send(sender=self)
         self.save()
