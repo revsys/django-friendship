@@ -59,7 +59,7 @@ def cancel_friend(request, friendship_request_id):
 
 
 @login_required
-def friendship_request_list(request, template_name='friendship/friendship/requests_list.html'):
+def friendship_request_list(request, template_name='friendship/friend/requests_list.html'):
     """ View unread and read friendship requests """
     # friendship_requests = Friend.objects.requests(request.user)
     friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
