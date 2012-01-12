@@ -111,9 +111,18 @@ def add_follower(request, followee_username, template_name='friendship/follow/ad
 
 
 @login_required
-def remove_follower(request, followee_username, template_name='friendship/friend/add.html'):
+def remove_follower(request, followee_username, template_name='friendship/friend/remove.html'):
     """ Remove a following relationship """
-    pass
+    if request.method == 'POST':
+        followee = User.objects.get(username=followee_username)
+        follower = request.user
+        Follow.objects.remove_follower(follower, followee)
+        return redirect('friendship_following', username=follower.username)
+
+    context = {
+        'followee_username': followee_username,
+    }
+    return render(request, template_name, context)
 
 
 def all_users(request, template_name="friendship/user_actions.html"):
