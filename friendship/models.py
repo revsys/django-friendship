@@ -70,6 +70,9 @@ class FriendshipRequest(models.Model):
         verbose_name_plural = _('Friendship Requests')
         unique_together = ('from_user', 'to_user')
 
+    def __unicode__(self):
+        return "User #%d friendship requested #%d" % (self.from_user_id, self.to_user_id)
+
     def accept(self):
         """ Accept this friendship request """
         relation1 = Friend.objects.create(
