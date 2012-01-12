@@ -167,8 +167,8 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
-    def test_friendship_friendship_add_friend(self):
-        url = reverse('friendship_friendship_add_friend', kwargs={'to_username': self.user_amy.username})
+    def test_friendship_add_friend(self):
+        url = reverse('friendship_add_friend', kwargs={'to_username': self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)

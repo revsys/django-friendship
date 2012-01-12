@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(
         regex=r'^friend/add/(?P<to_username>[\w-]+)/$',
         view=friendship_add_friend,
-        name='friendship_friendship_add_friend',
+        name='friendship_add_friend',
     ),
     url(
         regex=r'^friend/accept/(?P<friendship_request_id>\d+)/$',
