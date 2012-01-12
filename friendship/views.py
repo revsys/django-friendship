@@ -111,7 +111,7 @@ def add_follower(request, followee_username, template_name='friendship/follow/ad
 
 
 @login_required
-def remove_follower(request, followee, template_name='friendship/friend/add.html'):
+def remove_follower(request, followee_username, template_name='friendship/friend/add.html'):
     """ Remove a following relationship """
     pass
 
