@@ -1,19 +1,66 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
-from django.test.client import Client
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from friendship.models import Friend, Follow, FriendshipRequest
 
 
-class FriendshipModelTests(TestCase):
+class login(object):
+    def __init__(self, testcase, user, password):
+        self.testcase = testcase
+        success = testcase.client.login(username=user, password=password)
+        self.testcase.assertTrue(
+             success,
+             "login with username=%r, password=%r failed" % (user, password)
+        )
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args):
+        self.testcase.client.logout()
+
+
+class BaseTestCase(TestCase):
 
     def setUp(self):
-        """ Setup some initial users """
-        self.user_bob = User.objects.create_user('bob', 'bob@bob.com', 'bobpass')
-        self.user_steve = User.objects.create_user('steve', 'steve@steve.com', 'stevepass')
-        self.user_susan = User.objects.create_user('susan', 'susan@susan.com', 'susanpass')
-        self.user_amy = User.objects.create_user('amy', 'amy@amy.amy.com', 'amypass')
+        """
+        Setup some initial users
+
+        """
+        self.user_pw = 'test'
+        self.user_bob = self.create_user('bob', 'bob@bob.com', self.user_pw)
+        self.user_steve = self.create_user('steve', 'steve@steve.com', self.user_pw)
+        self.user_susan = self.create_user('susan', 'susan@susan.com', self.user_pw)
+        self.user_amy = self.create_user('amy', 'amy@amy.amy.com', self.user_pw)
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+        self.client.logout()
+
+    def login(self, user, password):
+        return login(self, user, password)
+
+    def create_user(self, username, password, email_address):
+        user = User.objects.create_user(username, password, email_address)
+        return user
+
+    def assertResponse200(self, response):
+        self.assertEqual(response.status_code, 200)
+
+    def assertResponse302(self, response):
+        self.assertEqual(response.status_code, 302)
+
+    def assertResponse403(self, response):
+        self.assertEqual(response.status_code, 403)
+
+    def assertResponse404(self, response):
+        self.assertEqual(response.status_code, 404)
+
+
+class FriendshipModelTests(BaseTestCase):
 
     def test_friendship_request(self):
         ### Bob wants to be friends with Steve
@@ -100,22 +147,172 @@ class FriendshipModelTests(TestCase):
         self.assertFalse(Follow.objects.follows(self.user_bob, self.user_steve))
 
 
-class FriendshipViewTests(TestCase):
+class FriendshipViewTests(BaseTestCase):
 
     def setUp(self):
-        """ Setup some initial users """
-        self.user_bob = User.objects.create_user('bob', 'bob@bob.com', 'bobpass')
-        self.user_steve = User.objects.create_user('steve', 'steve@steve.com', 'stevepass')
-        self.user_susan = User.objects.create_user('susan', 'susan@susan.com', 'susanpass')
-        self.user_amy = User.objects.create_user('amy', 'amy@amy.amy.com', 'amypass')
+        super(FriendshipViewTests, self).setUp()
+        self.friendship_request = Friend.objects.add_friend(self.user_steve, self.user_bob)
 
-    def _is_200(self, url):
-        client = Client()
-        response = client.get(url)
-        self.assertEqual(response.status_code, 200)
+    def test_friendship_view_users(self):
+        url = reverse('friendship_view_users')
 
-    def test_simple_200s(self):
-        """ Test that certain views return a 200 status code """
-        self._is_200(reverse('friendship_view_friends', kwargs={'username': 'bob'}))
-        self._is_200(reverse('friendship_followers', kwargs={'username': 'bob'}))
-        self._is_200(reverse('friendship_following', kwargs={'username': 'bob'}))
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse200(response)
+
+    def test_friendship_view_friends(self):
+        url = reverse('friendship_view_friends', kwargs={'username': self.user_bob.username})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse200(response)
+
+    def test_friendship_friendship_add_friend(self):
+        url = reverse('friendship_friendship_add_friend', kwargs={'to_username': self.user_amy.username})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+    def test_friendship_requests(self):
+        url = reverse('friendship_requests')
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+    def test_friendship_requests_rejected(self):
+        url = reverse('friendship_requests_rejected')
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+    def test_friendship_accept(self):
+        url = reverse('friendship_accept', kwargs={'friendship_request_id': self.friendship_request.pk})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            # if we don't POST the view should return the
+            # friendship_request_detail view
+            response = self.client.get(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+            self.assertTrue(redirect_url in response['Location'])
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_view_friends view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_view_friends', kwargs={'username': self.user_bob.username})
+            self.assertTrue(redirect_url in response['Location'])
+
+    def test_friendship_reject(self):
+        url = reverse('friendship_reject', kwargs={'friendship_request_id': self.friendship_request.pk})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            # if we don't POST the view should return the
+            # friendship_request_detail view
+            response = self.client.get(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+            self.assertTrue(redirect_url in response['Location'])
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_requests view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_requests')
+            self.assertTrue(redirect_url in response['Location'])
+
+    def test_friendship_cancel(self):
+        url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+    def test_friendship_request_detail(self):
+        url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+    def test_friendship_followers(self):
+        url = reverse('friendship_followers', kwargs={'username': 'bob'})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse200(response)
+
+    def test_friendship_following(self):
+        url = reverse('friendship_following', kwargs={'username': 'bob'})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse200(response)
+
+    def test_friendship_follower_add(self):
+        url = reverse('friendship_follower_add', kwargs={'followee_username': self.user_amy.username})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_following view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_following', kwargs={'username': self.user_bob.username})
+            self.assertTrue(redirect_url in response['Location'])
+
+    def test_friendship_follower_remove(self):
+        # create a follow relationship so we can test removing a follower
+        follow = Follow.objects.add_follower(self.user_bob, self.user_amy)
+
+        url = reverse('friendship_follower_remove', kwargs={'followee_username': self.user_amy.username})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_following', kwargs={'username': self.user_bob.username})
+            self.assertTrue(redirect_url in response['Location'])

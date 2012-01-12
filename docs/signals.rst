@@ -66,7 +66,7 @@ Signals
 
     ``followee``
 
-* **remove_follower**
+* **follower_remove**
 
     ``sender``
 

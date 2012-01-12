@@ -55,5 +55,5 @@ Signals
 * friendship_removed
 * new_follower
 * new_following
-* remove_follower
+* follower_remove
 * remove_following
