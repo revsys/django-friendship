@@ -16,7 +16,7 @@ def view_friends(request, username, template_name='friendship/friend/user_list.h
 @login_required
 def add_friend(request, to_username, template_name='friendship/friend/add.html'):
     """ Create a FriendshipRequest """
-    if request.POST:
+    if request.method == 'POST':
         to_user = User.objects.get(username=to_username)
         from_user = request.user
         Friend.objects.add_friend(from_user, to_user)
@@ -28,7 +28,7 @@ def add_friend(request, to_username, template_name='friendship/friend/add.html')
 @login_required
 def accept_friend(request, friendship_request_id):
     """ Accept a friendship request """
-    if request.POST:
+    if request.method == 'POST':
         f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
         f_request.accept()
         return redirect('friendship_view_friends', username=request.user.username)
@@ -39,7 +39,7 @@ def accept_friend(request, friendship_request_id):
 @login_required
 def reject_friend(request, friendship_request_id):
     """ Reject a friendship request """
-    if request.POST:
+    if request.method == 'POST':
         f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
         f_request.reject()
         return redirect('friendship_requests')
@@ -50,7 +50,7 @@ def reject_friend(request, friendship_request_id):
 @login_required
 def cancel_friend(request, friendship_request_id):
     """ Cancel a previously created friendship_request_id """
-    if request.POST:
+    if request.method == 'POST':
         f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
         f_request.cancel()
         return redirect('friendship_requests')
@@ -101,7 +101,7 @@ def following(request, username, template_name='friendship/follow/following_list
 @login_required
 def add_follower(request, followee_username, template_name='friendship/follow/add.html'):
     """ Create a following relationship """
-    if request.POST:
+    if request.method == 'POST':
         followee = User.objects.get(username=followee_username)
         follower = request.user
         Follow.objects.add_follower(follower, followee)
