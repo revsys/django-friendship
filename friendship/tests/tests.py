@@ -280,8 +280,8 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
-    def test_friendship_follower_add(self):
-        url = reverse('friendship_follower_add', kwargs={'followee_username': self.user_amy.username})
+    def test_follower_add(self):
+        url = reverse('follower_add', kwargs={'followee_username': self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
@@ -298,11 +298,11 @@ class FriendshipViewTests(BaseTestCase):
             redirect_url = reverse('friendship_following', kwargs={'username': self.user_bob.username})
             self.assertTrue(redirect_url in response['Location'])
 
-    def test_friendship_follower_remove(self):
+    def test_follower_remove(self):
         # create a follow relationship so we can test removing a follower
         follow = Follow.objects.add_follower(self.user_bob, self.user_amy)
 
-        url = reverse('friendship_follower_remove', kwargs={'followee_username': self.user_amy.username})
+        url = reverse('follower_remove', kwargs={'followee_username': self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)

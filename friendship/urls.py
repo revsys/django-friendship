@@ -63,11 +63,11 @@ urlpatterns = patterns('',
     url(
         regex=r'^follower/add/(?P<followee_username>[\w-]+)/$',
         view=follower_add,
-        name='friendship_follower_add',
+        name='follower_add',
     ),
     url(
         regex=r'^follower/remove/(?P<followee_username>[\w-]+)/$',
         view=follower_remove,
-        name='friendship_follower_remove',
+        name='follower_remove',
     ),
 )

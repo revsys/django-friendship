@@ -63,6 +63,7 @@ def friendship_request_list(request, template_name='friendship/friend/requests_l
     """ View unread and read friendship requests """
     # friendship_requests = Friend.objects.requests(request.user)
     friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
+
     return render(request, template_name, {'requests': friendship_requests})
 
 
@@ -71,6 +72,7 @@ def friendship_request_list_rejected(request, template_name='friendship/friend/r
     """ View rejected friendship requests """
     # friendship_requests = Friend.objects.rejected_requests(request.user)
     friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
+
     return render(request, template_name, {'requests': friendship_requests})
 
 
