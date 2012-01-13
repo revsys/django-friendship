@@ -38,7 +38,7 @@ urlpatterns = patterns('',
     url(
         regex=r'^friend/requests/$',
         view=friendship_request_list,
-        name='friendship_requests',
+        name='friendship_request_list',
     ),
     url(
         regex=r'^friend/requests/rejected/$',

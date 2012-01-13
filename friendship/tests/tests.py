@@ -181,14 +181,14 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse200(response)
 
             # on POST accept the friendship request and redirect to the
-            # friendship_requests view
+            # friendship_request_list view
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse('friendship_requests')
+            redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
 
     def test_friendship_requests(self):
-        url = reverse('friendship_requests')
+        url = reverse('friendship_request_list')
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
@@ -250,7 +250,7 @@ class FriendshipViewTests(BaseTestCase):
             # friendship_requests view
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse('friendship_requests')
+            redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
 
     def test_friendship_cancel(self):
@@ -272,7 +272,7 @@ class FriendshipViewTests(BaseTestCase):
             # friendship_requests view
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse('friendship_requests')
+            redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
 
     def test_friendship_request_detail(self):

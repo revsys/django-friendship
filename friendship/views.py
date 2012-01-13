@@ -20,7 +20,7 @@ def friendship_add_friend(request, to_username, template_name='friendship/friend
         to_user = User.objects.get(username=to_username)
         from_user = request.user
         Friend.objects.add_friend(from_user, to_user)
-        return redirect('friendship_requests')
+        return redirect('friendship_request_list')
 
     return render(request, template_name, {'to_username': to_username})
 
@@ -42,7 +42,7 @@ def friendship_reject(request, friendship_request_id):
     if request.method == 'POST':
         f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
         f_request.reject()
-        return redirect('friendship_requests')
+        return redirect('friendship_request_list')
 
     return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
 
@@ -53,7 +53,7 @@ def friendship_cancel(request, friendship_request_id):
     if request.method == 'POST':
         f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
         f_request.cancel()
-        return redirect('friendship_requests')
+        return redirect('friendship_request_list')
 
     return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
 
