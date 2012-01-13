@@ -54,25 +54,25 @@ Signals
 
     ``to_user``
 
-* **new_follower**
+* **follower_created**
 
     ``sender``
 
     ``follower``
 
-* **new_following**
+* **following_created**
 
     ``sender``
 
     ``followee``
 
-* **follower_remove**
+* **follower_removed**
 
     ``sender``
 
     ``follower``
 
-* **remove_following**
+* **following_removed**
 
     ``sender``
 

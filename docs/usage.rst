@@ -44,7 +44,7 @@ To use ``django-friendship`` in your views::
         new_relationship = Friendship.objects.add_friend(request.user, other_user)
 
         # Create request.user follows other_user relationship
-        new_following = Following.objects.add_follower(request.user, other_user)
+        following_created = Following.objects.add_follower(request.user, other_user)
 
 To use ``django-friendship`` in your templates::
 

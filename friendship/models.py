@@ -9,8 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from friendship.signals import friendship_request_created, \
         friendship_request_rejected, friendship_request_canceled, \
         friendship_request_viewed, friendship_request_accepted, \
-        friendship_removed, new_follower, new_following, follower_remove,\
-        remove_following
+        friendship_removed, follower_created, following_created, follower_removed,\
+        following_removed
 
 
 CACHE_TYPES = {
@@ -291,8 +291,8 @@ class FollowingManager(models.Manager):
         """ Create 'follower' follows 'followee' relationship """
         relation = Follow.objects.create(follower=follower, followee=followee)
 
-        new_follower.send(sender=self, follower=follower)
-        new_following.send(sender=self, follow=followee)
+        follower_created.send(sender=self, follower=follower)
+        following_created.send(sender=self, follow=followee)
 
         bust_cache('followers', followee.pk)
         bust_cache('following', follower.pk)
@@ -303,8 +303,8 @@ class FollowingManager(models.Manager):
         """ Remove 'follower' follows 'followee' relationship """
         try:
             rel = Follow.objects.get(follower=follower, followee=followee)
-            follower_remove.send(sender=rel, follower=rel.follower)
-            remove_following.send(sender=rel, following=rel.followee)
+            follower_removed.send(sender=rel, follower=rel.follower)
+            following_removed.send(sender=rel, following=rel.followee)
             rel.delete()
             bust_cache('followers', followee.pk)
             bust_cache('following', follower.pk)
