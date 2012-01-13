@@ -175,8 +175,17 @@ class FriendshipViewTests(BaseTestCase):
         self.assertResponse302(response)
 
         with self.login(self.user_bob.username, self.user_pw):
+            # if we don't POST the view should return the
+            # friendship_add_friend view
             response = self.client.get(url)
             self.assertResponse200(response)
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_requests view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_requests')
+            self.assertTrue(redirect_url in response['Location'])
 
     def test_friendship_requests(self):
         url = reverse('friendship_requests')
@@ -245,15 +254,26 @@ class FriendshipViewTests(BaseTestCase):
             self.assertTrue(redirect_url in response['Location'])
 
     def test_friendship_cancel(self):
-        url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+        url = reverse('friendship_cancel', kwargs={'friendship_request_id': self.friendship_request.pk})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
         self.assertResponse302(response)
 
         with self.login(self.user_bob.username, self.user_pw):
+            # if we don't POST the view should return the
+            # friendship_request_detail view
             response = self.client.get(url)
-            self.assertResponse200(response)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+            self.assertTrue(redirect_url in response['Location'])
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_requests view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_requests')
+            self.assertTrue(redirect_url in response['Location'])
 
     def test_friendship_request_detail(self):
         url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
