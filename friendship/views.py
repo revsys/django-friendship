@@ -33,7 +33,7 @@ def friendship_accept(request, friendship_request_id):
         f_request.accept()
         return redirect('friendship_view_friends', username=request.user.username)
 
-    return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
+    return redirect('friendship_requests_detail', friendship_request_id=friendship_request_id)
 
 
 @login_required
@@ -44,7 +44,7 @@ def friendship_reject(request, friendship_request_id):
         f_request.reject()
         return redirect('friendship_request_list')
 
-    return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
+    return redirect('friendship_requests_detail', friendship_request_id=friendship_request_id)
 
 
 @login_required
@@ -55,7 +55,7 @@ def friendship_cancel(request, friendship_request_id):
         f_request.cancel()
         return redirect('friendship_request_list')
 
-    return redirect('friendship_request_detail', friendship_request_id=friendship_request_id)
+    return redirect('friendship_requests_detail', friendship_request_id=friendship_request_id)
 
 
 @login_required
@@ -77,7 +77,7 @@ def friendship_request_list_rejected(request, template_name='friendship/friend/r
 
 
 @login_required
-def friendship_request(request, friendship_request_id, template_name='friendship/friend/request.html'):
+def friendship_requests_detail(request, friendship_request_id, template_name='friendship/friend/request.html'):
     """ View a particular friendship request """
     f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
 

@@ -218,10 +218,10 @@ class FriendshipViewTests(BaseTestCase):
 
         with self.login(self.user_bob.username, self.user_pw):
             # if we don't POST the view should return the
-            # friendship_request_detail view
+            # friendship_requests_detail view
             response = self.client.get(url)
             self.assertResponse302(response)
-            redirect_url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+            redirect_url = reverse('friendship_requests_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
             self.assertTrue(redirect_url in response['Location'])
 
             # on POST accept the friendship request and redirect to the
@@ -240,10 +240,10 @@ class FriendshipViewTests(BaseTestCase):
 
         with self.login(self.user_bob.username, self.user_pw):
             # if we don't POST the view should return the
-            # friendship_request_detail view
+            # friendship_requests_detail view
             response = self.client.get(url)
             self.assertResponse302(response)
-            redirect_url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+            redirect_url = reverse('friendship_requests_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
             self.assertTrue(redirect_url in response['Location'])
 
             # on POST accept the friendship request and redirect to the
@@ -262,10 +262,10 @@ class FriendshipViewTests(BaseTestCase):
 
         with self.login(self.user_bob.username, self.user_pw):
             # if we don't POST the view should return the
-            # friendship_request_detail view
+            # friendship_requests_detail view
             response = self.client.get(url)
             self.assertResponse302(response)
-            redirect_url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+            redirect_url = reverse('friendship_requests_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
             self.assertTrue(redirect_url in response['Location'])
 
             # on POST accept the friendship request and redirect to the
@@ -275,8 +275,8 @@ class FriendshipViewTests(BaseTestCase):
             redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
 
-    def test_friendship_request_detail(self):
-        url = reverse('friendship_request_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
+    def test_friendship_requests_detail(self):
+        url = reverse('friendship_requests_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
