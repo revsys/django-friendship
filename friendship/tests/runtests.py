@@ -15,6 +15,7 @@ settings.configure(
         'friendship.tests',
     ],
     ROOT_URLCONF='friendship.urls',
+    TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner',
 )
 
 
