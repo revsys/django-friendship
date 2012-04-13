@@ -2,3 +2,4 @@ django-friendship was originally created by Frank Wiles (frank@revsys.com)
 with contributions from: 
 
     Jeff Triplett <jeff.triplett@gmail.com>
+    Jacob Burch <jacobburch@gmail.com>
