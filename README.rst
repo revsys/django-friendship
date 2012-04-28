@@ -9,7 +9,7 @@ Add ``friendship`` to ``INSTALLED_APPS`` and run ``syncdb``.
 To use ``django-friendship`` in your views::
 
     from django.contrib.auth.models import User
-    from friendship.models import Friendship, Following
+    from friendship.models import Friend, Follow
 
     def my_view(request):
         # List of this user's friends
