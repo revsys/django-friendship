@@ -21,17 +21,17 @@ Examples
 To use ``django-friendship`` in your views::
 
     from django.contrib.auth.models import User
-    from friendship.models import Friendship, Following
+    from friendship.models import Friend, Following
 
     def my_view(request):
         # List of this user's friends
-        all_friends = Friendship.objects.friends(request.user)
+        all_friends = Friend.objects.friends(request.user)
 
         # List all unread friendship requests
-        requests = Friendship.objects.requests(user=request.user, unread=True)
+        requests = Friend.objects.unread_requests(user=request.user)
 
         # List all rejected friendship requests
-        rejects = Friendship.objects.requests(user=request.user, rejected=True)
+        rejects = Friend.objects.rejected_requests(user=request.user)
 
         # List of this user's followers
         all_followers = Following.objects.followers(request.user)
@@ -41,10 +41,14 @@ To use ``django-friendship`` in your views::
 
         ### Managing friendship relationships
         other_user = User.objects.get(pk=1)
-        new_relationship = Friendship.objects.add_friend(request.user, other_user)
+        new_relationship = Friend.objects.add_friend(request.user, other_user)
+        Friend.objects.are_friends(request.user, other_user) == True
+        Friend.objects.remove_friend(other_user, request.user)
 
         # Create request.user follows other_user relationship
         following_created = Following.objects.add_follower(request.user, other_user)
+        was_following = Following.objects.remove_follower(request.user, other_user)
+
 
 To use ``django-friendship`` in your templates::
 
