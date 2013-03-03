@@ -203,7 +203,7 @@ class FriendshipManager(models.Manager):
                     to_user=to_user
                 )
         bust_cache('requests', to_user.pk)
-        friendship_request_created.send(sender=self)
+        friendship_request_created.send(sender=request)
 
         return request
 
