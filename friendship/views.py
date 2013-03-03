@@ -1,5 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+try:
+    from django.contrib.auth import get_user_model
+    user_model = get_user_model()
+except ImportError:
+    from django.contrib.auth.models import User
+    user_model = User
 from django.shortcuts import render, get_object_or_404, redirect
 
 from friendship.models import Friend, Follow, FriendshipRequest
@@ -7,7 +12,7 @@ from friendship.models import Friend, Follow, FriendshipRequest
 
 def view_friends(request, username, template_name='friendship/friend/user_list.html'):
     """ View the friends of a user """
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(user_model, username=username)
     friends = Friend.objects.friends(user)
 
     return render(request, template_name, {'user': user, 'friends': friends})
@@ -17,7 +22,7 @@ def view_friends(request, username, template_name='friendship/friend/user_list.h
 def friendship_add_friend(request, to_username, template_name='friendship/friend/add.html'):
     """ Create a FriendshipRequest """
     if request.method == 'POST':
-        to_user = User.objects.get(username=to_username)
+        to_user = user_model.objects.get(username=to_username)
         from_user = request.user
         Friend.objects.add_friend(from_user, to_user)
         return redirect('friendship_request_list')
@@ -86,7 +91,7 @@ def friendship_requests_detail(request, friendship_request_id, template_name='fr
 
 def followers(request, username, template_name='friendship/follow/followers_list.html'):
     """ List this user's followers """
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(user_model, username=username)
     followers = Follow.objects.followers(user)
 
     return render(request, template_name, {'user': user, 'followers': followers})
@@ -94,7 +99,7 @@ def followers(request, username, template_name='friendship/follow/followers_list
 
 def following(request, username, template_name='friendship/follow/following_list.html'):
     """ List who this user follows """
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(user_model, username=username)
     following = Follow.objects.following(user)
 
     return render(request, template_name, {'user': user, 'following': following})
@@ -104,7 +109,7 @@ def following(request, username, template_name='friendship/follow/following_list
 def follower_add(request, followee_username, template_name='friendship/follow/add.html'):
     """ Create a following relationship """
     if request.method == 'POST':
-        followee = User.objects.get(username=followee_username)
+        followee = user_model.objects.get(username=followee_username)
         follower = request.user
         Follow.objects.add_follower(follower, followee)
         return redirect('friendship_following', username=follower.username)
@@ -116,7 +121,7 @@ def follower_add(request, followee_username, template_name='friendship/follow/ad
 def follower_remove(request, followee_username, template_name='friendship/follow/remove.html'):
     """ Remove a following relationship """
     if request.method == 'POST':
-        followee = User.objects.get(username=followee_username)
+        followee = user_model.objects.get(username=followee_username)
         follower = request.user
         Follow.objects.remove_follower(follower, followee)
         return redirect('friendship_following', username=follower.username)
@@ -125,6 +130,6 @@ def follower_remove(request, followee_username, template_name='friendship/follow
 
 
 def all_users(request, template_name="friendship/user_actions.html"):
-    users = User.objects.all()
+    users = user_model.objects.all()
 
     return render(request, template_name, {'users': users})

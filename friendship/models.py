@@ -1,9 +1,10 @@
 import datetime
 
 from django.db import models
+from django.conf import settings
 from django.db.models import Q
 from django.core.cache import cache
-from django.contrib.auth.models import User
+
 from django.utils.translation import ugettext_lazy as _
 
 from friendship.signals import friendship_request_created, \
@@ -12,6 +13,7 @@ from friendship.signals import friendship_request_created, \
         friendship_removed, follower_created, following_created, follower_removed,\
         following_removed
 
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 CACHE_TYPES = {
     'friends': 'f-%d',
@@ -56,8 +58,8 @@ def bust_cache(type, user_pk):
 
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
-    from_user = models.ForeignKey(User, related_name='friendship_requests_sent')
-    to_user = models.ForeignKey(User, related_name='friendship_requests_received')
+    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_sent')
+    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_received')
 
     message = models.TextField(_('Message'), blank=True)
 
@@ -245,8 +247,8 @@ class FriendshipManager(models.Manager):
 
 class Friend(models.Model):
     """ Model to represent Friendships """
-    to_user = models.ForeignKey(User, related_name='friends')
-    from_user = models.ForeignKey(User, related_name='_unused_friend_relation')
+    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friends')
+    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='_unused_friend_relation')
     created = models.DateTimeField(default=datetime.datetime.now)
 
     objects = FriendshipManager()
@@ -331,8 +333,8 @@ class FollowingManager(models.Manager):
 
 class Follow(models.Model):
     """ Model to represent Following relationships """
-    follower = models.ForeignKey(User, related_name='following')
-    followee = models.ForeignKey(User, related_name='followers')
+    follower = models.ForeignKey(AUTH_USER_MODEL, related_name='following')
+    followee = models.ForeignKey(AUTH_USER_MODEL, related_name='followers')
     created = models.DateTimeField(default=datetime.datetime.now)
 
     objects = FollowingManager()
