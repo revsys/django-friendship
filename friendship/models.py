@@ -125,7 +125,7 @@ class FriendshipManager(models.Manager):
         key = cache_key('friends', user.pk)
         friends = cache.get(key)
 
-        if not friends:
+        if friends is not None:
             qs = Friend.objects.select_related(depth=1).filter(to_user=user).all()
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
@@ -137,7 +137,7 @@ class FriendshipManager(models.Manager):
         key = cache_key('requests', user.pk)
         requests = cache.get(key)
 
-        if not requests:
+        if requests is not None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user).all()
             requests = list(qs)
@@ -150,7 +150,7 @@ class FriendshipManager(models.Manager):
         key = cache_key('unread_requests', user.pk)
         unread_requests = cache.get(key)
 
-        if not unread_requests:
+        if unread_requests is not None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
                     viewed__isnull=True).all()
@@ -164,7 +164,7 @@ class FriendshipManager(models.Manager):
         key = cache_key('unread_request_count', user.pk)
         count = cache.get(key)
 
-        if not count:
+        if count is not None:
             count = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
                     viewed__isnull=True).count()
@@ -177,7 +177,7 @@ class FriendshipManager(models.Manager):
         key = cache_key('read_requests', user.pk)
         read_requests = cache.get(key)
 
-        if not read_requests:
+        if read_requests is not None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
                     viewed__isnull=False).all()
@@ -191,7 +191,7 @@ class FriendshipManager(models.Manager):
         key = cache_key('rejected_requests', user.pk)
         rejected_requests = cache.get(key)
 
-        if not rejected_requests:
+        if rejected_requests is not None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                     to_user=user,
                     rejected__isnull=False).all()
@@ -274,7 +274,7 @@ class FollowingManager(models.Manager):
         key = cache_key('followers', user.pk)
         followers = cache.get(key)
 
-        if not followers:
+        if followers is not None:
             qs = Follow.objects.filter(followee=user).all()
             followers = [u.follower for u in qs]
             cache.set(key, followers)
@@ -286,7 +286,7 @@ class FollowingManager(models.Manager):
         key = cache_key('following', user.pk)
         following = cache.get(key)
 
-        if not following:
+        if following is not None:
             qs = Follow.objects.filter(follower=user).all()
             following = [u.followee for u in qs]
             cache.set(key, following)
