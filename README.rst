@@ -59,3 +59,8 @@ Signals
 * following_created
 * follower_removed
 * following_removed
+
+Compatibility
+=============
+
+This package requires Django 1.4 since v0.9.0. The last release supporting Django 1.3 is v0.8.3.
