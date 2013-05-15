@@ -93,6 +93,8 @@ class FriendshipRequest(models.Model):
 
         self.delete()
         bust_cache('requests', self.to_user.pk)
+        bust_cache('friends', self.to_user.pk)
+        bust_cache('friends', self.from_user.pk)
         return True
 
     def reject(self):
