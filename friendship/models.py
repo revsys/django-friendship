@@ -1,10 +1,9 @@
-import datetime
-
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
 from django.core.cache import cache
 
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from friendship.signals import friendship_request_created, \
@@ -63,7 +62,7 @@ class FriendshipRequest(models.Model):
 
     message = models.TextField(_('Message'), blank=True)
 
-    created = models.DateTimeField(default=datetime.datetime.now)
+    created = models.DateTimeField(default=timezone.now)
     rejected = models.DateTimeField(blank=True, null=True)
     viewed = models.DateTimeField(blank=True, null=True)
 
@@ -99,7 +98,7 @@ class FriendshipRequest(models.Model):
 
     def reject(self):
         """ reject this friendship request """
-        self.rejected = datetime.datetime.now()
+        self.rejected = timezone.now()
         friendship_request_rejected.send(sender=self)
         self.save()
         bust_cache('requests', self.to_user.pk)
@@ -112,7 +111,7 @@ class FriendshipRequest(models.Model):
         return True
 
     def mark_viewed(self):
-        self.viewed = datetime.datetime.now()
+        self.viewed = timezone.now()
         friendship_request_viewed.send(sender=self)
         self.save()
         bust_cache('requests', self.to_user.pk)
@@ -255,7 +254,7 @@ class Friend(models.Model):
     """ Model to represent Friendships """
     to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friends')
     from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='_unused_friend_relation')
-    created = models.DateTimeField(default=datetime.datetime.now)
+    created = models.DateTimeField(default=timezone.now)
 
     objects = FriendshipManager()
 
@@ -341,7 +340,7 @@ class Follow(models.Model):
     """ Model to represent Following relationships """
     follower = models.ForeignKey(AUTH_USER_MODEL, related_name='following')
     followee = models.ForeignKey(AUTH_USER_MODEL, related_name='followers')
-    created = models.DateTimeField(default=datetime.datetime.now)
+    created = models.DateTimeField(default=timezone.now)
 
     objects = FollowingManager()
 
