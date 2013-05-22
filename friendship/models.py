@@ -20,6 +20,7 @@ CACHE_TYPES = {
     'followers': 'fo-%d',
     'following': 'fl-%d',
     'requests': 'fr-%d',
+    'sent_requests': 'sfr-%d',
     'unread_requests': 'fru-%d',
     'unread_request_count': 'fruc-%d',
     'read_requests': 'frr-%d',
@@ -144,6 +145,19 @@ class FriendshipManager(models.Manager):
         if requests is None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
                 to_user=user).all()
+            requests = list(qs)
+            cache.set(key, requests)
+
+        return requests
+
+    def sent_requests(self, user):
+        """ Return a list of friendship requests from user """
+        key = cache_key('sent_requests', user.pk)
+        requests = cache.get(key)
+
+        if requests is None:
+            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+                    from_user=user).all()
             requests = list(qs)
             cache.set(key, requests)
 
