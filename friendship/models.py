@@ -274,6 +274,12 @@ class Friend(models.Model):
     def __unicode__(self):
         return "User #%d is friends with #%d" % (self.to_user_id, self.from_user_id)
 
+    def save(self, *args, **kwargs):
+        # Ensure users can't be friends with themselves
+        if self.to_user == self.from_user:
+            raise ValidationError("Users cannot be friends with themselves.")
+        super(Friend, self).save(*args, **kwargs)
+
 
 class FollowingManager(models.Manager):
     """ Following manager """
