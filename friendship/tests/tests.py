@@ -134,6 +134,10 @@ class FriendshipModelTests(BaseTestCase):
         with self.assertRaises(ValidationError):
             Friend.objects.add_friend(self.user_bob, self.user_bob)
 
+        # Ensure we can't do it manually either
+        with self.assertRaises(ValidationError):
+            Friend.objects.create(to_user=self.user_bob, from_user=self.user_bob)
+
     def test_following(self):
         # Bob follows Steve
         req1 = Follow.objects.add_follower(self.user_bob, self.user_steve)
