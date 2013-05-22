@@ -15,7 +15,7 @@ setup(
     long_description=readme,
     author='Frank Wiles',
     author_email='frank@revsys.com',
-    url='http://github.com/',
+    url='https://github.com/revsys/django-friendship/',
     include_package_data=True,
     packages=find_packages(),
     zip_safe=False,
