@@ -7,10 +7,10 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from friendship.signals import friendship_request_created, \
-        friendship_request_rejected, friendship_request_canceled, \
-        friendship_request_viewed, friendship_request_accepted, \
-        friendship_removed, follower_created, following_created, follower_removed,\
-        following_removed
+    friendship_request_rejected, friendship_request_canceled, \
+    friendship_request_viewed, friendship_request_accepted, \
+    friendship_removed, follower_created, following_created, follower_removed,\
+    following_removed
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
@@ -35,7 +35,7 @@ BUST_CACHES = {
         'unread_request_count',
         'read_requests',
         'rejected_requests',
-        ],
+    ],
 }
 
 
@@ -77,18 +77,20 @@ class FriendshipRequest(models.Model):
     def accept(self):
         """ Accept this friendship request """
         relation1 = Friend.objects.create(
-                        from_user=self.from_user,
-                        to_user=self.to_user
-                    )
+            from_user=self.from_user,
+            to_user=self.to_user
+        )
+
         relation2 = Friend.objects.create(
-                        from_user=self.to_user,
-                        to_user=self.from_user
-                    )
+            from_user=self.to_user,
+            to_user=self.from_user
+        )
+
         friendship_request_accepted.send(
-                sender=self,
-                from_user=self.from_user,
-                to_user=self.to_user
-            )
+            sender=self,
+            from_user=self.from_user,
+            to_user=self.to_user
+        )
 
         self.delete()
         bust_cache('requests', self.to_user.pk)
@@ -140,7 +142,7 @@ class FriendshipManager(models.Manager):
 
         if requests is None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                    to_user=user).all()
+                to_user=user).all()
             requests = list(qs)
             cache.set(key, requests)
 
@@ -153,8 +155,8 @@ class FriendshipManager(models.Manager):
 
         if unread_requests is None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                    to_user=user,
-                    viewed__isnull=True).all()
+                to_user=user,
+                viewed__isnull=True).all()
             unread_requests = list(qs)
             cache.set(key, unread_requests)
 
@@ -167,8 +169,8 @@ class FriendshipManager(models.Manager):
 
         if count is None:
             count = FriendshipRequest.objects.select_related(depth=1).filter(
-                    to_user=user,
-                    viewed__isnull=True).count()
+                to_user=user,
+                viewed__isnull=True).count()
             cache.set(key, count)
 
         return count
@@ -180,8 +182,8 @@ class FriendshipManager(models.Manager):
 
         if read_requests is None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                    to_user=user,
-                    viewed__isnull=False).all()
+                to_user=user,
+                viewed__isnull=False).all()
             read_requests = list(qs)
             cache.set(key, read_requests)
 
@@ -194,8 +196,8 @@ class FriendshipManager(models.Manager):
 
         if rejected_requests is None:
             qs = FriendshipRequest.objects.select_related(depth=1).filter(
-                    to_user=user,
-                    rejected__isnull=False).all()
+                to_user=user,
+                rejected__isnull=False).all()
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
 
@@ -204,9 +206,10 @@ class FriendshipManager(models.Manager):
     def add_friend(self, from_user, to_user):
         """ Create a friendship request """
         request = FriendshipRequest.objects.create(
-                    from_user=from_user,
-                    to_user=to_user
-                )
+            from_user=from_user,
+            to_user=to_user
+        )
+
         bust_cache('requests', to_user.pk)
         friendship_request_created.send(sender=request)
 
@@ -216,15 +219,16 @@ class FriendshipManager(models.Manager):
         """ Destroy a friendship relationship """
         try:
             qs = Friend.objects.filter(
-                        Q(to_user=to_user, from_user=from_user) |
-                        Q(to_user=from_user, from_user=to_user)
-                    ).distinct().all()
+                Q(to_user=to_user, from_user=from_user) |
+                Q(to_user=from_user, from_user=to_user)
+            ).distinct().all()
+
             if qs:
                 friendship_removed.send(
-                        sender=qs[0],
-                        from_user=from_user,
-                        to_user=to_user
-                    )
+                    sender=qs[0],
+                    from_user=from_user,
+                    to_user=to_user
+                )
                 qs.delete()
                 bust_cache('friends', to_user.pk)
                 bust_cache('friends', from_user.pk)
