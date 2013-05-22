@@ -78,6 +78,8 @@ class FriendshipModelTests(BaseTestCase):
         # Ensure the proper sides have requests or not
         self.assertEqual(len(Friend.objects.requests(self.user_bob)), 0)
         self.assertEqual(len(Friend.objects.requests(self.user_steve)), 1)
+        self.assertEqual(len(Friend.objects.sent_requests(self.user_bob)), 1)
+        self.assertEqual(len(Friend.objects.sent_requests(self.user_steve)), 0)
         self.assertEqual(len(Friend.objects.unread_requests(self.user_steve)), 1)
         self.assertEqual(len(Friend.objects.rejected_requests(self.user_steve)), 0)
 
