@@ -21,6 +21,9 @@ To use ``django-friendship`` in your views::
         # List all rejected friendship requests
         rejects = Friend.objects.rejected_requests(user=request.user)
 
+        # List all sent friendship requests
+        sent = Friend.objects.sent_requests(user=request.user)
+
         # List of this user's followers
         all_followers = Following.objects.followers(request.user)
 
