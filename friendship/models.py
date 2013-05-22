@@ -310,6 +310,9 @@ class FollowingManager(models.Manager):
 
     def add_follower(self, follower, followee):
         """ Create 'follower' follows 'followee' relationship """
+        if follower == followee:
+            raise ValidationError("Users cannot follow themselves")
+
         relation = Follow.objects.create(follower=follower, followee=followee)
 
         follower_created.send(sender=self, follower=follower)
@@ -365,3 +368,9 @@ class Follow(models.Model):
 
     def __unicode__(self):
         return "User #%d follows #%d" % (self.follower_id, self.followee_id)
+
+    def save(self, *args, **kwargs):
+        # Ensure users can't be friends with themselves
+        if self.follower == self.followee:
+            raise ValidationError("Users cannot follow themselves.")
+        super(Follow, self).save(*args, **kwargs)

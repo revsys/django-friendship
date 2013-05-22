@@ -155,6 +155,13 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Follow.objects.following(self.user_bob)), 0)
         self.assertFalse(Follow.objects.follows(self.user_bob, self.user_steve))
 
+        # Ensure we canot follow ourselves
+        with self.assertRaises(ValidationError):
+            Follow.objects.add_follower(self.user_bob, self.user_bob)
+
+        with self.assertRaises(ValidationError):
+            Follow.objects.create(follower=self.user_bob, followee=self.user_bob)
+
 
 class FriendshipViewTests(BaseTestCase):
 
