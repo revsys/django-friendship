@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models import Q
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -205,6 +206,9 @@ class FriendshipManager(models.Manager):
 
     def add_friend(self, from_user, to_user):
         """ Create a friendship request """
+        if from_user == to_user:
+            raise ValidationError("Users cannot be friends with themselves")
+
         request = FriendshipRequest.objects.create(
             from_user=from_user,
             to_user=to_user

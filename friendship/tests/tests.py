@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -11,8 +12,8 @@ class login(object):
         self.testcase = testcase
         success = testcase.client.login(username=user, password=password)
         self.testcase.assertTrue(
-             success,
-             "login with username=%r, password=%r failed" % (user, password)
+            success,
+            "login with username=%r, password=%r failed" % (user, password)
         )
 
     def __enter__(self):
@@ -128,6 +129,10 @@ class FriendshipModelTests(BaseTestCase):
 
         self.assertFalse(Friend.objects.are_friends(self.user_susan, self.user_amy))
         self.assertEqual(len(Friend.objects.read_requests(self.user_amy)), 1)
+
+        # Ensure we can't be friends with ourselves
+        with self.assertRaises(ValidationError):
+            Friend.objects.add_friend(self.user_bob, self.user_bob)
 
     def test_following(self):
         # Bob follows Steve
