@@ -1,5 +1,9 @@
-django-friendship was originally created by Frank Wiles (frank@revsys.com) 
-with contributions from: 
+django-friendship was originally created by Frank Wiles (frank@revsys.com)
+with contributions from:
 
     Jeff Triplett <jeff.triplett@gmail.com>
     Jacob Burch <jacobburch@gmail.com>
+    Florian Demmer <fdemmer@gmail.com>
+    Flavio Curella <flavio@revsys.com>
+    Sergey Komar <komarserjio@gmail.com>
+    Alessandro Pagnin
