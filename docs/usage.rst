@@ -52,7 +52,7 @@ To use ``django-friendship`` in your views::
 
 To use ``django-friendship`` in your templates::
 
-   {% load friendship %}
+   {% load friendshiptags %}
 
    {% friends request.user %}
    {% followers request.user %}
