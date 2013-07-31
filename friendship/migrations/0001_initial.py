@@ -2,7 +2,17 @@
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
+
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
+
+user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
+user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
+
 
 class Migration(SchemaMigration):
 
@@ -11,8 +21,8 @@ class Migration(SchemaMigration):
         # Adding model 'FriendshipRequest'
         db.create_table('friendship_friendshiprequest', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('from_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friendship_requests_sent', to=orm['auth.User'])),
-            ('to_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friendship_requests_received', to=orm['auth.User'])),
+            ('from_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friendship_requests_sent', to=orm[user_orm_label])),
+            ('to_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friendship_requests_received', to=orm[user_orm_label])),
             ('message', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('rejected', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
@@ -26,8 +36,8 @@ class Migration(SchemaMigration):
         # Adding model 'Friend'
         db.create_table('friendship_friend', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('to_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friends', to=orm['auth.User'])),
-            ('from_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='_unused_friend_relation', to=orm['auth.User'])),
+            ('to_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friends', to=orm[user_orm_label])),
+            ('from_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='_unused_friend_relation', to=orm[user_orm_label])),
             ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
         ))
         db.send_create_signal('friendship', ['Friend'])
@@ -38,15 +48,14 @@ class Migration(SchemaMigration):
         # Adding model 'Follow'
         db.create_table('friendship_follow', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('follower', self.gf('django.db.models.fields.related.ForeignKey')(related_name='following', to=orm['auth.User'])),
-            ('followee', self.gf('django.db.models.fields.related.ForeignKey')(related_name='followers', to=orm['auth.User'])),
+            ('follower', self.gf('django.db.models.fields.related.ForeignKey')(related_name='following', to=orm[user_orm_label])),
+            ('followee', self.gf('django.db.models.fields.related.ForeignKey')(related_name='followers', to=orm[user_orm_label])),
             ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
         ))
         db.send_create_signal('friendship', ['Follow'])
 
         # Adding unique constraint on 'Follow', fields ['follower', 'followee']
         db.create_unique('friendship_follow', ['follower_id', 'followee_id'])
-
 
     def backwards(self, orm):
         
@@ -68,7 +77,6 @@ class Migration(SchemaMigration):
         # Deleting model 'Follow'
         db.delete_table('friendship_follow')
 
-
     models = {
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -83,8 +91,8 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
+        user_model_label: {
+            'Meta': {'object_name': User.__name__, 'db_table': "'%s'" % User._meta.db_table},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
@@ -109,25 +117,25 @@ class Migration(SchemaMigration):
         'friendship.follow': {
             'Meta': {'unique_together': "(('follower', 'followee'),)", 'object_name': 'Follow'},
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'followee': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'followers'", 'to': "orm['auth.User']"}),
-            'follower': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'following'", 'to': "orm['auth.User']"}),
+            'followee': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'followers'", 'to': "orm['%s']" % user_orm_label}),
+            'follower': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'following'", 'to': "orm['%s']" % user_orm_label}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'friendship.friend': {
             'Meta': {'unique_together': "(('from_user', 'to_user'),)", 'object_name': 'Friend'},
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'from_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'_unused_friend_relation'", 'to': "orm['auth.User']"}),
+            'from_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'_unused_friend_relation'", 'to': "orm['%s']" % user_orm_label}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'to_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friends'", 'to': "orm['auth.User']"})
+            'to_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friends'", 'to': "orm['%s']" % user_orm_label})
         },
         'friendship.friendshiprequest': {
             'Meta': {'unique_together': "(('from_user', 'to_user'),)", 'object_name': 'FriendshipRequest'},
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'from_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friendship_requests_sent'", 'to': "orm['auth.User']"}),
+            'from_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friendship_requests_sent'", 'to': "orm['%s']" % user_orm_label}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'rejected': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'to_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friendship_requests_received'", 'to': "orm['auth.User']"}),
+            'to_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friendship_requests_received'", 'to': "orm['%s']" % user_orm_label}),
             'viewed': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         }
     }
