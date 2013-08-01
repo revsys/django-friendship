@@ -12,10 +12,10 @@ from friendship.models import Friend, Follow, FriendshipRequest
 
 def view_friends(request, username, template_name='friendship/friend/user_list.html'):
     """ View the friends of a user """
-    user = get_object_or_404(user_model, username=username)
-    friends = Friend.objects.friends(user)
+    get_user = get_object_or_404(user_model, username=username)
+    friends = Friend.objects.friends(get_user)
 
-    return render(request, template_name, {'user': user, 'friends': friends})
+    return render(request, template_name, {'get_user': get_user, 'friends': friends})
 
 
 @login_required
@@ -91,18 +91,18 @@ def friendship_requests_detail(request, friendship_request_id, template_name='fr
 
 def followers(request, username, template_name='friendship/follow/followers_list.html'):
     """ List this user's followers """
-    user = get_object_or_404(user_model, username=username)
-    followers = Follow.objects.followers(user)
+    get_user = get_object_or_404(user_model, username=username)
+    followers = Follow.objects.followers(get_user)
 
-    return render(request, template_name, {'user': user, 'followers': followers})
+    return render(request, template_name, {'get_user': get_user, 'followers': followers})
 
 
 def following(request, username, template_name='friendship/follow/following_list.html'):
     """ List who this user follows """
-    user = get_object_or_404(user_model, username=username)
-    following = Follow.objects.following(user)
+    get_user = get_object_or_404(user_model, username=username)
+    following = Follow.objects.following(get_user)
 
-    return render(request, template_name, {'user': user, 'following': following})
+    return render(request, template_name, {'get_user': get_user, 'following': following})
 
 
 @login_required
