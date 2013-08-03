@@ -43,3 +43,11 @@ def friend_request_count(user):
     Inclusion tag to display the count of unread friend requests
     """
     return {'friend_request_count': Friend.objects.unread_request_count(user)}
+
+
+@register.inclusion_tag('friendship/templatetags/friend_count.html')
+def friend_count(user):
+    """
+    Inclusion tag to display the total count of friends for the given user
+    """
+    return {'friend_count': Friend.objects.filter(to_user=user).count()}
