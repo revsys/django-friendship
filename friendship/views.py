@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 try:
     from django.contrib.auth import get_user_model
     user_model = get_user_model()
@@ -9,13 +10,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from friendship.models import Friend, Follow, FriendshipRequest
 
+get_friendship_context_object_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_NAME', 'user')
+get_friendship_context_object_list_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME', 'users')
+
 
 def view_friends(request, username, template_name='friendship/friend/user_list.html'):
     """ View the friends of a user """
     user = get_object_or_404(user_model, username=username)
     friends = Friend.objects.friends(user)
+    return render(request, template_name, {get_friendship_context_object_name(): user, 'friends': friends})
 
-    return render(request, template_name, {'user': user, 'friends': friends})
 
 
 @login_required
@@ -94,7 +98,7 @@ def followers(request, username, template_name='friendship/follow/followers_list
     user = get_object_or_404(user_model, username=username)
     followers = Follow.objects.followers(user)
 
-    return render(request, template_name, {'user': user, 'followers': followers})
+    return render(request, template_name, {get_friendship_context_object_name(): user, 'followers': followers})
 
 
 def following(request, username, template_name='friendship/follow/following_list.html'):
@@ -102,7 +106,7 @@ def following(request, username, template_name='friendship/follow/following_list
     user = get_object_or_404(user_model, username=username)
     following = Follow.objects.following(user)
 
-    return render(request, template_name, {'user': user, 'following': following})
+    return render(request, template_name, {get_friendship_context_object_name(): user, 'following': following})
 
 
 @login_required
@@ -132,4 +136,4 @@ def follower_remove(request, followee_username, template_name='friendship/follow
 def all_users(request, template_name="friendship/user_actions.html"):
     users = user_model.objects.all()
 
-    return render(request, template_name, {'users': users})
+    return render(request, template_name, {get_friendship_context_object_list_name(): users})

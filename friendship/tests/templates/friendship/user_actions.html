@@ -1,0 +1,10 @@
+{% load url from future %}
+<ul>
+{% for list_user in object_list %}
+    <li>
+        {% if user %}
+            {{ list_user.username }} | <a href="{% url 'friendship_add_friend' list_user.username %}">add as friend</a> | <a href="{% url 'follower_add' list_user.username %}">follow user</a>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>

@@ -64,4 +64,5 @@ To use ``django-friendship`` in your templates::
 Settings
 ========
 settings.DEFAULT_CACHE_VALUE == 86400 seconds (24 hours)
-
+settings.FRIENDSHIP_CONTEXT_OBJECT_NAME == 'user'
+settings.FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME = 'users'
