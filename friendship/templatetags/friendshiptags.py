@@ -50,7 +50,7 @@ def friend_count(user):
     """
     Inclusion tag to display the total count of friends for the given user
     """
-    return {'friend_count': Friend.objects.filter(to_user=user).count()}
+    return {'friend_count': len(Friend.objects.friends(user))}
 
 
 @register.inclusion_tag('friendship/templatetags/friend_rejected_count.html')
@@ -58,4 +58,4 @@ def friend_rejected_count(user):
     """
     Inclusion tag to display the count of rejected friend requests
     """
-    return {'friend_rejected_count': FriendshipRequest.objects.filter(to_user=user, rejected__isnull=False).count()}
+    return {'friend_rejected_count': len(Friend.objects.rejected_requests(user))}
