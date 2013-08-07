@@ -1,0 +1,5 @@
+<form method="post">
+{% csrf_token %}
+<input type="hidden" name="followee_username" value="{{ followee_username }}" />
+<input type="submit" value="remove {{ followee_username }} as a friend" />
+</form>
