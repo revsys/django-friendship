@@ -1,0 +1,7 @@
+{% if not to_username == request.user.username %}
+<form method="post">
+{% csrf_token %}
+<input type="hidden" name="to_username" value="{{ to_username }}" />
+<input type="submit" value="add {{ to_username }} as a friend" />
+</form>
+{% endif %}
