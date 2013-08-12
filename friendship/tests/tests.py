@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -119,8 +120,8 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(Friend.objects.friends(self.user_amy), [])
         req3.reject()
 
-        # Duplicated requests raise a more specific subclass of ValidationError.
-        with self.assertRaises(ValidationError):
+        # Duplicated requests raise a more specific subclass of IntegrityError.
+        with self.assertRaises(IntegrityError):
             Friend.objects.add_friend(self.user_susan, self.user_amy)
         with self.assertRaises(AlreadyExistsError):
             Friend.objects.add_friend(self.user_susan, self.user_amy)
@@ -158,8 +159,8 @@ class FriendshipModelTests(BaseTestCase):
         self.assertTrue(Follow.objects.follows(self.user_bob, self.user_steve))
         self.assertFalse(Follow.objects.follows(self.user_steve, self.user_bob))
 
-        # Duplicated requests raise a more specific subclass of ValidationError.
-        with self.assertRaises(ValidationError):
+        # Duplicated requests raise a more specific subclass of IntegrityError.
+        with self.assertRaises(IntegrityError):
             Follow.objects.add_follower(self.user_bob, self.user_steve)
         with self.assertRaises(AlreadyExistsError):
             Follow.objects.add_follower(self.user_bob, self.user_steve)
@@ -236,6 +237,7 @@ class FriendshipViewTests(BaseTestCase):
             response = self.client.post(url)
             self.assertResponse200(response)
             self.assertTrue('errors' in response.context)
+            self.assertEqual(response.context['errors'], ['Friendship already requested'])
 
     def test_friendship_requests(self):
         url = reverse('friendship_request_list')
@@ -367,6 +369,11 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse302(response)
             redirect_url = reverse('friendship_following', kwargs={'username': self.user_bob.username})
             self.assertTrue(redirect_url in response['Location'])
+
+            response = self.client.post(url)
+            self.assertResponse200(response)
+            self.assertTrue('errors' in response.context)
+            self.assertEqual(response.context['errors'], ["User 'bob' already follows 'amy'"])
 
     def test_follower_remove(self):
         # create a follow relationship so we can test removing a follower

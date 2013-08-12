@@ -47,9 +47,9 @@ To use ``django-friendship`` in your views::
 
         # Attempting to create an already existing friendship will raise 
         # `friendship.exceptions.AlreadyExistsError`, a subclass of
-        # `django.forms.ValidationError`.
+        # `django.db.IntegrityError`.
         dupe_relationship = Friend.objects.add_friend(request.user, other_user)
-        AlreadyExistsError: [u'Friendship already requested']
+        AlreadyExistsError: u'Friendship already requested'
         
         # Create request.user follows other_user relationship
         following_created = Following.objects.add_follower(request.user, other_user)
@@ -57,7 +57,7 @@ To use ``django-friendship`` in your views::
         # Attempting to add an already existing follower will also raise
         # `friendship.exceptions.AlreadyExistsError`,
         dupe_following = Following.objects.add_follower(request.user, other_user)
-        AlreadyExistsError: [u'"User 'alice' already follows 'bob'" % (follower, followee)']
+        AlreadyExistsError: u"User 'alice' already follows 'bob'"
 
         was_following = Following.objects.remove_follower(request.user, other_user)
 

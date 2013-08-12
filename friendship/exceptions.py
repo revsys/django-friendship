@@ -1,5 +1,5 @@
-from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 
-class AlreadyExistsError(ValidationError):
+class AlreadyExistsError(IntegrityError):
     pass
