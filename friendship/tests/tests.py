@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from friendship.exceptions import AlreadyExistsError
 from friendship.models import Friend, Follow, FriendshipRequest
 
 
@@ -118,6 +119,12 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(Friend.objects.friends(self.user_amy), [])
         req3.reject()
 
+        # Duplicated requests raise a more specific subclass of ValidationError.
+        with self.assertRaises(ValidationError):
+            Friend.objects.add_friend(self.user_susan, self.user_amy)
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_susan, self.user_amy)
+
         self.assertFalse(Friend.objects.are_friends(self.user_susan, self.user_amy))
         self.assertEqual(len(Friend.objects.rejected_requests(self.user_amy)), 1)
         self.assertEqual(len(Friend.objects.rejected_requests(self.user_amy)), 1)
@@ -150,6 +157,12 @@ class FriendshipModelTests(BaseTestCase):
 
         self.assertTrue(Follow.objects.follows(self.user_bob, self.user_steve))
         self.assertFalse(Follow.objects.follows(self.user_steve, self.user_bob))
+
+        # Duplicated requests raise a more specific subclass of ValidationError.
+        with self.assertRaises(ValidationError):
+            Follow.objects.add_follower(self.user_bob, self.user_steve)
+        with self.assertRaises(AlreadyExistsError):
+            Follow.objects.add_follower(self.user_bob, self.user_steve)
 
         # Remove the relationship
         self.assertTrue(Follow.objects.remove_follower(self.user_bob, self.user_steve))
@@ -204,6 +217,25 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse302(response)
             redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
+
+    def test_friendship_add_friend_dupe(self):
+        url = reverse('friendship_add_friend', kwargs={'to_username': self.user_amy.username})
+
+        with self.login(self.user_bob.username, self.user_pw):
+            # if we don't POST the view should return the
+            # friendship_add_friend view
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_request_list view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_request_list')
+            self.assertTrue(redirect_url in response['Location'])
+
+
+            response = self.client.post(url)
+            self.assertResponse200(response)
+            self.assertTrue('errors' in response.context)
 
     def test_friendship_requests(self):
         url = reverse('friendship_request_list')
