@@ -1,16 +1,11 @@
 language: python
-python:
-  - "2.6"
-  - "2.7"
-before_install:
-  - export PIP_USE_MIRRORS=true
 install:
-  - pip install -e .
-  - pip install -r requirements-travisci.txt Django==$DJANGO
-script:
-  - python friendship/tests/runtests.py
-env:
-  - DJANGO=1.3.7
-  - DJANGO=1.4.5
-  - DJANGO=1.5
-  - DJANGO=1.5.4
+  - pip install tox
+  - pip install -r requirements.txt --use-mirrors
+before_script:
+- "pip install ."
+python:
+  - "2.7"
+virtualenv:
+  system_site_packages: true
+script: tox

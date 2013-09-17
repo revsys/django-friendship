@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -6,6 +7,8 @@ from django.test import TestCase
 
 from friendship.models import Friend, Follow, FriendshipRequest
 
+
+TEST_TEMPLATES = os.path.join(os.path.dirname(__file__), 'templates')
 
 class login(object):
     def __init__(self, testcase, user, password):
@@ -178,12 +181,23 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME='object_list', TEMPLATE_DIRS=(TEST_TEMPLATES,)):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+            self.assertTrue('object_list' in response.context)
+
     def test_friendship_view_friends(self):
         url = reverse('friendship_view_friends', kwargs={'username': self.user_bob.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
         self.assertResponse200(response)
+        self.assertTrue('user' in response.context)
+
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME='object', TEMPLATE_DIRS=(TEST_TEMPLATES,)):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+            self.assertTrue('object' in response.context)
 
     def test_friendship_add_friend(self):
         url = reverse('friendship_add_friend', kwargs={'to_username': self.user_amy.username})
@@ -311,12 +325,22 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME='object', TEMPLATE_DIRS=(TEST_TEMPLATES,)):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+            self.assertTrue('object' in response.context)
+
     def test_friendship_following(self):
         url = reverse('friendship_following', kwargs={'username': 'bob'})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
         self.assertResponse200(response)
+
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME='object', TEMPLATE_DIRS=(TEST_TEMPLATES,)):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+            self.assertTrue('object' in response.context)
 
     def test_follower_add(self):
         url = reverse('follower_add', kwargs={'followee_username': self.user_amy.username})
