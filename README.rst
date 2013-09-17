@@ -1,6 +1,10 @@
 django-friendship
 =================
 
+.. image:: https://secure.travis-ci.org/revsys/django-friendship.png
+    :alt: Build Status
+    :target: http://travis-ci.org/revsys/django-friendship
+
 Usage
 =====
 
