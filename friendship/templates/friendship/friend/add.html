@@ -1,4 +1,5 @@
 {% if not to_username == request.user.username %}
+{% if errors %}<p>{{ errors|join:", " }}</p>{% endif %}
 <form method="post">
 {% csrf_token %}
 <input type="hidden" name="to_username" value="{{ to_username }}" />

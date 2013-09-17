@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from friendship.exceptions import AlreadyExistsError
 from friendship.signals import friendship_request_created, \
     friendship_request_rejected, friendship_request_canceled, \
     friendship_request_viewed, friendship_request_accepted, \
@@ -223,10 +224,13 @@ class FriendshipManager(models.Manager):
         if from_user == to_user:
             raise ValidationError("Users cannot be friends with themselves")
 
-        request = FriendshipRequest.objects.create(
+        request, created = FriendshipRequest.objects.get_or_create(
             from_user=from_user,
             to_user=to_user
         )
+
+        if created is False:
+            raise AlreadyExistsError("Friendship already requested")
 
         bust_cache('requests', to_user.pk)
         friendship_request_created.send(sender=request)
@@ -327,7 +331,10 @@ class FollowingManager(models.Manager):
         if follower == followee:
             raise ValidationError("Users cannot follow themselves")
 
-        relation = Follow.objects.create(follower=follower, followee=followee)
+        relation, created = Follow.objects.get_or_create(follower=follower, followee=followee)
+
+        if created is False:
+            raise AlreadyExistsError("User '%s' already follows '%s'" % (follower, followee))
 
         follower_created.send(sender=self, follower=follower)
         following_created.send(sender=self, follow=followee)
