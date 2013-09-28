@@ -4,3 +4,4 @@ build
 *.sw[po]
 dist
 *egg-info
+.tox
