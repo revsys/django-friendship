@@ -1,0 +1,18 @@
+
+
+Version 1.0.0
+-------------
+
+    - Fixed bug where FriendRequests could be left hanging if both sides requested friendship prior to
+      one side accepting.  Caused exception if the user accepted the second request.
+
+    - Fixed ordering of friendship_request_rejected signal to not fire until DB is updated.
+
+    - Fixed Django 1.6 compatability issue
+
+    - 1.0 release whoo hoo!
+
+Changes prior to version 0.9.0
+------------------------------
+
+Lots.  We didn't keep good track of issues prior to 1.0.0.
