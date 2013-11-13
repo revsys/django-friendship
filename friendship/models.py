@@ -112,8 +112,8 @@ class FriendshipRequest(models.Model):
     def reject(self):
         """ reject this friendship request """
         self.rejected = timezone.now()
-        friendship_request_rejected.send(sender=self)
         self.save()
+        friendship_request_rejected.send(sender=self)
         bust_cache('requests', self.to_user.pk)
 
     def cancel(self):
