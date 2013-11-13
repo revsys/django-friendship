@@ -9,3 +9,4 @@ with contributions from:
     Daniel Greenfeld <pydanny@gmail.com>
     Sergey Komar <komarserjio@gmail.com>
     Alessandro Pagnin
+    Diego Ponciano <diego+github@diegoponciano.com>
