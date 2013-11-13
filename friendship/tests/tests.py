@@ -12,6 +12,7 @@ from friendship.models import Friend, Follow, FriendshipRequest
 
 TEST_TEMPLATES = os.path.join(os.path.dirname(__file__), 'templates')
 
+
 class login(object):
     def __init__(self, testcase, user, password):
         self.testcase = testcase
@@ -151,6 +152,35 @@ class FriendshipModelTests(BaseTestCase):
         with self.assertRaises(ValidationError):
             Friend.objects.create(to_user=self.user_bob, from_user=self.user_bob)
 
+    def test_multiple_friendship_requests(self):
+        """ Ensure multiple friendship requests are handled properly """
+        ### Bob wants to be friends with Steve
+        req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+        # Ensure neither have friends already
+        self.assertEqual(Friend.objects.friends(self.user_bob), [])
+        self.assertEqual(Friend.objects.friends(self.user_steve), [])
+
+        # Ensure FriendshipRequest is created
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 1)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 1)
+        self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1)
+
+        # Steve also wants to be friends with Bob before Bob replies
+        req2 = Friend.objects.add_friend(self.user_steve, self.user_bob)
+
+        # Ensure they aren't friends at this point
+        self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_steve))
+
+        # Accept the request
+        req1.accept()
+
+        # Ensure neither have pending requests
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_steve).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_bob).count(), 0)
+
     def test_following(self):
         # Bob follows Steve
         req1 = Follow.objects.add_follower(self.user_bob, self.user_steve)
@@ -246,7 +276,6 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse302(response)
             redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
-
 
             response = self.client.post(url)
             self.assertResponse200(response)

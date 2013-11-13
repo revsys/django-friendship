@@ -96,9 +96,17 @@ class FriendshipRequest(models.Model):
         )
 
         self.delete()
+
+        # Delete any reverse requests
+        FriendshipRequest.objects.filter(
+            from_user=self.to_user,
+            to_user=self.from_user
+        ).delete()
+
         bust_cache('requests', self.to_user.pk)
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
+
         return True
 
     def reject(self):
