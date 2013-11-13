@@ -6,8 +6,10 @@ try:
 except ImportError:
     from django.contrib.auth.models import User
     user_model = User
+
 from django.shortcuts import render, get_object_or_404, redirect
 
+from friendship.exceptions import AlreadyExistsError
 from friendship.models import Friend, Follow, FriendshipRequest
 
 get_friendship_context_object_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_NAME', 'user')
@@ -25,13 +27,19 @@ def view_friends(request, username, template_name='friendship/friend/user_list.h
 @login_required
 def friendship_add_friend(request, to_username, template_name='friendship/friend/add.html'):
     """ Create a FriendshipRequest """
+    ctx = {'to_username': to_username}
+
     if request.method == 'POST':
         to_user = user_model.objects.get(username=to_username)
         from_user = request.user
-        Friend.objects.add_friend(from_user, to_user)
-        return redirect('friendship_request_list')
+        try:
+            Friend.objects.add_friend(from_user, to_user)
+        except AlreadyExistsError as e:
+            ctx['errors'] = ["%s" % e]
+        else:
+            return redirect('friendship_request_list')
 
-    return render(request, template_name, {'to_username': to_username})
+    return render(request, template_name, ctx)
 
 
 @login_required
@@ -112,13 +120,19 @@ def following(request, username, template_name='friendship/follow/following_list
 @login_required
 def follower_add(request, followee_username, template_name='friendship/follow/add.html'):
     """ Create a following relationship """
+    ctx = {'followee_username': followee_username}
+
     if request.method == 'POST':
         followee = user_model.objects.get(username=followee_username)
         follower = request.user
-        Follow.objects.add_follower(follower, followee)
-        return redirect('friendship_following', username=follower.username)
+        try:
+            Follow.objects.add_follower(follower, followee)
+        except AlreadyExistsError as e:
+            ctx['errors'] = ["%s" % e]
+        else:
+            return redirect('friendship_following', username=follower.username)
 
-    return render(request, template_name, {'followee_username': followee_username})
+    return render(request, template_name, ctx)
 
 
 @login_required
