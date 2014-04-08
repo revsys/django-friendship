@@ -39,6 +39,7 @@ BUST_CACHES = {
         'read_requests',
         'rejected_requests',
     ],
+    'sent_requests': ['sent_requests'],
 }
 
 
@@ -241,6 +242,7 @@ class FriendshipManager(models.Manager):
             raise AlreadyExistsError("Friendship already requested")
 
         bust_cache('requests', to_user.pk)
+        bust_cache('sent_requests', from_user.pk)
         friendship_request_created.send(sender=request)
 
         return request
