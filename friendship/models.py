@@ -34,12 +34,12 @@ BUST_CACHES = {
     'following': ['following'],
     'requests': [
         'requests',
-        'sent_requests',
         'unread_requests',
         'unread_request_count',
         'read_requests',
         'rejected_requests',
     ],
+    'sent_requests': ['sent_requests'],
 }
 
 
@@ -122,6 +122,7 @@ class FriendshipRequest(models.Model):
         self.delete()
         friendship_request_canceled.send(sender=self)
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', from_user.pk)
         return True
 
     def mark_viewed(self):
@@ -242,6 +243,7 @@ class FriendshipManager(models.Manager):
             raise AlreadyExistsError("Friendship already requested")
 
         bust_cache('requests', to_user.pk)
+        bust_cache('sent_requests', from_user.pk)
         friendship_request_created.send(sender=request)
 
         return request
