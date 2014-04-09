@@ -105,6 +105,8 @@ class FriendshipRequest(models.Model):
         ).delete()
 
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
+        bust_cache('sent_requests', self.to_user.pk)
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
 
@@ -122,6 +124,7 @@ class FriendshipRequest(models.Model):
         self.delete()
         friendship_request_canceled.send(sender=self)
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
         return True
 
     def mark_viewed(self):
