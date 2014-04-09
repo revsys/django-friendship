@@ -104,9 +104,13 @@ class FriendshipRequest(models.Model):
             to_user=self.from_user
         ).delete()
 
+        # Bust requests cache - request is deleted
         bust_cache('requests', self.to_user.pk)
         bust_cache('sent_requests', self.from_user.pk)
+        # Bust reverse requests cache - reverse request might be deleted
+        bust_cache('requests', self.from_user.pk)
         bust_cache('sent_requests', self.to_user.pk)
+        # Bust friends cache - new friends added
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
 
