@@ -34,6 +34,7 @@ BUST_CACHES = {
     'following': ['following'],
     'requests': [
         'requests',
+        'sent_requests',
         'unread_requests',
         'unread_request_count',
         'read_requests',
