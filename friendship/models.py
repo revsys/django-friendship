@@ -107,7 +107,6 @@ class FriendshipRequest(models.Model):
         bust_cache('requests', self.to_user.pk)
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
-        bust_cache('sent_requests', self.from_user.pk)
 
         return True
 
