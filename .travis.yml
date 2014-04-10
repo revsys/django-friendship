@@ -2,14 +2,21 @@ language: python
 python:
   - "2.6"
   - "2.7"
-before_install:
-  - export PIP_USE_MIRRORS=true
+
 install:
   - pip install -e .
-  - pip install -r requirements-travisci.txt Django==$DJANGO
+  - pip install $DJANGO
+  - pip install -r requirements-travisci.txt
 script:
   - python friendship/tests/runtests.py
 env:
-  - DJANGO=1.4.5
-  - DJANGO=1.5
-  - DJANGO=1.5.4
+  - DJANGO="Django==1.4.5"
+  - DJANGO="Django==1.5"
+  - DJANGO="Django==1.5.4"
+  - DJANGO="https://www.djangoproject.com/m/releases/1.7/Django-1.7b1.tar.gz#egg=django"
+
+matrix:
+  exclude:
+    # Python 2.6 support has been dropped in Django 1.7
+    - python: "2.6"
+      env: DJANGO="https://www.djangoproject.com/m/releases/1.7/Django-1.7b1.tar.gz#egg=django"
