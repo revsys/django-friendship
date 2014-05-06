@@ -174,7 +174,7 @@ class FriendshipManager(models.Manager):
 
         if requests is None:
             qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
-                    from_user=user).all()
+                from_user=user).all()
             requests = list(qs)
             cache.set(key, requests)
 
