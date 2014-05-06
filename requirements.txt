@@ -1,4 +1,4 @@
 Django>=1.4
-coverage==3.5
-django-coverage==1.2.2
+coverage==3.7.1
+django-coverage==1.2.4
 wsgiref==0.1.2

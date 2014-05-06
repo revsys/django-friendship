@@ -21,6 +21,9 @@ settings.configure(
 
 def runtests(*test_args):
     import django.test.utils
+    import django
+    if django.VERSION[0:2] >= (1, 7):
+        django.setup()
     runner_class = django.test.utils.get_runner(settings)
     test_runner = runner_class(verbosity=1, interactive=True)
     failures = test_runner.run_tests(['friendship'])
