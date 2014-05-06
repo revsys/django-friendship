@@ -1,4 +1,15 @@
 
+Version 1.1.0
+-------------
+
+Released May 6th, 2014
+
+    - Added Django 1.7 compatability.
+
+    - Fixed caching issue with sent_requests.
+
+    - Added unrejected_requests() and unrejected_request_count() manager methods.
+
 
 Version 1.0.0
 -------------
