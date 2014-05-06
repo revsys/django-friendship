@@ -25,6 +25,15 @@ To use ``django-friendship`` in your views::
         # List all rejected friendship requests
         rejects = Friend.objects.rejected_requests(user=request.user)
 
+        # Count of all rejected friendship requests
+        reject_count = Friend.objects.rejected_request_count(user=request.user)
+
+        # List all unrejected friendship requests
+        unrejects = Friend.objects.unrejected_requests(user=request.user)
+
+        # Count of all unrejected friendship requests
+        unreject_count = Friend.objects.unrejected_request_count(user=request.user)
+
         # List all sent friendship requests
         sent = Friend.objects.sent_requests(user=request.user)
 
@@ -35,9 +44,18 @@ To use ``django-friendship`` in your views::
         following = Following.objects.following(request.user)
 
         ### Managing friendship relationships
+
+        # Create a friendship request
         other_user = User.objects.get(pk=1)
         new_relationship = Friend.objects.add_friend(request.user, other_user)
+
+        # And immediately accept it, normally you would give this option to the user
+        new_relationship.accept()
+
+        # Now the users are friends
         Friend.objects.are_friends(request.user, other_user) == True
+
+        # Remove the friendship
         Friend.objects.remove_friend(other_user, request.user)
 
         # Create request.user follows other_user relationship
@@ -70,4 +88,6 @@ Signals
 Compatibility
 =============
 
-This package requires Django 1.4 since v0.9.0. The last release supporting Django 1.3 is v0.8.3.
+This package requires Django 1.4 and above since v0.9.0. It is currently tested by Travis-CI against 1.4.12, 1.5.7, 1.6.4, and 1.7b1.
+
+The last release supporting Django 1.3 is v0.8.3.
