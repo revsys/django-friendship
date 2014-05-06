@@ -10,3 +10,5 @@ with contributions from:
     Sergey Komar <komarserjio@gmail.com>
     Alessandro Pagnin
     Diego Ponciano <diego+github@diegoponciano.com>
+    Dmitry A. Shashkin <shashkin@crystalnix.com>
+    Egor Yurtaev
