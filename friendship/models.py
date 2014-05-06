@@ -39,6 +39,7 @@ BUST_CACHES = {
         'read_requests',
         'rejected_requests',
     ],
+    'sent_requests': ['sent_requests'],
 }
 
 
@@ -103,7 +104,13 @@ class FriendshipRequest(models.Model):
             to_user=self.from_user
         ).delete()
 
+        # Bust requests cache - request is deleted
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
+        # Bust reverse requests cache - reverse request might be deleted
+        bust_cache('requests', self.from_user.pk)
+        bust_cache('sent_requests', self.to_user.pk)
+        # Bust friends cache - new friends added
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
 
@@ -121,6 +128,7 @@ class FriendshipRequest(models.Model):
         self.delete()
         friendship_request_canceled.send(sender=self)
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
         return True
 
     def mark_viewed(self):
@@ -241,6 +249,7 @@ class FriendshipManager(models.Manager):
             raise AlreadyExistsError("Friendship already requested")
 
         bust_cache('requests', to_user.pk)
+        bust_cache('sent_requests', from_user.pk)
         friendship_request_created.send(sender=request)
 
         return request
