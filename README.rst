@@ -1,9 +1,9 @@
 django-friendship
 =================
 
-.. image:: https://secure.travis-ci.org/revsys/django-friendship.png
+.. image:: https://secure.travis-ci.org/Afnarel/django-friendship.png
     :alt: Build Status
-    :target: http://travis-ci.org/revsys/django-friendship
+    :target: http://travis-ci.org/Afnarel/django-friendship
 
 Usage
 =====

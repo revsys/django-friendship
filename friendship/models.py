@@ -39,6 +39,7 @@ BUST_CACHES = {
         'read_requests',
         'rejected_requests',
     ],
+    'sent_requests': ['sent_requests'],
 }
 
 
@@ -106,6 +107,7 @@ class FriendshipRequest(models.Model):
         bust_cache('requests', self.to_user.pk)
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
 
         return True
 
@@ -121,6 +123,7 @@ class FriendshipRequest(models.Model):
         self.delete()
         friendship_request_canceled.send(sender=self)
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
         return True
 
     def mark_viewed(self):
@@ -140,7 +143,7 @@ class FriendshipManager(models.Manager):
         friends = cache.get(key)
 
         if friends is None:
-            qs = Friend.objects.select_related(depth=1).filter(to_user=user).all()
+            qs = Friend.objects.select_related('from_user', 'to_user').filter(to_user=user).all()
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
 
@@ -152,7 +155,7 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+            qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
                 to_user=user).all()
             requests = list(qs)
             cache.set(key, requests)
@@ -165,7 +168,7 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+            qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
                     from_user=user).all()
             requests = list(qs)
             cache.set(key, requests)
@@ -178,7 +181,7 @@ class FriendshipManager(models.Manager):
         unread_requests = cache.get(key)
 
         if unread_requests is None:
-            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+            qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
                 to_user=user,
                 viewed__isnull=True).all()
             unread_requests = list(qs)
@@ -192,7 +195,7 @@ class FriendshipManager(models.Manager):
         count = cache.get(key)
 
         if count is None:
-            count = FriendshipRequest.objects.select_related(depth=1).filter(
+            count = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
                 to_user=user,
                 viewed__isnull=True).count()
             cache.set(key, count)
@@ -205,7 +208,7 @@ class FriendshipManager(models.Manager):
         read_requests = cache.get(key)
 
         if read_requests is None:
-            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+            qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
                 to_user=user,
                 viewed__isnull=False).all()
             read_requests = list(qs)
@@ -219,7 +222,7 @@ class FriendshipManager(models.Manager):
         rejected_requests = cache.get(key)
 
         if rejected_requests is None:
-            qs = FriendshipRequest.objects.select_related(depth=1).filter(
+            qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
                 to_user=user,
                 rejected__isnull=False).all()
             rejected_requests = list(qs)
@@ -241,6 +244,7 @@ class FriendshipManager(models.Manager):
             raise AlreadyExistsError("Friendship already requested")
 
         bust_cache('requests', to_user.pk)
+        bust_cache('sent_requests', from_user.pk)
         friendship_request_created.send(sender=request)
 
         return request
