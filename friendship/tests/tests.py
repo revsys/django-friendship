@@ -87,8 +87,14 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Friend.objects.requests(self.user_steve)), 1)
         self.assertEqual(len(Friend.objects.sent_requests(self.user_bob)), 1)
         self.assertEqual(len(Friend.objects.sent_requests(self.user_steve)), 0)
+
         self.assertEqual(len(Friend.objects.unread_requests(self.user_steve)), 1)
+        self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1)
+
         self.assertEqual(len(Friend.objects.rejected_requests(self.user_steve)), 0)
+
+        self.assertEqual(len(Friend.objects.unrejected_requests(self.user_steve)), 1)
+        self.assertEqual(Friend.objects.unrejected_request_count(self.user_steve), 1)
 
         # Ensure they aren't friends at this point
         self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_steve))
