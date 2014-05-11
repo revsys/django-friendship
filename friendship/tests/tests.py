@@ -326,6 +326,13 @@ class FriendshipViewTests(BaseTestCase):
             redirect_url = reverse('friendship_view_friends', kwargs={'username': self.user_bob.username})
             self.assertTrue(redirect_url in response['Location'])
 
+        with self.login(self.user_steve.username, self.user_pw):
+            # on POST try to accept the friendship request
+            # but I am logged in as Steve, so I cannot cancel
+            # a request sent to Bob
+            response = self.client.post(url)
+            self.assertResponse404(response)
+
     def test_friendship_reject(self):
         url = reverse('friendship_reject', kwargs={'friendship_request_id': self.friendship_request.pk})
 
@@ -341,12 +348,19 @@ class FriendshipViewTests(BaseTestCase):
             redirect_url = reverse('friendship_requests_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
             self.assertTrue(redirect_url in response['Location'])
 
-            # on POST accept the friendship request and redirect to the
+            # on POST reject the friendship request and redirect to the
             # friendship_requests view
             response = self.client.post(url)
             self.assertResponse302(response)
             redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
+
+        with self.login(self.user_steve.username, self.user_pw):
+            # on POST try to reject the friendship request
+            # but I am logged in as Steve, so I cannot cancel
+            # a request sent to Bob
+            response = self.client.post(url)
+            self.assertResponse404(response)
 
     def test_friendship_cancel(self):
         url = reverse('friendship_cancel', kwargs={'friendship_request_id': self.friendship_request.pk})
