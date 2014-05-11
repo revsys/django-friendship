@@ -26,6 +26,8 @@ CACHE_TYPES = {
     'unread_request_count': 'fruc-%d',
     'read_requests': 'frr-%d',
     'rejected_requests': 'frj-%d',
+    'unrejected_requests': 'frur-%d',
+    'unrejected_request_count': 'frurc-%d',
 }
 
 BUST_CACHES = {
@@ -38,6 +40,8 @@ BUST_CACHES = {
         'unread_request_count',
         'read_requests',
         'rejected_requests',
+        'unrejected_requests',
+        'unrejected_request_count',
     ],
     'sent_requests': ['sent_requests'],
 }
@@ -104,10 +108,15 @@ class FriendshipRequest(models.Model):
             to_user=self.from_user
         ).delete()
 
+        # Bust requests cache - request is deleted
         bust_cache('requests', self.to_user.pk)
+        bust_cache('sent_requests', self.from_user.pk)
+        # Bust reverse requests cache - reverse request might be deleted
+        bust_cache('requests', self.from_user.pk)
+        bust_cache('sent_requests', self.to_user.pk)
+        # Bust friends cache - new friends added
         bust_cache('friends', self.to_user.pk)
         bust_cache('friends', self.from_user.pk)
-        bust_cache('sent_requests', self.from_user.pk)
 
         return True
 
@@ -169,7 +178,7 @@ class FriendshipManager(models.Manager):
 
         if requests is None:
             qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
-                    from_user=user).all()
+                from_user=user).all()
             requests = list(qs)
             cache.set(key, requests)
 
@@ -229,6 +238,33 @@ class FriendshipManager(models.Manager):
             cache.set(key, rejected_requests)
 
         return rejected_requests
+
+    def unrejected_requests(self, user):
+        """ All requests that haven't been rejected """
+        key = cache_key('unrejected_requests', user.pk)
+        unrejected_requests = cache.get(key)
+
+        if unrejected_requests is None:
+            qs = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
+                to_user=user,
+                rejected__isnull=True).all()
+            unrejected_requests = list(qs)
+            cache.set(key, unrejected_requests)
+
+        return unrejected_requests
+
+    def unrejected_request_count(self, user):
+        """ Return a count of unrejected friendship requests """
+        key = cache_key('unrejected_request_count', user.pk)
+        count = cache.get(key)
+
+        if count is None:
+            count = FriendshipRequest.objects.select_related('from_user', 'to_user').filter(
+                to_user=user,
+                rejected__isnull=True).count()
+            cache.set(key, count)
+
+        return count
 
     def add_friend(self, from_user, to_user):
         """ Create a friendship request """
