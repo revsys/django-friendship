@@ -334,7 +334,7 @@ class FriendshipViewTests(BaseTestCase):
 
         with self.login(self.user_steve.username, self.user_pw):
             # on POST try to accept the friendship request
-            # but I am logged in as Steve, so I cannot cancel
+            # but I am logged in as Steve, so I cannot accept
             # a request sent to Bob
             response = self.client.post(url)
             self.assertResponse404(response)
@@ -363,7 +363,7 @@ class FriendshipViewTests(BaseTestCase):
 
         with self.login(self.user_steve.username, self.user_pw):
             # on POST try to reject the friendship request
-            # but I am logged in as Steve, so I cannot cancel
+            # but I am logged in as Steve, so I cannot reject
             # a request sent to Bob
             response = self.client.post(url)
             self.assertResponse404(response)
