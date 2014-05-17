@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import sys
 
+import django
 from django.conf import settings
+from django.utils import six
 
 settings.configure(
-    DATABASES = {
+    DATABASES={
         'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory;'}
     },
     INSTALLED_APPS=[
@@ -15,13 +17,14 @@ settings.configure(
         'friendship.tests',
     ],
     ROOT_URLCONF='friendship.urls',
-    TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner',
+    TEST_RUNNER=('django_coverage.coverage_runner.CoverageRunner' if six.PY2
+                 else 'django.test.runner.DiscoverRunner' if django.VERSION[0:2] >= (1, 6)
+                 else 'django.test.simple.DjangoTestSuiteRunner'),
 )
 
 
 def runtests(*test_args):
     import django.test.utils
-    import django
     if django.VERSION[0:2] >= (1, 7):
         django.setup()
     runner_class = django.test.utils.get_runner(settings)
