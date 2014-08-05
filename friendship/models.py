@@ -279,6 +279,7 @@ class FriendshipManager(models.Manager):
         if created is False:
             raise AlreadyExistsError("Friendship already requested")
 
+
         bust_cache('requests', to_user.pk)
         bust_cache('sent_requests', from_user.pk)
         friendship_request_created.send(sender=request)
