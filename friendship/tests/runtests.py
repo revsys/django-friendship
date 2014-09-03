@@ -2,6 +2,7 @@
 import sys
 
 from django.conf import settings
+from django.conf import global_settings
 
 settings.configure(
     DATABASES = {
@@ -16,6 +17,9 @@ settings.configure(
     ],
     ROOT_URLCONF='friendship.urls',
     TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner',
+    MIDDLEWARE_CLASSES = global_settings.MIDDLEWARE_CLASSES + (
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',)
 )
 
 
