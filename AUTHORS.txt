@@ -13,3 +13,4 @@ with contributions from:
     Dmitry A. Shashkin <shashkin@crystalnix.com>
     Egor Yurtaev
     Ali Oğuzhan Yıldız <aoguzhanyildiz@gmail.com>
+    Afnarel <afnarel@gmail.com>
