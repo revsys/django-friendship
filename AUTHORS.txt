@@ -11,7 +11,7 @@ with contributions from:
     Alessandro Pagnin
     Diego Ponciano <diego+github@diegoponciano.com>
     Dmitry A. Shashkin <shashkin@crystalnix.com>
-    Egor Yurtaev
+    Egor Yurtaev <yurtaev.egor+github@gmail.com>
     Ali Oğuzhan Yıldız <aoguzhanyildiz@gmail.com>
     Afnarel <afnarel@gmail.com>
     Julian Wachholz <julian@wachholz.ch>
