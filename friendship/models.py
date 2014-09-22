@@ -266,19 +266,22 @@ class FriendshipManager(models.Manager):
 
         return count
 
-    def add_friend(self, from_user, to_user):
+    def add_friend(self, from_user, to_user, message=None):
         """ Create a friendship request """
         if from_user == to_user:
             raise ValidationError("Users cannot be friends with themselves")
 
+        if message is None:
+            message = ''
+
         request, created = FriendshipRequest.objects.get_or_create(
             from_user=from_user,
-            to_user=to_user
+            to_user=to_user,
+            message=message,
         )
 
         if created is False:
             raise AlreadyExistsError("Friendship already requested")
-
 
         bust_cache('requests', to_user.pk)
         bust_cache('sent_requests', from_user.pk)
