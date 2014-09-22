@@ -46,7 +46,9 @@ def friendship_add_friend(request, to_username, template_name='friendship/friend
 def friendship_accept(request, friendship_request_id):
     """ Accept a friendship request """
     if request.method == 'POST':
-        f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+        f_request = get_object_or_404(
+            request.user.friendship_requests_received,
+            id=friendship_request_id)
         f_request.accept()
         return redirect('friendship_view_friends', username=request.user.username)
 
@@ -57,7 +59,9 @@ def friendship_accept(request, friendship_request_id):
 def friendship_reject(request, friendship_request_id):
     """ Reject a friendship request """
     if request.method == 'POST':
-        f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+        f_request = get_object_or_404(
+            request.user.friendship_requests_received,
+            id=friendship_request_id)
         f_request.reject()
         return redirect('friendship_request_list')
 
@@ -68,7 +72,9 @@ def friendship_reject(request, friendship_request_id):
 def friendship_cancel(request, friendship_request_id):
     """ Cancel a previously created friendship_request_id """
     if request.method == 'POST':
-        f_request = get_object_or_404(FriendshipRequest, id=friendship_request_id)
+        f_request = get_object_or_404(
+            request.user.friendship_requests_sent,
+            id=friendship_request_id)
         f_request.cancel()
         return redirect('friendship_request_list')
 
