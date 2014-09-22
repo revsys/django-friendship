@@ -1,3 +1,2 @@
 coverage==3.7.1
 django-coverage==1.2.4
-wsgiref==0.1.2
