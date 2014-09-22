@@ -1,3 +1,15 @@
+Version 1.2.0
+-------------
+
+Released September 22nd, 2014
+
+    - Updated test runner for 1.7 compatability
+
+    - Fixed security issue where we were not checking the owner of a FriendRequest during accept and
+      cancelation
+
+    - Added optional 'message' kwarg to FriendshipManager.add_friend() so it is easier to set the
+      optional message field on FriendshipRequests
 
 Version 1.1.0
 -------------
