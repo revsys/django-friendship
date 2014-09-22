@@ -14,3 +14,4 @@ with contributions from:
     Egor Yurtaev
     Ali Oğuzhan Yıldız <aoguzhanyildiz@gmail.com>
     Afnarel <afnarel@gmail.com>
+    Julian Wachholz <julian@wachholz.ch>
