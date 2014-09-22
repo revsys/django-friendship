@@ -4,6 +4,7 @@ import sys
 import django
 from django.conf import settings
 from django.utils import six
+from django.conf import global_settings
 
 settings.configure(
     DATABASES={
@@ -20,6 +21,9 @@ settings.configure(
     TEST_RUNNER=('django_coverage.coverage_runner.CoverageRunner' if six.PY2
                  else 'django.test.runner.DiscoverRunner' if django.VERSION[0:2] >= (1, 6)
                  else 'django.test.simple.DjangoTestSuiteRunner'),
+    MIDDLEWARE_CLASSES = global_settings.MIDDLEWARE_CLASSES + (
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',)
 )
 
 
