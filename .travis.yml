@@ -3,13 +3,14 @@ python:
   - "2.6"
   - "2.7"
   - "3.3"
+  - "3.4"
 
 install:
   - pip install -e .
   - pip install $DJANGO
   - pip install -r requirements-travisci.txt
 script:
-  - python friendship/tests/runtests.py
+  - python runtests.py
 env:
   - DJANGO="Django==1.4.13"
   - DJANGO="Django==1.5.8"
