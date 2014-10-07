@@ -25,3 +25,5 @@ matrix:
     # Django 1.4 doesn't support Python 3
     - python: "3.3"
       env: DJANGO="Django==1.4.13"
+    - python: "3.4"
+      env: DJANGO="Django==1.4.13"
