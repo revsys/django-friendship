@@ -38,10 +38,10 @@ To use ``django-friendship`` in your views::
         sent = Friend.objects.sent_requests(user=request.user)
 
         # List of this user's followers
-        all_followers = Following.objects.followers(request.user)
+        all_followers = Follow.objects.followers(request.user)
 
         # List of who this user is following
-        following = Following.objects.following(request.user)
+        following = Follow.objects.following(request.user)
 
         ### Managing friendship relationships
 
@@ -66,7 +66,7 @@ To use ``django-friendship`` in your views::
         Friend.objects.remove_friend(other_user, request.user)
 
         # Create request.user follows other_user relationship
-        following_created = Following.objects.add_follower(request.user, other_user)
+        following_created = Follow.objects.add_follower(request.user, other_user)
 
 To use ``django-friendship`` in your templates::
 
