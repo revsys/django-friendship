@@ -7,17 +7,17 @@ from .models import Follow, Friend, FriendshipRequest
 
 class FollowAdmin(admin.ModelAdmin):
     model = Follow
-    raw_id_fields = ('follower', 'followee')
+    fields = ('follower', 'followee','created')
 
 
 class FriendAdmin(admin.ModelAdmin):
     model = Friend
-    raw_id_fields = ('to_user', 'from_user')
+    fields = ('to_user', 'from_user','created')
 
 
 class FriendshipRequestAdmin(admin.ModelAdmin):
     model = FriendshipRequest
-    raw_id_fields = ('from_user', 'to_user')
+    fields = ('from_user', 'to_user','message','created','rejected','viewed')
 
 
 admin.site.register(Follow, FollowAdmin)

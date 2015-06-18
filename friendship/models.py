@@ -1,18 +1,17 @@
-from django.db import models
 from django.conf import settings
-from django.db.models import Q
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-
+from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-
 from friendship.exceptions import AlreadyExistsError
 from friendship.signals import friendship_request_created, \
     friendship_request_rejected, friendship_request_canceled, \
     friendship_request_viewed, friendship_request_accepted, \
-    friendship_removed, follower_created, following_created, follower_removed,\
+    friendship_removed, follower_created, following_created, follower_removed, \
     following_removed
+
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
@@ -81,6 +80,9 @@ class FriendshipRequest(models.Model):
 
     def __unicode__(self):
         return "User #%d friendship requested #%d" % (self.from_user_id, self.to_user_id)
+    
+    def __str__(self):
+        return self.__unicode__()
 
     def accept(self):
         """ Accept this friendship request """
@@ -343,6 +345,9 @@ class Friend(models.Model):
 
     def __unicode__(self):
         return "User #%d is friends with #%d" % (self.to_user_id, self.from_user_id)
+    
+    def __str__(self):
+        return self.__unicode__()
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
@@ -441,6 +446,9 @@ class Follow(models.Model):
 
     def __unicode__(self):
         return "User #%d follows #%d" % (self.follower_id, self.followee_id)
+    
+    def __str__(self):
+        return self.__unicode__()
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
