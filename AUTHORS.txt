@@ -17,3 +17,4 @@ with contributions from:
     Julian Wachholz <julian@wachholz.ch>
     Kasia S <kstaniszewska@gmail.com>
     Bruno Orlandi <brorlandi@gmail.com>
+    Sergey Dyachok <sergey@sdyachok.com.ua>
