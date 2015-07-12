@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
@@ -6,6 +7,7 @@ from django.core.exceptions import ValidationError
 
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import python_2_unicode_compatible
 
 from friendship.exceptions import AlreadyExistsError
 from friendship.signals import friendship_request_created, \
@@ -63,6 +65,7 @@ def bust_cache(type, user_pk):
     cache.delete_many(keys)
 
 
+@python_2_unicode_compatible
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
     from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_sent')
@@ -79,7 +82,7 @@ class FriendshipRequest(models.Model):
         verbose_name_plural = _('Friendship Requests')
         unique_together = ('from_user', 'to_user')
 
-    def __unicode__(self):
+    def __str__(self):
         return "User #%d friendship requested #%d" % (self.from_user_id, self.to_user_id)
 
     def accept(self):
@@ -328,6 +331,7 @@ class FriendshipManager(models.Manager):
                 return False
 
 
+@python_2_unicode_compatible
 class Friend(models.Model):
     """ Model to represent Friendships """
     to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friends')
@@ -341,7 +345,7 @@ class Friend(models.Model):
         verbose_name_plural = _('Friends')
         unique_together = ('from_user', 'to_user')
 
-    def __unicode__(self):
+    def __str__(self):
         return "User #%d is friends with #%d" % (self.to_user_id, self.from_user_id)
 
     def save(self, *args, **kwargs):
@@ -426,6 +430,7 @@ class FollowingManager(models.Manager):
                 return False
 
 
+@python_2_unicode_compatible
 class Follow(models.Model):
     """ Model to represent Following relationships """
     follower = models.ForeignKey(AUTH_USER_MODEL, related_name='following')
@@ -439,7 +444,7 @@ class Follow(models.Model):
         verbose_name_plural = _('Following Relationships')
         unique_together = ('follower', 'followee')
 
-    def __unicode__(self):
+    def __str__(self):
         return "User #%d follows #%d" % (self.follower_id, self.followee_id)
 
     def save(self, *args, **kwargs):
