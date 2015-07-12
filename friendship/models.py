@@ -13,8 +13,8 @@ from friendship.exceptions import AlreadyExistsError
 from friendship.signals import friendship_request_created, \
     friendship_request_rejected, friendship_request_canceled, \
     friendship_request_viewed, friendship_request_accepted, \
-    friendship_removed, follower_created, following_created, follower_removed,\
-    following_removed
+    friendship_removed, follower_created, follower_removed, \
+    followee_created, followee_removed, following_created, following_removed
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
@@ -393,7 +393,8 @@ class FollowingManager(models.Manager):
             raise AlreadyExistsError("User '%s' already follows '%s'" % (follower, followee))
 
         follower_created.send(sender=self, follower=follower)
-        following_created.send(sender=self, follow=followee)
+        followee_created.send(sender=self, followee=followee)
+        following_created.send(sender=self, following=relation)
 
         bust_cache('followers', followee.pk)
         bust_cache('following', follower.pk)
@@ -405,7 +406,8 @@ class FollowingManager(models.Manager):
         try:
             rel = Follow.objects.get(follower=follower, followee=followee)
             follower_removed.send(sender=rel, follower=rel.follower)
-            following_removed.send(sender=rel, following=rel.followee)
+            followee_removed.send(sender=rel, followee=rel.followee)
+            following_removed.send(sender=rel, following=rel)
             rel.delete()
             bust_cache('followers', followee.pk)
             bust_cache('following', follower.pk)
