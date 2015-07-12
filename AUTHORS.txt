@@ -18,3 +18,5 @@ with contributions from:
     Kasia S <kstaniszewska@gmail.com>
     Bruno Orlandi <brorlandi@gmail.com>
     Sergey Dyachok <sergey@sdyachok.com.ua>
+    awidgery - https://github.com/awidgery
+
