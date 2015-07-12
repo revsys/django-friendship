@@ -1,3 +1,5 @@
 include setup.py README.rst MANIFEST.in LICENSE.txt requirements.txt AUTHORS.txt
 recursive-include friendship/templates *
 recursive-include friendship/tests/templates *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
