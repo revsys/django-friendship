@@ -16,3 +16,4 @@ with contributions from:
     Afnarel <afnarel@gmail.com>
     Julian Wachholz <julian@wachholz.ch>
     Kasia S <kstaniszewska@gmail.com>
+    Bruno Orlandi <brorlandi@gmail.com>
