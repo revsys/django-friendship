@@ -19,4 +19,6 @@ with contributions from:
     Bruno Orlandi <brorlandi@gmail.com>
     Sergey Dyachok <sergey@sdyachok.com.ua>
     awidgery - https://github.com/awidgery
+    Jesper Håkansson- https://github.com/drager
+
 
