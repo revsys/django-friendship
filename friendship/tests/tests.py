@@ -187,6 +187,13 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_steve).count(), 0)
         self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_bob).count(), 0)
 
+    def test_multiple_calls_add_friend(self):
+        """ Ensure multiple calls with same friends, but different message works as expected """
+        req1 = Friend.objects.add_friend(self.user_bob, self.user_steve, message='Testing')
+
+        with self.assertRaises(AlreadyExistsError):
+            req2 = Friend.objects.add_friend(self.user_bob, self.user_steve, message='Foo Bar')
+
     def test_following(self):
         # Bob follows Steve
         req1 = Follow.objects.add_follower(self.user_bob, self.user_steve)

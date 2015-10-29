@@ -280,11 +280,14 @@ class FriendshipManager(models.Manager):
         request, created = FriendshipRequest.objects.get_or_create(
             from_user=from_user,
             to_user=to_user,
-            message=message,
         )
 
         if created is False:
             raise AlreadyExistsError("Friendship already requested")
+
+        if message:
+            request.message = message
+            request.save()
 
         bust_cache('requests', to_user.pk)
         bust_cache('sent_requests', from_user.pk)
