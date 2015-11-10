@@ -9,12 +9,14 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 
-from friendship.exceptions import AlreadyExistsError
-from friendship.signals import friendship_request_created, \
-    friendship_request_rejected, friendship_request_canceled, \
-    friendship_request_viewed, friendship_request_accepted, \
-    friendship_removed, follower_created, follower_removed, \
+from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
+from friendship.signals import (
+    friendship_request_created, friendship_request_rejected,
+    friendship_request_canceled,
+    friendship_request_viewed, friendship_request_accepted,
+    friendship_removed, follower_created, follower_removed,
     followee_created, followee_removed, following_created, following_removed
+)
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
@@ -273,6 +275,9 @@ class FriendshipManager(models.Manager):
         """ Create a friendship request """
         if from_user == to_user:
             raise ValidationError("Users cannot be friends with themselves")
+
+        if self.are_friends(from_user, to_user):
+            raise AlreadyFriendsError("Users are already friends")
 
         if message is None:
             message = ''

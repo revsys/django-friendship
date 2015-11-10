@@ -6,7 +6,7 @@ from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from friendship.exceptions import AlreadyExistsError
+from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.models import Friend, Follow, FriendshipRequest
 
 
@@ -131,8 +131,6 @@ class FriendshipModelTests(BaseTestCase):
         req3.reject()
 
         # Duplicated requests raise a more specific subclass of IntegrityError.
-        with self.assertRaises(IntegrityError):
-            Friend.objects.add_friend(self.user_susan, self.user_amy)
         with self.assertRaises(AlreadyExistsError):
             Friend.objects.add_friend(self.user_susan, self.user_amy)
 
@@ -157,6 +155,14 @@ class FriendshipModelTests(BaseTestCase):
         # Ensure we can't do it manually either
         with self.assertRaises(ValidationError):
             Friend.objects.create(to_user=self.user_bob, from_user=self.user_bob)
+
+    def test_already_friends_with_request(self):
+        # Make Bob and Steve friends
+        req = Friend.objects.add_friend(self.user_bob, self.user_steve)
+        req.accept()
+
+        with self.assertRaises(AlreadyFriendsError):
+            req2 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
     def test_multiple_friendship_requests(self):
         """ Ensure multiple friendship requests are handled properly """
@@ -403,7 +409,6 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse302(response)
             redirect_url = reverse('friendship_request_list')
             self.assertTrue(redirect_url in response['Location'])
-
 
     def test_friendship_requests_detail(self):
         url = reverse('friendship_requests_detail', kwargs={'friendship_request_id': self.friendship_request.pk})
