@@ -300,7 +300,7 @@ class FriendshipManager(models.Manager):
 
         return request
 
-    def remove_friend(self, to_user, from_user):
+    def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
         try:
             qs = Friend.objects.filter(
