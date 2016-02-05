@@ -83,16 +83,16 @@ Managing Friendships and Follows
 Templates
 =========
 
-You can use ``django-friendship`` tags in your templates.
+You can use ``django-friendship`` tags in your templates. First enter: ::
 
-    ``{% load friendshiptags %}``
+    {% load friendshiptags %}
 
-Then use any of the following:
+Then use any of the following: ::
 
-* ``{% friends request.user %}``
-* ``{% followers request.user %}``
-* ``{% following request.user %}``
-* ``{% friend_requests request.user %}``
+    {% friends request.user %}
+    {% followers request.user %}
+    {% following request.user %}
+    {% friend_requests request.user %}
 
 Signals
 =======
