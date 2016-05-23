@@ -20,5 +20,5 @@ with contributions from:
     Sergey Dyachok <sergey@sdyachok.com.ua>
     awidgery - https://github.com/awidgery
     Jesper Håkansson- https://github.com/drager
-
+    Jonathan Cox <jonathan.cox.c@gmail.com>
 
