@@ -1,14 +1,19 @@
 Django-Friendship
 =================
 
+.. image:: https://secure.travis-ci.org/revsys/django-friendship.png
+    :alt: Build Status
+    :target: http://travis-ci.org/revsys/django-friendship
+
+This application enables you to create and manage follows and bi-d
 This application enables you to create and manage follows and bi-directional friendships between users. It features:
 
 * Friendship request objects that can be accepted, rejected, canceled, or marked as viewed.
 * Hooks to easily list all friend requests sent or received by a given user, filtered by the status of the request.
-* Tags to include information about friendships and follows in your templates. 
-* Integration with ``AUTH_USER_MODEL``. 
+* Tags to include information about friendships and follows in your templates.
+* Integration with ``AUTH_USER_MODEL``.
 * Validation to prevent common mistakes.
-* Faster server response time through caching 
+* Faster server response time through caching
 
 Requirements
 ============
@@ -32,7 +37,7 @@ Usage
 =====
 
 ``django-friendship`` provides a free API that gives you several ways to create and manage friendship requests or follows in your views. Add the following at the top of your ``views.py``::
-    
+
     from django.contrib.auth.models import User
     from friendship.models import Friend, Follow
 
@@ -42,7 +47,7 @@ Getting Data about Friendships
 * List all of a user's friends: ``Friend.objects.friends(request.user)``
 * List all unread friendship requests: ``Friend.objects.unread_requests(user=request.user)``
 * List all unrejected friendship requests: ``Friend.objects.unrejected_requests(user=request.user)``
-* Count of all unrejected friendship requests: ``Friend.objects.unrejected_request_count(user=request.user)`` 
+* Count of all unrejected friendship requests: ``Friend.objects.unrejected_request_count(user=request.user)``
 * List all rejected friendship requests: ``Friend.objects.rejected_requests(user=request.user)``
 * Count of all rejected friendship requests: ``Friend.objects.rejected_request_count(user=request.user)``
 * List of all sent friendship requests: ``Friend.objects.sent_requests(user=request.user)``
@@ -55,7 +60,7 @@ Getting Data about Follows
 
 Managing Friendships and Follows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
 * Create a friendship request: ::
 
     other_user = User.objects.get(pk=1)
@@ -69,15 +74,15 @@ Managing Friendships and Follows
     from friendship.models import FriendshipRequest
 
     friend_request = FriendshipRequest.objects.get(pk=1)
-    friend_request.accept()                         
+    friend_request.accept()
     # or friend_request.reject()
 
 * To remove the friendship relationship between ``request.user`` and ``other_user``, do the following: ::
-    
+
     Friend.objects.remove_friend(request.user, other_user)
 
 * Make request.user a follower of other_user: ::
-    
+
     Follow.objects.add_follower(request.user, other_user)
 
 Templates
@@ -116,4 +121,3 @@ Contributing
 Development `takes place on GitHub`__. Bug reports, patches, and fixes are always welcome!
 
 __ https://github.com/revsys/django-friendship
-    
