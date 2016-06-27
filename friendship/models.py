@@ -21,17 +21,17 @@ from friendship.signals import (
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 CACHE_TYPES = {
-    'friends': 'f-%d',
-    'followers': 'fo-%d',
-    'following': 'fl-%d',
-    'requests': 'fr-%d',
-    'sent_requests': 'sfr-%d',
-    'unread_requests': 'fru-%d',
-    'unread_request_count': 'fruc-%d',
-    'read_requests': 'frr-%d',
-    'rejected_requests': 'frj-%d',
-    'unrejected_requests': 'frur-%d',
-    'unrejected_request_count': 'frurc-%d',
+    'friends': 'f-%s',
+    'followers': 'fo-%s',
+    'following': 'fl-%s',
+    'requests': 'fr-%s',
+    'sent_requests': 'sfr-%s',
+    'unread_requests': 'fru-%s',
+    'unread_request_count': 'fruc-%s',
+    'read_requests': 'frr-%s',
+    'rejected_requests': 'frj-%s',
+    'unrejected_requests': 'frur-%s',
+    'unrejected_request_count': 'frurc-%s',
 }
 
 BUST_CACHES = {
