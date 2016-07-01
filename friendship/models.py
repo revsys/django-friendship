@@ -21,17 +21,17 @@ from friendship.signals import (
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 CACHE_TYPES = {
-    'friends': 'f-%d',
-    'followers': 'fo-%d',
-    'following': 'fl-%d',
-    'requests': 'fr-%d',
-    'sent_requests': 'sfr-%d',
-    'unread_requests': 'fru-%d',
-    'unread_request_count': 'fruc-%d',
-    'read_requests': 'frr-%d',
-    'rejected_requests': 'frj-%d',
-    'unrejected_requests': 'frur-%d',
-    'unrejected_request_count': 'frurc-%d',
+    'friends': 'f-%s',
+    'followers': 'fo-%s',
+    'following': 'fl-%s',
+    'requests': 'fr-%s',
+    'sent_requests': 'sfr-%s',
+    'unread_requests': 'fru-%s',
+    'unread_request_count': 'fruc-%s',
+    'read_requests': 'frr-%s',
+    'rejected_requests': 'frj-%s',
+    'unrejected_requests': 'frur-%s',
+    'unrejected_request_count': 'frurc-%s',
 }
 
 BUST_CACHES = {
@@ -85,7 +85,7 @@ class FriendshipRequest(models.Model):
         unique_together = ('from_user', 'to_user')
 
     def __str__(self):
-        return "User #%d friendship requested #%d" % (self.from_user_id, self.to_user_id)
+        return "User #%s friendship requested #%s" % (self.from_user_id, self.to_user_id)
 
     def accept(self):
         """ Accept this friendship request """
@@ -354,7 +354,7 @@ class Friend(models.Model):
         unique_together = ('from_user', 'to_user')
 
     def __str__(self):
-        return "User #%d is friends with #%d" % (self.to_user_id, self.from_user_id)
+        return "User #%s is friends with #%s" % (self.to_user_id, self.from_user_id)
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
@@ -455,7 +455,7 @@ class Follow(models.Model):
         unique_together = ('follower', 'followee')
 
     def __str__(self):
-        return "User #%d follows #%d" % (self.follower_id, self.followee_id)
+        return "User #%s follows #%s" % (self.follower_id, self.followee_id)
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
