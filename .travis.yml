@@ -1,6 +1,5 @@
 language: python
 python:
-  - "2.6"
   - "2.7"
   - "3.3"
   - "3.4"
@@ -17,9 +16,3 @@ env:
   - DJANGO="Django==1.6.5"
   - DJANGO="Django==1.7"
   - DJANGO="Django==1.8"
-
-matrix:
-  exclude:
-    # Python 2.6 support has been dropped in Django 1.7
-    - python: "2.6"
-      env: DJANGO="Django==1.7"
