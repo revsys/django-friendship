@@ -21,4 +21,5 @@ with contributions from:
     awidgery - https://github.com/awidgery
     Jesper Håkansson- https://github.com/drager
     Jonathan Cox <jonathan.cox.c@gmail.com>
-
+    Evgeniy Kirov - https://github.com/kirov
+    mirskiy - https://github.com/mirskiy
