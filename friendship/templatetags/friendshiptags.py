@@ -5,6 +5,12 @@ from friendship.models import Friend, Follow, FriendshipRequest
 register = template.Library()
 
 
+@register.simple_tag(takes_context=True)
+def get_by_name(context, name):
+    """Tag to lookup a variable in the current context."""
+    return context[name]
+
+
 @register.inclusion_tag('friendship/templatetags/friends.html')
 def friends(user):
     """

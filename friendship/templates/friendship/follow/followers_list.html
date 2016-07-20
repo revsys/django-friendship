@@ -1,5 +1,6 @@
-{% block content %} 
+{% block content %}
 {% load friendshiptags %}
-<h1>Followers</h1> 
-{% followers user %}
-{% endblock %} 
+<h1>Followers</h1>
+{% get_by_name friendship_context_object_name as var %}
+{% followers var %}
+{% endblock %}
