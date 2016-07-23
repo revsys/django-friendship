@@ -1,3 +1,10 @@
+Version 1.4.0
+-------------
+
+  Released July 23rd, 2016
+
+    - Moved template tag to assignment_tag to avoid Django 1.9 error
+
 Version 1.3.3
 -------------
 
