@@ -1,5 +1,6 @@
-{% block content %} 
-{% load friendshiptags %} 
-<h1>Following</h1> 
-{% following user %}
-{% endblock content %}
+{% block content %}
+{% load friendshiptags %}
+<h1>Following</h1>
+{% get_by_name friendship_context_object_name as var %}
+{% following var %}
+{% endblock %}

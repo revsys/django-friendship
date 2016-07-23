@@ -20,8 +20,10 @@ def view_friends(request, username, template_name='friendship/friend/user_list.h
     """ View the friends of a user """
     user = get_object_or_404(user_model, username=username)
     friends = Friend.objects.friends(user)
-    return render(request, template_name, {get_friendship_context_object_name(): user, 'friends': friends})
-
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name()
+    })
 
 
 @login_required
@@ -112,7 +114,10 @@ def followers(request, username, template_name='friendship/follow/followers_list
     user = get_object_or_404(user_model, username=username)
     followers = Follow.objects.followers(user)
 
-    return render(request, template_name, {get_friendship_context_object_name(): user, 'followers': followers})
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name()
+    })
 
 
 def following(request, username, template_name='friendship/follow/following_list.html'):
@@ -120,7 +125,10 @@ def following(request, username, template_name='friendship/follow/following_list
     user = get_object_or_404(user_model, username=username)
     following = Follow.objects.following(user)
 
-    return render(request, template_name, {get_friendship_context_object_name(): user, 'following': following})
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name()
+    })
 
 
 @login_required
