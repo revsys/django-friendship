@@ -23,3 +23,4 @@ with contributions from:
     Jonathan Cox <jonathan.cox.c@gmail.com>
     Evgeniy Kirov - https://github.com/kirov
     mirskiy - https://github.com/mirskiy
+    Eric Conner <econner@cs.stanford.edu> - http://ericwconner.com
