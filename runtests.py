@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 import sys
-import django
 
 from django.conf import global_settings, settings
+
+OUR_MIDDLEWARE = []
+OUR_MIDDLEWARE.extend(global_settings.MIDDLEWARE_CLASSES)
+OUR_MIDDLEWARE.extend([
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+])
 
 
 settings.configure(
@@ -17,9 +23,7 @@ settings.configure(
         'friendship.tests',
     ],
     ROOT_URLCONF='friendship.urls',
-    MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES + (
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',)
+    MIDDLEWARE_CLASSES=OUR_MIDDLEWARE,
 )
 
 
