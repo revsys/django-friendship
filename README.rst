@@ -5,7 +5,6 @@ Django-Friendship
     :alt: Build Status
     :target: http://travis-ci.org/revsys/django-friendship
 
-This application enables you to create and manage follows and bi-d
 This application enables you to create and manage follows and bi-directional friendships between users. It features:
 
 * Friendship request objects that can be accepted, rejected, canceled, or marked as viewed.
