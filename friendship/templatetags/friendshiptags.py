@@ -11,6 +11,11 @@ def get_by_name(context, name):
     return context[name]
 
 
+@register.assignment_tag(takes_context=True)
+def can_request_send(context, user_1, user_2):
+    """Tag to verify the ability to send a request"""
+    return Friend.objects.can_request_send(user_1, user_2)
+
 @register.inclusion_tag('friendship/templatetags/friends.html')
 def friends(user):
     """
@@ -65,3 +70,5 @@ def friend_rejected_count(user):
     Inclusion tag to display the count of rejected friend requests
     """
     return {'friend_rejected_count': len(Friend.objects.rejected_requests(user))}
+
+
