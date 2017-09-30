@@ -70,8 +70,8 @@ def bust_cache(type, user_pk):
 @python_2_unicode_compatible
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
-    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_sent')
-    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_received')
+    from_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='friendship_requests_sent')
+    to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='friendship_requests_received')
 
     message = models.TextField(_('Message'), blank=True)
 
@@ -342,8 +342,8 @@ class FriendshipManager(models.Manager):
 @python_2_unicode_compatible
 class Friend(models.Model):
     """ Model to represent Friendships """
-    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friends')
-    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='_unused_friend_relation')
+    to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='friends')
+    from_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='_unused_friend_relation')
     created = models.DateTimeField(default=timezone.now)
 
     objects = FriendshipManager()
@@ -443,8 +443,8 @@ class FollowingManager(models.Manager):
 @python_2_unicode_compatible
 class Follow(models.Model):
     """ Model to represent Following relationships """
-    follower = models.ForeignKey(AUTH_USER_MODEL, related_name='following')
-    followee = models.ForeignKey(AUTH_USER_MODEL, related_name='followers')
+    follower = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='following')
+    followee = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='followers')
     created = models.DateTimeField(default=timezone.now)
 
     objects = FollowingManager()
