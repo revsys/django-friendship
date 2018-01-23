@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 import sys
 
+import django
 from django.conf import global_settings, settings
 
+
+if django.VERSION[0:2] < (2, 0):
+    CURRENT_MIDDLEWARE = global_settings.MIDDLEWARE_CLASSES
+else:
+    CURRENT_MIDDLEWARE = global_settings.MIDDLEWARE
+
 OUR_MIDDLEWARE = []
-OUR_MIDDLEWARE.extend(global_settings.MIDDLEWARE)
+OUR_MIDDLEWARE.extend(CURRENT_MIDDLEWARE)
 OUR_MIDDLEWARE.extend([
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
