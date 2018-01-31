@@ -24,7 +24,9 @@ Installation
 
 1. ``pip install django-friendship``
 2. add ``"friendship"`` to ``INSTALLED_APPS`` and run ``python manage.py migrate``.
-3. Use the friendship manager in your own views, or wire up the URLconf to include the builtin views: ::
+3. Use the friendship manager in your own views, or wire up the URLconf to include the builtin views: :
+
+   .. code:: python
 
     urlpatterns = [
         ...
@@ -35,7 +37,9 @@ Installation
 Usage
 =====
 
-``django-friendship`` provides a free API that gives you several ways to create and manage friendship requests or follows in your views. Add the following at the top of your ``views.py``::
+``django-friendship`` provides a free API that gives you several ways to create and manage friendship requests or follows in your views. Add the following at the top of your ``views.py``:
+
+.. code:: python
 
     from django.contrib.auth.models import User
     from friendship.models import Friend, Follow
@@ -60,7 +64,9 @@ Getting Data about Follows
 Managing Friendships and Follows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Create a friendship request: ::
+* Create a friendship request: :
+
+  .. code:: python
 
     other_user = User.objects.get(pk=1)
     Friend.objects.add_friend(
@@ -68,7 +74,9 @@ Managing Friendships and Follows
         other_user,                                 # The recipient
         message='Hi! I would like to add you')      # This message is optional
 
-* Let the user who received the request respond: ::
+* Let the user who received the request respond: :
+
+  .. code:: python
 
     from friendship.models import FriendshipRequest
 
@@ -76,22 +84,30 @@ Managing Friendships and Follows
     friend_request.accept()
     # or friend_request.reject()
 
-* To remove the friendship relationship between ``request.user`` and ``other_user``, do the following: ::
+* To remove the friendship relationship between ``request.user`` and ``other_user``, do the following: :
+
+  .. code:: python
 
     Friend.objects.remove_friend(request.user, other_user)
 
-* Make request.user a follower of other_user: ::
+* Make request.user a follower of other_user: :
+
+  .. code:: python
 
     Follow.objects.add_follower(request.user, other_user)
 
 Templates
 =========
 
-You can use ``django-friendship`` tags in your templates. First enter: ::
+You can use ``django-friendship`` tags in your templates. First enter: :
+
+.. code:: html+django
 
     {% load friendshiptags %}
 
-Then use any of the following: ::
+Then use any of the following: :
+
+.. code:: html+django
 
     {% friends request.user %}
     {% followers request.user %}
