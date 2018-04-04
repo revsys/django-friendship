@@ -1,6 +1,6 @@
 from django import template
 
-from friendship.models import Friend, Follow, FriendshipRequest
+from friendship.models import Friend, Follow, FriendshipRequest, Block
 
 register = template.Library()
 
@@ -33,6 +33,22 @@ def following(user):
     Simple tag to grab all users who follow the given user
     """
     return {'following': Follow.objects.following(user)}
+
+@register.inclusion_tag('friendship/templatetags/blockers.html')
+def blockers(user):
+    """
+    Simple tag to grab all followers
+    """
+    return {'blockers': Block.objects.blocked(user)}
+
+
+@register.inclusion_tag('friendship/templatetags/blocking.html')
+def blocking(user):
+    """
+    Simple tag to grab all users who follow the given user
+    """
+    return {'blocking': Block.objects.blocking(user)}
+
 
 
 @register.inclusion_tag('friendship/templatetags/friend_requests.html')

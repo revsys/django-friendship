@@ -10,7 +10,7 @@ except ImportError:
 from django.shortcuts import render, get_object_or_404, redirect
 
 from friendship.exceptions import AlreadyExistsError
-from friendship.models import Friend, Follow, FriendshipRequest
+from friendship.models import Friend, Follow, FriendshipRequest, Block
 
 get_friendship_context_object_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_NAME', 'user')
 get_friendship_context_object_list_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME', 'users')
@@ -165,3 +165,55 @@ def all_users(request, template_name="friendship/user_actions.html"):
     users = user_model.objects.all()
 
     return render(request, template_name, {get_friendship_context_object_list_name(): users})
+
+
+def blocking(request, username, template_name='friendship/block/blockers_list.html'):
+    """ List this user's followers """
+    user = get_object_or_404(user_model, username=username)
+    blockers = Block.objects.blocked(user)
+
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name()
+    })
+
+
+def blockers(request, username, template_name='friendship/block/blocking_list.html'):
+    """ List who this user follows """
+    user = get_object_or_404(user_model, username=username)
+    blocking = Block.objects.blocking(user)
+
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name()
+    })
+
+
+@login_required
+def block_add(request, blocked_username, template_name='friendship/block/add.html'):
+    """ Create a following relationship """
+    ctx = {'blocked_username': blocked_username}
+
+    if request.method == 'POST':
+        blocked = user_model.objects.get(username=blocked_username)
+        blocker = request.user
+        try:
+            Block.objects.add_block(blocker, blocked)
+        except AlreadyExistsError as e:
+            ctx['errors'] = ["%s" % e]
+        else:
+            return redirect('friendship_blocking', username=blocker.username)
+
+    return render(request, template_name, ctx)
+
+
+@login_required
+def block_remove(request, blocked_username, template_name='friendship/block/remove.html'):
+    """ Remove a following relationship """
+    if request.method == 'POST':
+        blocked = user_model.objects.get(username=blocked_username)
+        blocker = request.user
+        Block.objects.remove_block(blocker, blocked)
+        return redirect('friendship_blocking', username=blocker.username)
+
+    return render(request, template_name, {'blocked_username': blocked_username})

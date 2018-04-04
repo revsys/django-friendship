@@ -15,7 +15,7 @@ from friendship.signals import (
     friendship_request_canceled,
     friendship_request_viewed, friendship_request_accepted,
     friendship_removed, follower_created, follower_removed,
-    followee_created, followee_removed, following_created, following_removed
+    followee_created, followee_removed, following_created, following_removed, block_created,block_removed
 )
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -24,6 +24,8 @@ CACHE_TYPES = {
     'friends': 'f-%s',
     'followers': 'fo-%s',
     'following': 'fl-%s',
+    'blocked': 'bo-%s',
+    'blocking': 'bd-%s',
     'requests': 'fr-%s',
     'sent_requests': 'sfr-%s',
     'unread_requests': 'fru-%s',
@@ -37,7 +39,9 @@ CACHE_TYPES = {
 BUST_CACHES = {
     'friends': ['friends'],
     'followers': ['followers'],
+    'blocked': ['blocked'],
     'following': ['following'],
+    'blocking': ['blocking'],
     'requests': [
         'requests',
         'unread_requests',
@@ -462,3 +466,89 @@ class Follow(models.Model):
         if self.follower == self.followee:
             raise ValidationError("Users cannot follow themselves.")
         super(Follow, self).save(*args, **kwargs)
+
+
+class BlockManager(models.Manager):
+    """ Following manager """
+
+    def blocked(self, user):
+        """ Return a list of all blocks """
+        key = cache_key('blocked', user.pk)
+        blocked = cache.get(key)
+
+        if blocked is None:
+            qs = Block.objects.filter(blocked=user).all()
+            blocked = [u.block for u in qs]
+            cache.set(key, blocked)
+
+        return blocked
+
+    def blocking(self, user):
+        """ Return a list of all users the given user blocks """
+        key = cache_key('blocking', user.pk)
+        blocking = cache.get(key)
+
+        if blocking is None:
+            qs = Block.objects.filter(blocker=user).all()
+            blocking = [u.blocked for u in qs]
+            cache.set(key, blocking)
+
+        return blocking
+
+    def add_block(self, blocker, blocked):
+        """ Create 'follower' follows 'followee' relationship """
+        if blocker == blocked:
+            raise ValidationError("Users cannot block themselves")
+
+        relation, created = Block.objects.get_or_create(blocker=blocker, blocked=blocked)
+
+        if created is False:
+            raise AlreadyExistsError("User '%s' already blocks '%s'" % (blocker, blocked))
+
+        block_created.send(sender=self, blocker=blocker)
+        block_created.send(sender=self, blocked=blocked)
+        block_created.send(sender=self, blocking=relation)
+
+        bust_cache('blocked', blocked.pk)
+        bust_cache('blocking', blocker.pk)
+
+        return relation
+
+    def remove_block(self, blocker, blocked):
+        """ Remove 'blocker' blocks 'blocked' relationship """
+        try:
+            rel = Block.objects.get(blocker=blocker, blocked=blocked)
+            block_removed.send(sender=rel, blocker=rel.blocker)
+            block_removed.send(sender=rel, blocked=rel.blocked)
+            block_removed.send(sender=rel, blocking=rel)
+            rel.delete()
+            bust_cache('blocked', blocked.pk)
+            bust_cache('blocking', blocker.pk)
+            return True
+        except Follow.DoesNotExist:
+            return False
+
+
+
+@python_2_unicode_compatible
+class Block(models.Model):
+    """ Model to represent Following relationships """
+    blocker = models.ForeignKey(AUTH_USER_MODEL, related_name='blocking')
+    blocked = models.ForeignKey(AUTH_USER_MODEL, related_name='blockees')
+    created = models.DateTimeField(default=timezone.now)
+
+    objects = BlockManager()
+
+    class Meta:
+        verbose_name = _('Blocker Relationship')
+        verbose_name_plural = _('Blocked Relationships')
+        unique_together = ('blocker', 'blocked')
+
+    def __str__(self):
+        return "User #%s blocks #%s" % (self.blocker_id, self.blocked_id)
+
+    def save(self, *args, **kwargs):
+        # Ensure users can't be friends with themselves
+        if self.blocker == self.blocked:
+            raise ValidationError("Users cannot block themselves.")
+        super( Block, self).save(*args, **kwargs)

@@ -1,0 +1,6 @@
+{% block content %}
+{% load friendshiptags %}
+<h1>Blockers</h1>
+{% get_by_name friendship_context_object_name as var %}
+{% blockers var %}
+{% endblock %}
