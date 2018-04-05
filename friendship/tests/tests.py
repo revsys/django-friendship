@@ -236,8 +236,6 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Block.objects.blocking(self.user_bob)), 1)
         self.assertEqual(len(Block.objects.blocked(self.user_steve)), 1)
         self.assertEqual(Block.objects.is_blocked(self.user_bob, self.user_steve), True)
-        self.assertEqual(Block.objects.blocked(self.user_steve), [self.user_bob])
-        self.assertEqual(Block.objects.blocking(self.user_bob), [self.user_steve])
 
         # Duplicated requests raise a more specific subclass of IntegrityError.
         with self.assertRaises(IntegrityError):
@@ -248,7 +246,7 @@ class FriendshipModelTests(BaseTestCase):
         # Remove the relationship
         self.assertTrue(Block.objects.remove_block(self.user_bob, self.user_steve))
         self.assertEqual(len(Block.objects.blocking(self.user_steve)), 0)
-        self.assertEqual(len(Follow.objects.blockers(self.user_bob)), 0)
+        self.assertEqual(len(Block.objects.blockers(self.user_bob)), 0)
 
         # Ensure we canot follow ourselves
         with self.assertRaises(ValidationError):
