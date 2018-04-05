@@ -540,7 +540,7 @@ class BlockManager(models.Manager):
             return True
         else:
             try:
-                Block.objects.get(to_user=user1, from_user=user2)
+                Block.objects.get(blocker=user1, blocked=user2)
                 return True
             except Block.DoesNotExist:
                 return False
