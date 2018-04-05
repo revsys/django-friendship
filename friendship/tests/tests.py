@@ -248,9 +248,9 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Block.objects.blocking(self.user_steve)), 0)
         self.assertEqual(len(Block.objects.blocked(self.user_bob)), 0)
 
-        # Ensure we canot follow ourselves
+        # Ensure we canot block ourselves
         with self.assertRaises(ValidationError):
-            Follow.objects.add_block(self.user_bob, self.user_bob)
+            Block.objects.add_block(self.user_bob, self.user_bob)
 
         with self.assertRaises(ValidationError):
             Block.objects.create(blocker=self.user_bob, blocked=self.user_bob)
