@@ -5,11 +5,12 @@ Django-Friendship
     :alt: Build Status
     :target: http://travis-ci.org/revsys/django-friendship
 
-This application enables you to create and manage follows and bi-directional friendships between users. It features:
+This application enables you to create and manage follows, blocks and bi-directional friendships between users. It features:
 
 * Friendship request objects that can be accepted, rejected, canceled, or marked as viewed.
 * Hooks to easily list all friend requests sent or received by a given user, filtered by the status of the request.
-* Tags to include information about friendships and follows in your templates.
+* A blocklist for each user of users they've blocked.
+* Tags to include information about friendships, blocks and follows in your templates.
 * Integration with ``AUTH_USER_MODEL``.
 * Validation to prevent common mistakes.
 * Faster server response time through caching
@@ -42,7 +43,7 @@ Usage
 .. code:: python
 
     from django.contrib.auth.models import User
-    from friendship.models import Friend, Follow
+    from friendship.models import Friend, Follow, Block
 
 Getting Data about Friendships
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +61,13 @@ Getting Data about Follows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 * List of a user's followers: ``Follow.objects.followers(request.user)``
 * List of who a user is following: ``Follow.objects.following(request.user)``
+
+Getting Data about Blocks
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+* List of a user's blockers: ``Block.objects.blockers(request.user)``
+* List of who a user is blocking: ``Block.objects.blocking(request.user)``
+* Test if a user is blocked: ``Block.objects.is_blocked(request.user, other_user) == True``
+
 
 Managing Friendships and Follows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +104,21 @@ Managing Friendships and Follows
 
     Follow.objects.add_follower(request.user, other_user)
 
+
+* Make request.user block other_user: :
+
+  .. code:: python
+
+    Block.objects.add_block(request.user, other_user)
+
+
+* Make request.user unblock other_user: :
+
+  .. code:: python
+
+    Block.objects.remove_block(request.user, other_user)
+
+
 Templates
 =========
 
@@ -113,6 +136,9 @@ Then use any of the following: :
     {% followers request.user %}
     {% following request.user %}
     {% friend_requests request.user %}
+    {% blockers request.user %}
+    {% blocking request.user %}
+
 
 Signals
 =======
@@ -128,6 +154,8 @@ Signals
 * following_created
 * follower_removed
 * following_removed
+* block_created
+* block_removed
 
 
 Contributing

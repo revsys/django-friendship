@@ -24,6 +24,7 @@ CACHE_TYPES = {
     'friends': 'f-%s',
     'followers': 'fo-%s',
     'following': 'fl-%s',
+    'blocks': 'b-%s',
     'blocked': 'bo-%s',
     'blocking': 'bd-%s',
     'requests': 'fr-%s',
@@ -39,6 +40,7 @@ CACHE_TYPES = {
 BUST_CACHES = {
     'friends': ['friends'],
     'followers': ['followers'],
+    'blocks': ['blocks'],
     'blocked': ['blocked'],
     'following': ['following'],
     'blocking': ['blocking'],
@@ -527,6 +529,21 @@ class BlockManager(models.Manager):
             return True
         except Follow.DoesNotExist:
             return False
+
+    def is_blocked(self, user1, user2):
+        """ Are these two users blocked? """
+        block1 = cache.get(cache_key('blocks', user1.pk))
+        block2 = cache.get(cache_key('blocks', user2.pk))
+        if block1 and user2 in block1:
+            return True
+        elif block2 and user1 in block2:
+            return True
+        else:
+            try:
+                Block.objects.get(to_user=user1, from_user=user2)
+                return True
+            except Block.DoesNotExist:
+                return False
 
 
 
