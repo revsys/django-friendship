@@ -1,0 +1,9 @@
+<ul>
+    {% for f in blocking %}
+    {% if f.first_name or f.last_name %}
+    <li>{{ f.first_name }} {{ f.last_name }}</li>
+    {% else %}
+    <li>{{ f.username }}</li>
+    {% endif %}
+    {% endfor %}
+</ul>

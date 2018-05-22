@@ -1,0 +1,7 @@
+{% if not blocked_username == request.user.username %}
+<form method="post">
+{% csrf_token %}
+<input type="hidden" name="blocked_username" value="{{ blocked_username }}" />
+<input type="submit" value="start blocking {{ blocked_username }}" />
+</form>
+{% endif %}

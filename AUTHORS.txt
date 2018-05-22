@@ -25,4 +25,4 @@ with contributions from:
     mirskiy - https://github.com/mirskiy
     Eric Conner <econner@cs.stanford.edu> - http://ericwconner.com
     narnikgamarnik - https://github.com/narnikgamarnikus
-
+    Darren Mckeeman <darren@kinkbnb.com> - https://www.kinkbnb.com

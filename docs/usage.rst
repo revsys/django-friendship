@@ -69,6 +69,13 @@ To use ``django-friendship`` in your views::
 
         was_following = Following.objects.remove_follower(request.user, other_user)
 
+        # Create request.user blocks other_user relationship
+        block_created = Block.objects.add_block(request.user, other_user)
+
+        # Remove request.user blocks other_user relationship
+        block_remove = Block.objects.remove_block(request.user, other_user)
+
+
 
 To use ``django-friendship`` in your templates::
 

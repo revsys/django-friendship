@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
-from friendship.models import Friend, Follow, FriendshipRequest
+from friendship.models import Friend, Follow, FriendshipRequest, Block
 
 
 TEST_TEMPLATES = os.path.join(os.path.dirname(__file__), 'templates')
@@ -234,6 +234,31 @@ class FriendshipModelTests(BaseTestCase):
 
         with self.assertRaises(ValidationError):
             Follow.objects.create(follower=self.user_bob, followee=self.user_bob)
+
+    def test_blocking(self):
+        # Bob blocks Steve
+        req1 = Block.objects.add_block(self.user_bob, self.user_steve)
+        self.assertEqual(len(Block.objects.blocking(self.user_bob)), 1)
+        self.assertEqual(len(Block.objects.blocked(self.user_steve)), 1)
+        self.assertEqual(Block.objects.is_blocked(self.user_bob, self.user_steve), True)
+
+        # Duplicated requests raise a more specific subclass of IntegrityError.
+        with self.assertRaises(IntegrityError):
+            Block.objects.add_block(self.user_bob, self.user_steve)
+        with self.assertRaises(AlreadyExistsError):
+            Block.objects.add_block(self.user_bob, self.user_steve)
+
+        # Remove the relationship
+        self.assertTrue(Block.objects.remove_block(self.user_bob, self.user_steve))
+        self.assertEqual(len(Block.objects.blocking(self.user_steve)), 0)
+        self.assertEqual(len(Block.objects.blocked(self.user_bob)), 0)
+
+        # Ensure we canot block ourselves
+        with self.assertRaises(ValidationError):
+            Block.objects.add_block(self.user_bob, self.user_bob)
+
+        with self.assertRaises(ValidationError):
+            Block.objects.create(blocker=self.user_bob, blocked=self.user_bob)
 
 
 class FriendshipViewTests(BaseTestCase):
@@ -490,4 +515,70 @@ class FriendshipViewTests(BaseTestCase):
             response = self.client.post(url)
             self.assertResponse302(response)
             redirect_url = reverse('friendship_following', kwargs={'username': self.user_bob.username})
+            self.assertTrue(redirect_url in response['Location'])
+
+    def test_friendship_blockers(self):
+        url = reverse('friendship_blockers', kwargs={'username': 'bob'})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse200(response)
+
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME='object', TEMPLATE_DIRS=(TEST_TEMPLATES,)):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+            self.assertTrue('object' in response.context)
+
+    def test_friendship_blocking(self):
+        url = reverse('friendship_blocking', kwargs={'username': 'bob'})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse200(response)
+
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME='object', TEMPLATE_DIRS=(TEST_TEMPLATES,)):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+            self.assertTrue('object' in response.context)
+
+    def test_block_add(self):
+        url = reverse('block_add', kwargs={'blocked_username': self.user_amy.username})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+            # on POST accept the friendship request and redirect to the
+            # friendship_following view
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_blocking', kwargs={'username': self.user_bob.username})
+            self.assertTrue(redirect_url in response['Location'])
+
+            response = self.client.post(url)
+            self.assertResponse200(response)
+            self.assertTrue('errors' in response.context)
+            self.assertEqual(response.context['errors'], ["User 'bob' already blocks 'amy'"])
+
+    def test_block_remove(self):
+        # create a follow relationship so we can test removing a block
+        block = Block.objects.add_block(self.user_bob, self.user_amy)
+
+        url = reverse('block_remove', kwargs={'blocked_username': self.user_amy.username})
+
+        # test that the view requires authentication to access it
+        response = self.client.get(url)
+        self.assertResponse302(response)
+
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(url)
+            self.assertResponse200(response)
+
+            response = self.client.post(url)
+            self.assertResponse302(response)
+            redirect_url = reverse('friendship_blocking', kwargs={'username': self.user_bob.username})
             self.assertTrue(redirect_url in response['Location'])
