@@ -1,7 +1,9 @@
-Version 1.6.0 (unreleased)
+Version 1.6.0
 -------------
+  Released May 22nd, 2018
 
     - Added can_request_send option (narnikgamarnik)
+    - Added blocking feature (Darren Mckeeman)
 
 Version 1.5.0
 -------------
