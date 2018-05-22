@@ -9,7 +9,7 @@ register = template.Library()
 def get_by_name(context, name):
     """Tag to lookup a variable in the current context."""
     return context[name]
-
+    
 
 @register.inclusion_tag('friendship/templatetags/friends.html')
 def friends(user):
@@ -65,3 +65,5 @@ def friend_rejected_count(user):
     Inclusion tag to display the count of rejected friend requests
     """
     return {'friend_rejected_count': len(Friend.objects.rejected_requests(user))}
+
+

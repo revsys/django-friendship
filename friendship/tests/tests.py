@@ -73,6 +73,11 @@ class FriendshipModelTests(BaseTestCase):
         ### Bob wants to be friends with Steve
         req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
+        # Ensure that the request can be sent
+        self.assertFalse(Friend.objects.can_request_send(self.user_bob, self.user_bob))
+        self.assertTrue(Friend.objects.can_request_send(self.user_bob, self.user_steve))
+        
+
         # Ensure neither have friends already
         self.assertEqual(Friend.objects.friends(self.user_bob), [])
         self.assertEqual(Friend.objects.friends(self.user_steve), [])
