@@ -24,3 +24,5 @@ with contributions from:
     Evgeniy Kirov - https://github.com/kirov
     mirskiy - https://github.com/mirskiy
     Eric Conner <econner@cs.stanford.edu> - http://ericwconner.com
+    narnikgamarnik - https://github.com/narnikgamarnikus
+

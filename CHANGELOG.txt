@@ -1,3 +1,8 @@
+Version 1.6.0 (unreleased)
+-------------
+
+    - Added can_request_send option (narnikgamarnik)
+
 Version 1.5.0
 -------------
 
