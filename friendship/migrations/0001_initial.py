@@ -7,7 +7,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -18,8 +17,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('followee', models.ForeignKey(related_name='followers', to=settings.AUTH_USER_MODEL)),
-                ('follower', models.ForeignKey(related_name='following', to=settings.AUTH_USER_MODEL)),
+                ('followee',
+                 models.ForeignKey(related_name='followers', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('follower',
+                 models.ForeignKey(related_name='following', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Following Relationship',
@@ -31,8 +32,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('blocked', models.ForeignKey(related_name='blockers', to=settings.AUTH_USER_MODEL)),
-                ('blocker', models.ForeignKey(related_name='blocking', to=settings.AUTH_USER_MODEL)),
+                ('blocked',
+                 models.ForeignKey(related_name='blockers', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('blocker',
+                 models.ForeignKey(related_name='blocking', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Blocking Relationship',
@@ -44,8 +47,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('from_user', models.ForeignKey(related_name='_unused_friend_relation', to=settings.AUTH_USER_MODEL)),
-                ('to_user', models.ForeignKey(related_name='friends', to=settings.AUTH_USER_MODEL)),
+                ('from_user', models.ForeignKey(related_name='_unused_friend_relation', to=settings.AUTH_USER_MODEL,
+                                                on_delete=models.CASCADE)),
+                ('to_user',
+                 models.ForeignKey(related_name='friends', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Friend',
@@ -60,8 +65,10 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
                 ('rejected', models.DateTimeField(null=True, blank=True)),
                 ('viewed', models.DateTimeField(null=True, blank=True)),
-                ('from_user', models.ForeignKey(related_name='friendship_requests_sent', to=settings.AUTH_USER_MODEL)),
-                ('to_user', models.ForeignKey(related_name='friendship_requests_received', to=settings.AUTH_USER_MODEL)),
+                ('from_user', models.ForeignKey(related_name='friendship_requests_sent', to=settings.AUTH_USER_MODEL,
+                                                on_delete=models.CASCADE)),
+                ('to_user', models.ForeignKey(related_name='friendship_requests_received', to=settings.AUTH_USER_MODEL,
+                                              on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Friendship Request',
