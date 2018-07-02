@@ -5,6 +5,11 @@ python:
   - 3.6
 env:
   - DJANGO="Django>=1.11,<2.0"
+  - DJANGO="Django>=2.0,<2.1"
+matrix:
+  exclude:
+    - python: 2.7
+      env: DJANGO="Django>=2.0,<2.1"
 install:
   - pip install -e .
   - pip install $DJANGO
