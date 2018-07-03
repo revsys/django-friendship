@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('followee', models.ForeignKey(related_name='followers', to=settings.AUTH_USER_MODEL)),
-                ('follower', models.ForeignKey(related_name='following', to=settings.AUTH_USER_MODEL)),
+                ('followee', models.ForeignKey(related_name='followers', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('follower', models.ForeignKey(related_name='following', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Following Relationship',
@@ -44,8 +44,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('from_user', models.ForeignKey(related_name='_unused_friend_relation', to=settings.AUTH_USER_MODEL)),
-                ('to_user', models.ForeignKey(related_name='friends', to=settings.AUTH_USER_MODEL)),
+                ('from_user', models.ForeignKey(related_name='_unused_friend_relation', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('to_user', models.ForeignKey(related_name='friends', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Friend',
@@ -60,8 +60,8 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
                 ('rejected', models.DateTimeField(null=True, blank=True)),
                 ('viewed', models.DateTimeField(null=True, blank=True)),
-                ('from_user', models.ForeignKey(related_name='friendship_requests_sent', to=settings.AUTH_USER_MODEL)),
-                ('to_user', models.ForeignKey(related_name='friendship_requests_received', to=settings.AUTH_USER_MODEL)),
+                ('from_user', models.ForeignKey(related_name='friendship_requests_sent', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('to_user', models.ForeignKey(related_name='friendship_requests_received', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Friendship Request',
