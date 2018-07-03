@@ -17,8 +17,7 @@ This application enables you to create and manage follows, blocks and bi-directi
 
 Requirements
 ============
-
-**Django 1.4** since v0.9.0 (latest release supporting **Django 1.3** is v0.8.3)
+**Django 1.11+** since v1.7.0 (latest release supporting **Django 1.10** is v1.6.0)
 
 Installation
 ============
