@@ -15,7 +15,7 @@ from friendship.signals import (
     friendship_request_canceled,
     friendship_request_viewed, friendship_request_accepted,
     friendship_removed, follower_created, follower_removed,
-    followee_created, followee_removed, following_created, following_removed, block_created,block_removed
+    followee_created, followee_removed, following_created, following_removed, block_created, block_removed
 )
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -76,8 +76,10 @@ def bust_cache(type, user_pk):
 @python_2_unicode_compatible
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
-    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_sent')
-    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_received')
+    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_sent',
+                                  on_delete=models.CASCADE)
+    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friendship_requests_received',
+                                on_delete=models.CASCADE)
 
     message = models.TextField(_('Message'), blank=True)
 
@@ -312,13 +314,12 @@ class FriendshipManager(models.Manager):
     def can_request_send(self, from_user, to_user):
         """ Checks if a request was sent """
         if from_user == to_user or FriendshipRequest.objects.filter(
-            from_user=from_user,
-            to_user=to_user,
-            ).exists() is False:
+                from_user=from_user,
+                to_user=to_user,
+        ).exists() is False:
             return False
-        else: 
+        else:
             return True
-
 
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
@@ -362,8 +363,8 @@ class FriendshipManager(models.Manager):
 @python_2_unicode_compatible
 class Friend(models.Model):
     """ Model to represent Friendships """
-    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friends')
-    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='_unused_friend_relation')
+    to_user = models.ForeignKey(AUTH_USER_MODEL, related_name='friends', on_delete=models.CASCADE)
+    from_user = models.ForeignKey(AUTH_USER_MODEL, related_name='_unused_friend_relation', on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now)
 
     objects = FriendshipManager()
@@ -463,8 +464,8 @@ class FollowingManager(models.Manager):
 @python_2_unicode_compatible
 class Follow(models.Model):
     """ Model to represent Following relationships """
-    follower = models.ForeignKey(AUTH_USER_MODEL, related_name='following')
-    followee = models.ForeignKey(AUTH_USER_MODEL, related_name='followers')
+    follower = models.ForeignKey(AUTH_USER_MODEL, related_name='following', on_delete=models.CASCADE)
+    followee = models.ForeignKey(AUTH_USER_MODEL, related_name='followers', on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now)
 
     objects = FollowingManager()
@@ -560,12 +561,11 @@ class BlockManager(models.Manager):
                 return False
 
 
-
 @python_2_unicode_compatible
 class Block(models.Model):
     """ Model to represent Following relationships """
-    blocker = models.ForeignKey(AUTH_USER_MODEL, related_name='blocking')
-    blocked = models.ForeignKey(AUTH_USER_MODEL, related_name='blockees')
+    blocker = models.ForeignKey(AUTH_USER_MODEL, related_name='blocking', on_delete=models.CASCADE)
+    blocked = models.ForeignKey(AUTH_USER_MODEL, related_name='blockees', on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now)
 
     objects = BlockManager()
@@ -582,4 +582,4 @@ class Block(models.Model):
         # Ensure users can't be friends with themselves
         if self.blocker == self.blocked:
             raise ValidationError("Users cannot block themselves.")
-        super( Block, self).save(*args, **kwargs)
+        super(Block, self).save(*args, **kwargs)
