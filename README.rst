@@ -24,7 +24,7 @@ Installation
 
 1. ``pip install django-friendship``
 2. add ``"friendship"`` to ``INSTALLED_APPS`` and run ``python manage.py migrate``.
-3. Use the friendship manager in your own views, or wire up the URLconf to include the builtin views: :
+3. Use the friendship manager in your own views, or wire up the URLconf to include the builtin views:
 
    .. code:: python
 
@@ -33,6 +33,22 @@ Installation
         url(r'^friendship/', include('friendship.urls'))
         ...
     ]
+
+
+Note: If you are migrating from django-friendship ``v1.6.x``, you'll need to rollback your migrations and fake
+migration ``0002``
+
+    .. code:: shell
+
+      $ ./manage.py migrate friendship 0001
+      $ ./manage.py migrate friendship 0002 --fake
+
+
+If you're migrating from ``v1.7.x``, you'll likely have to fake ``0003`` as well:
+
+    .. code:: shell
+
+      $ ./manage.py migrate friendship 0003 --fake
 
 Usage
 =====

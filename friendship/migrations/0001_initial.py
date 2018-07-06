@@ -27,19 +27,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Block',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('blocked', models.ForeignKey(related_name='blockers', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('blocker', models.ForeignKey(related_name='blocking', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'Blocking Relationship',
-                'verbose_name_plural': 'Blocking Relationships',
-            },
-        ),
-        migrations.CreateModel(
             name='Friend',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
