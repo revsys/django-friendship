@@ -103,7 +103,7 @@ Managing Friendships and Follows
 
     from friendship.models import FriendshipRequest
 
-    friend_request = FriendshipRequest.objects.get(pk=1)
+    friend_request = FriendshipRequest.objects.get(to_user=1)
     friend_request.accept()
     # or friend_request.reject()
 
