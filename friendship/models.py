@@ -1,3 +1,5 @@
+import uuid as uuid_lib
+
 from __future__ import unicode_literals
 from django.db import models
 from django.conf import settings
@@ -84,6 +86,8 @@ class FriendshipRequest(models.Model):
     created = models.DateTimeField(default=timezone.now)
     rejected = models.DateTimeField(blank=True, null=True)
     viewed = models.DateTimeField(blank=True, null=True)
+    
+    uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
 
     class Meta:
         verbose_name = _('Friendship Request')
@@ -365,6 +369,8 @@ class Friend(models.Model):
     to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='friends')
     from_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='_unused_friend_relation')
     created = models.DateTimeField(default=timezone.now)
+    
+    uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
 
     objects = FriendshipManager()
 
@@ -466,6 +472,8 @@ class Follow(models.Model):
     follower = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='following')
     followee = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name='followers')
     created = models.DateTimeField(default=timezone.now)
+    
+    uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
 
     objects = FollowingManager()
 
@@ -567,6 +575,8 @@ class Block(models.Model):
     blocker = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blocking')
     blocked = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blockees')
     created = models.DateTimeField(default=timezone.now)
+    
+    uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
 
     objects = BlockManager()
 
