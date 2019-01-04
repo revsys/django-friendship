@@ -1,6 +1,5 @@
-import uuid as uuid_lib
-
 from __future__ import unicode_literals
+import uuid as uuid_lib
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
