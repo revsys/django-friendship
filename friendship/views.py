@@ -22,7 +22,8 @@ def view_friends(request, username, template_name='friendship/friend/user_list.h
     friends = Friend.objects.friends(user)
     return render(request, template_name, {
         get_friendship_context_object_name(): user,
-        'friendship_context_object_name': get_friendship_context_object_name()
+        'friendship_context_object_name': get_friendship_context_object_name(),
+        'friends': friends,
     })
 
 
@@ -116,7 +117,8 @@ def followers(request, username, template_name='friendship/follow/followers_list
 
     return render(request, template_name, {
         get_friendship_context_object_name(): user,
-        'friendship_context_object_name': get_friendship_context_object_name()
+        'friendship_context_object_name': get_friendship_context_object_name(),
+        'followers': followers,
     })
 
 
@@ -127,7 +129,8 @@ def following(request, username, template_name='friendship/follow/following_list
 
     return render(request, template_name, {
         get_friendship_context_object_name(): user,
-        'friendship_context_object_name': get_friendship_context_object_name()
+        'friendship_context_object_name': get_friendship_context_object_name(),
+        'following': following,
     })
 
 
