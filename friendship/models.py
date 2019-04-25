@@ -15,7 +15,7 @@ from friendship.signals import (
     friendship_request_canceled,
     friendship_request_viewed, friendship_request_accepted,
     friendship_removed, follower_created, follower_removed,
-    followee_created, followee_removed, following_created, following_removed, block_created,block_removed
+    followee_created, followee_removed, following_created, following_removed, block_created, block_removed
 )
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -285,7 +285,7 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if self.can_request_send(from_user, to_user):
+        if (not (self.can_request_send(from_user, to_user))):
             raise AlreadyExistsError("Friendship already requested")
 
         if message is None:
@@ -311,14 +311,13 @@ class FriendshipManager(models.Manager):
 
     def can_request_send(self, from_user, to_user):
         """ Checks if a request was sent """
-        if from_user == to_user or FriendshipRequest.objects.filter(
+        if (from_user == to_user) or (FriendshipRequest.objects.filter(
             from_user=from_user,
             to_user=to_user,
-            ).exists() is False:
+        ).exists()):
             return False
-        else: 
+        else:
             return True
-
 
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
@@ -560,7 +559,6 @@ class BlockManager(models.Manager):
                 return False
 
 
-
 @python_2_unicode_compatible
 class Block(models.Model):
     """ Model to represent Following relationships """
@@ -582,4 +580,4 @@ class Block(models.Model):
         # Ensure users can't be friends with themselves
         if self.blocker == self.blocked:
             raise ValidationError("Users cannot block themselves.")
-        super( Block, self).save(*args, **kwargs)
+        super(Block, self).save(*args, **kwargs)
