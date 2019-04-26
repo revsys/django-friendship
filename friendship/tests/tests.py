@@ -50,8 +50,8 @@ class BaseTestCase(TestCase):
     def login(self, user, password):
         return login(self, user, password)
 
-    def create_user(self, username, password, email_address):
-        user = User.objects.create_user(username, password, email_address)
+    def create_user(self, username, email_address, password):
+        user = User.objects.create_user(username, email_address, password)
         return user
 
     def assertResponse200(self, response):
@@ -70,13 +70,15 @@ class BaseTestCase(TestCase):
 class FriendshipModelTests(BaseTestCase):
 
     def test_friendship_request(self):
-        ### Bob wants to be friends with Steve
-        req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
-
         # Ensure that the request can be sent
         self.assertFalse(Friend.objects.can_request_send(self.user_bob, self.user_bob))
         self.assertTrue(Friend.objects.can_request_send(self.user_bob, self.user_steve))
-        
+
+        # Bob wants to be friends with Steve
+        req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+        # Ensure that the request can't be sent again
+        self.assertFalse(Friend.objects.can_request_send(self.user_bob, self.user_steve))
 
         # Ensure neither have friends already
         self.assertEqual(Friend.objects.friends(self.user_bob), [])
@@ -171,7 +173,7 @@ class FriendshipModelTests(BaseTestCase):
 
     def test_multiple_friendship_requests(self):
         """ Ensure multiple friendship requests are handled properly """
-        ### Bob wants to be friends with Steve
+        # Bob wants to be friends with Steve
         req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
         # Ensure neither have friends already
