@@ -1,3 +1,12 @@
+Version 1.8.1
+-------------
+
+*Released May 24th, 2019*
+
+- Fixed bug in `friendship_request_list` view
+- Refactored `can_request_send` to be more clear
+- Ran Black over the codebase
+
 Version 1.8.0
 -------------
 
