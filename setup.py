@@ -13,6 +13,7 @@ setup(
     version=".".join(map(str, VERSION)),
     description="django-friendship provides an easy extensible interface for following and friendship",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Frank Wiles",
     author_email="frank@revsys.com",
     url="https://github.com/revsys/django-friendship/",
@@ -20,7 +21,7 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
@@ -29,5 +30,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Framework :: Django",
     ],
-    test_suite="friendship.tests.runtests.runtests",
+    test_suite="runtests.runtests",
 )
