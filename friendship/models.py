@@ -345,16 +345,15 @@ class FriendshipManager(models.Manager):
 
     def can_request_send(self, from_user, to_user):
         """ Checks if a request was sent """
-        if (
-            from_user == to_user
-            or FriendshipRequest.objects.filter(
-                from_user=from_user, to_user=to_user
-            ).exists()
-            is False
-        ):
+        if from_user == to_user:
             return False
-        else:
-            return True
+
+        if not FriendshipRequest.objects.filter(
+            from_user=from_user, to_user=to_user
+        ).exists():
+            return False
+
+        return True
 
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
