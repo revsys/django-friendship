@@ -48,8 +48,8 @@ class BaseTestCase(TestCase):
     def login(self, user, password):
         return login(self, user, password)
 
-    def create_user(self, username, password, email_address):
-        user = User.objects.create_user(username, password, email_address)
+    def create_user(self, username, email_address, password):
+        user = User.objects.create_user(username, email_address, password)
         return user
 
     def assertResponse200(self, response):
