@@ -628,7 +628,7 @@ class Block(models.Model):
     objects = BlockManager()
 
     class Meta:
-        verbose_name = _("Blocker Relationship")
+        verbose_name = _("Blocked Relationship")
         verbose_name_plural = _("Blocked Relationships")
         unique_together = ("blocker", "blocked")
 
