@@ -27,14 +27,11 @@ def view_friends(request, username, template_name="friendship/friend/user_list.h
     """ View the friends of a user """
     user = get_object_or_404(user_model, username=username)
     friends = Friend.objects.friends(user)
-    return render(
-        request,
-        template_name,
-        {
-            get_friendship_context_object_name(): user,
-            "friendship_context_object_name": get_friendship_context_object_name(),
-        },
-    )
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name(),
+        'friends': friends,
+    })
 
 
 @login_required
@@ -139,30 +136,22 @@ def followers(request, username, template_name="friendship/follow/followers_list
     """ List this user's followers """
     user = get_object_or_404(user_model, username=username)
     followers = Follow.objects.followers(user)
-
-    return render(
-        request,
-        template_name,
-        {
-            get_friendship_context_object_name(): user,
-            "friendship_context_object_name": get_friendship_context_object_name(),
-        },
-    )
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name(),
+        'followers': followers,
+    })
 
 
 def following(request, username, template_name="friendship/follow/following_list.html"):
     """ List who this user follows """
     user = get_object_or_404(user_model, username=username)
     following = Follow.objects.following(user)
-
-    return render(
-        request,
-        template_name,
-        {
-            get_friendship_context_object_name(): user,
-            "friendship_context_object_name": get_friendship_context_object_name(),
-        },
-    )
+    return render(request, template_name, {
+        get_friendship_context_object_name(): user,
+        'friendship_context_object_name': get_friendship_context_object_name(),
+        'following': following,
+    })
 
 
 @login_required
