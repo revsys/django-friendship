@@ -117,7 +117,7 @@ def friendship_request_list_rejected(
 ):
     """ View rejected friendship requests """
     # friendship_requests = Friend.objects.rejected_requests(request.user)
-    friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
+    friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=False)
 
     return render(request, template_name, {"requests": friendship_requests})
 
