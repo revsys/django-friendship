@@ -26,3 +26,5 @@ with contributions from:
     Eric Conner <econner@cs.stanford.edu> - http://ericwconner.com
     narnikgamarnik - https://github.com/narnikgamarnikus
     Darren Mckeeman <darren@kinkbnb.com> - https://www.kinkbnb.com
+    umbertov
+    Uri Rodberg <uri@speedy.net> - https://github.com/uri-rodberg
