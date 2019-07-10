@@ -1,3 +1,11 @@
+Version 1.8.2
+-------------
+
+*Unreleased*
+
+- Fixed bug with viewing rejected friend requests
+- Added friends QuerySet to view context
+
 Version 1.8.1
 -------------
 

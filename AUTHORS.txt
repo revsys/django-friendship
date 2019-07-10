@@ -28,3 +28,5 @@ with contributions from:
     Darren Mckeeman <darren@kinkbnb.com> - https://www.kinkbnb.com
     umbertov
     Uri Rodberg <uri@speedy.net> - https://github.com/uri-rodberg
+    Richard - https://github.com/rockmaga
+    predatell - https://github.com/predatell
