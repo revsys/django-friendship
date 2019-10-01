@@ -160,7 +160,7 @@ Then use any of the following:
 
 ### Contributing
 
-Development [takes place on GitHub]https://github.com/revsys/django-friendship) Bug reports, patches, and fixes are always welcome!
+Development [takes place on GitHub](https://github.com/revsys/django-friendship). Bug reports, patches, and fixes are always welcome!
 
 # Need help?
 
