@@ -497,11 +497,7 @@ class FollowingManager(models.Manager):
         elif following and follower in following:
             return True
         else:
-            try:
-                Follow.objects.get(follower=follower, followee=followee)
-                return True
-            except Follow.DoesNotExist:
-                return False
+            Follow.objects.filter(follower=follower, followee=followee).exists()
 
 
 @python_2_unicode_compatible
