@@ -489,6 +489,9 @@ class FollowingManager(models.Manager):
 
     def follows(self, follower, followee):
         """ Does follower follow followee? Smartly uses caches if exists """
+        # if follwer and followee are same, return None instead
+        if follower == followee:
+            return None
         followers = cache.get(cache_key("following", follower.pk))
         following = cache.get(cache_key("followers", followee.pk))
 
