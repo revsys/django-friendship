@@ -497,7 +497,7 @@ class FollowingManager(models.Manager):
         elif following and follower in following:
             return True
         else:
-            Follow.objects.filter(follower=follower, followee=followee).exists()
+            return self.get_queryset().filter(follower=follower, followee=followee).exists()
 
 
 @python_2_unicode_compatible
