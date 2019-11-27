@@ -30,3 +30,5 @@ with contributions from:
     Uri Rodberg <uri@speedy.net> - https://github.com/uri-rodberg
     Richard - https://github.com/rockmaga
     predatell - https://github.com/predatell
+    Sean Callaway - https://callaway.dev/
+    Pritam Soni - https://github.com/pritamsoni-hsr

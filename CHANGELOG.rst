@@ -1,10 +1,12 @@
 Version 1.8.2
 -------------
 
-*Unreleased*
+*Released November 27th, 2019*
 
 - Fixed bug with viewing rejected friend requests
 - Added friends QuerySet to view context
+- Reduce fields queried when not necessary
+- Update Travis to check Python 3.8
 
 Version 1.8.1
 -------------
