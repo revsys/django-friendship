@@ -1,18 +1,20 @@
 language: python
+dist: xenial
 python:
-  - 2.7
-  - 3.5
-  - 3.6
-env:
-  - DJANGO="Django>=1.11,<2.0"
-  - DJANGO="Django>=2.0,<2.1"
-matrix:
-  exclude:
-    - python: 2.7
-      env: DJANGO="Django>=2.0,<2.1"
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8-dev"
+  - "pypy"
+  - "pypy3"
+cache: pip
 install:
-  - pip install -e .
-  - pip install $DJANGO
-  - pip install -r requirements-travisci.txt
+  - pip install tox-travis
+  - pip install -r requirements.txt
 script:
-  - python runtests.py
+  - flake8 . --ignore=E501,E402
+  - tox
+after_success:
+  - coveralls
