@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import python_2_unicode_compatible
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.signals import (
@@ -82,7 +81,6 @@ def bust_cache(type, user_pk):
     cache.delete_many(keys)
 
 
-@python_2_unicode_compatible
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
 
@@ -396,7 +394,6 @@ class FriendshipManager(models.Manager):
                 return False
 
 
-@python_2_unicode_compatible
 class Friend(models.Model):
     """ Model to represent Friendships """
 
@@ -500,7 +497,6 @@ class FollowingManager(models.Manager):
             Follow.objects.filter(follower=follower, followee=followee).exists()
 
 
-@python_2_unicode_compatible
 class Follow(models.Model):
     """ Model to represent Following relationships """
 
@@ -609,7 +605,6 @@ class BlockManager(models.Manager):
                 return False
 
 
-@python_2_unicode_compatible
 class Block(models.Model):
     """ Model to represent Following relationships """
 
