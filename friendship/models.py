@@ -511,6 +511,7 @@ class Follow(models.Model):
         AUTH_USER_MODEL, models.CASCADE, related_name="followers"
     )
     created = models.DateTimeField(default=timezone.now)
+    note = models.TextField(blank=True, default="")
 
     objects = FollowingManager()
 
