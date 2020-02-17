@@ -19,6 +19,7 @@ setup(
     include_package_data=True,
     packages=find_packages(),
     zip_safe=False,
+    install_requires=["six"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
@@ -27,6 +28,7 @@ setup(
         "Framework :: Django :: 2.0",
         "Framework :: Django :: 2.1",
         "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
         "Framework :: Pytest",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",

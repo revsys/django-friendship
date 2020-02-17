@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import python_2_unicode_compatible
+from six import python_2_unicode_compatible
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.signals import (
