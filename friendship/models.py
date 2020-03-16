@@ -1,29 +1,29 @@
 from __future__ import unicode_literals
-from django.db import models
+
 from django.conf import settings
-from django.db.models import Q
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-
+from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.signals import (
-    friendship_request_created,
-    friendship_request_rejected,
-    friendship_request_canceled,
-    friendship_request_viewed,
-    friendship_request_accepted,
-    friendship_removed,
-    follower_created,
-    follower_removed,
-    followee_created,
-    followee_removed,
-    following_created,
-    following_removed,
     block_created,
     block_removed,
+    followee_created,
+    followee_removed,
+    follower_created,
+    follower_removed,
+    following_created,
+    following_removed,
+    friendship_removed,
+    friendship_request_accepted,
+    friendship_request_canceled,
+    friendship_request_created,
+    friendship_request_rejected,
+    friendship_request_viewed,
 )
 
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -81,7 +81,6 @@ def bust_cache(type, user_pk):
     cache.delete_many(keys)
 
 
-
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
 
@@ -112,13 +111,9 @@ class FriendshipRequest(models.Model):
 
     def accept(self):
         """ Accept this friendship request """
-        relation1 = Friend.objects.create(
-            from_user=self.from_user, to_user=self.to_user
-        )
+        Friend.objects.create(from_user=self.from_user, to_user=self.to_user)
 
-        relation2 = Friend.objects.create(
-            from_user=self.to_user, to_user=self.from_user
-        )
+        Friend.objects.create(from_user=self.to_user, to_user=self.from_user)
 
         friendship_request_accepted.send(
             sender=self, from_user=self.from_user, to_user=self.to_user
@@ -395,7 +390,6 @@ class FriendshipManager(models.Manager):
                 return False
 
 
-
 class Friend(models.Model):
     """ Model to represent Friendships """
 
@@ -497,7 +491,6 @@ class FollowingManager(models.Manager):
             return True
         else:
             return Follow.objects.filter(follower=follower, followee=followee).exists()
-
 
 
 class Follow(models.Model):
@@ -606,7 +599,6 @@ class BlockManager(models.Manager):
                 return True
             except Block.DoesNotExist:
                 return False
-
 
 
 class Block(models.Model):

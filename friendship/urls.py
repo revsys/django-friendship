@@ -3,23 +3,23 @@ try:
 except ImportError:
     from django.conf.urls.defaults import url
 from friendship.views import (
-    view_friends,
-    friendship_add_friend,
-    friendship_accept,
-    friendship_reject,
-    friendship_cancel,
-    friendship_request_list,
-    friendship_request_list_rejected,
-    friendship_requests_detail,
-    followers,
-    following,
-    follower_add,
-    follower_remove,
     all_users,
     block_add,
     block_remove,
     blockers,
     blocking,
+    follower_add,
+    follower_remove,
+    followers,
+    following,
+    friendship_accept,
+    friendship_add_friend,
+    friendship_cancel,
+    friendship_reject,
+    friendship_request_list,
+    friendship_request_list_rejected,
+    friendship_requests_detail,
+    view_friends,
 )
 
 urlpatterns = [

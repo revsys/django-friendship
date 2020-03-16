@@ -1,14 +1,14 @@
 import os
+
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
-from friendship.models import Friend, Follow, FriendshipRequest, Block
-
+from friendship.models import Block, Follow, Friend, FriendshipRequest
 
 TEST_TEMPLATES = os.path.join(os.path.dirname(__file__), "templates")
 
@@ -67,7 +67,7 @@ class BaseTestCase(TestCase):
 
 class FriendshipModelTests(BaseTestCase):
     def test_friendship_request(self):
-        ### Bob wants to be friends with Steve
+        # Bob wants to be friends with Steve
         req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
         # Ensure that the request can be sent
@@ -171,11 +171,11 @@ class FriendshipModelTests(BaseTestCase):
         req.accept()
 
         with self.assertRaises(AlreadyFriendsError):
-            req2 = Friend.objects.add_friend(self.user_bob, self.user_steve)
+            Friend.objects.add_friend(self.user_bob, self.user_steve)
 
     def test_multiple_friendship_requests(self):
         """ Ensure multiple friendship requests are handled properly """
-        ### Bob wants to be friends with Steve
+        # Bob wants to be friends with Steve
         req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
         # Ensure neither have friends already
@@ -192,7 +192,7 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1)
 
         # Steve also wants to be friends with Bob before Bob replies
-        req2 = Friend.objects.add_friend(self.user_steve, self.user_bob)
+        Friend.objects.add_friend(self.user_steve, self.user_bob)
 
         # Ensure they aren't friends at this point
         self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_steve))
@@ -216,18 +216,14 @@ class FriendshipModelTests(BaseTestCase):
 
     def test_multiple_calls_add_friend(self):
         """ Ensure multiple calls with same friends, but different message works as expected """
-        req1 = Friend.objects.add_friend(
-            self.user_bob, self.user_steve, message="Testing"
-        )
+        Friend.objects.add_friend(self.user_bob, self.user_steve, message="Testing")
 
         with self.assertRaises(AlreadyExistsError):
-            req2 = Friend.objects.add_friend(
-                self.user_bob, self.user_steve, message="Foo Bar"
-            )
+            Friend.objects.add_friend(self.user_bob, self.user_steve, message="Foo Bar")
 
     def test_following(self):
         # Bob follows Steve
-        req1 = Follow.objects.add_follower(self.user_bob, self.user_steve)
+        Follow.objects.add_follower(self.user_bob, self.user_steve)
         self.assertEqual(len(Follow.objects.followers(self.user_steve)), 1)
         self.assertEqual(len(Follow.objects.following(self.user_bob)), 1)
         self.assertEqual(Follow.objects.followers(self.user_steve), [self.user_bob])
@@ -257,7 +253,7 @@ class FriendshipModelTests(BaseTestCase):
 
     def test_blocking(self):
         # Bob blocks Steve
-        req1 = Block.objects.add_block(self.user_bob, self.user_steve)
+        Block.objects.add_block(self.user_bob, self.user_steve)
         self.assertEqual(len(Block.objects.blocking(self.user_bob)), 1)
         self.assertEqual(len(Block.objects.blocked(self.user_steve)), 1)
         self.assertEqual(Block.objects.is_blocked(self.user_bob, self.user_steve), True)
@@ -567,7 +563,7 @@ class FriendshipViewTests(BaseTestCase):
 
     def test_follower_remove(self):
         # create a follow relationship so we can test removing a follower
-        follow = Follow.objects.add_follower(self.user_bob, self.user_amy)
+        Follow.objects.add_follower(self.user_bob, self.user_amy)
 
         url = reverse(
             "follower_remove", kwargs={"followee_username": self.user_amy.username}
@@ -645,7 +641,7 @@ class FriendshipViewTests(BaseTestCase):
 
     def test_block_remove(self):
         # create a follow relationship so we can test removing a block
-        block = Block.objects.add_block(self.user_bob, self.user_amy)
+        Block.objects.add_block(self.user_bob, self.user_amy)
 
         url = reverse(
             "block_remove", kwargs={"blocked_username": self.user_amy.username}

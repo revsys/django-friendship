@@ -1,5 +1,9 @@
-from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
+from friendship.exceptions import AlreadyExistsError
+from friendship.models import Block, Follow, Friend, FriendshipRequest
 
 try:
     from django.contrib.auth import get_user_model
@@ -10,28 +14,30 @@ except ImportError:
 
     user_model = User
 
-from django.shortcuts import render, get_object_or_404, redirect
 
-from friendship.exceptions import AlreadyExistsError
-from friendship.models import Friend, Follow, FriendshipRequest, Block
 
-get_friendship_context_object_name = lambda: getattr(
-    settings, "FRIENDSHIP_CONTEXT_OBJECT_NAME", "user"
-)
-get_friendship_context_object_list_name = lambda: getattr(
-    settings, "FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME", "users"
-)
+
+def get_friendship_context_object_name():
+    return getattr(settings, "FRIENDSHIP_CONTEXT_OBJECT_NAME", "user")
+
+
+def get_friendship_context_object_list_name():
+    return getattr(settings, "FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME", "users")
 
 
 def view_friends(request, username, template_name="friendship/friend/user_list.html"):
     """ View the friends of a user """
     user = get_object_or_404(user_model, username=username)
     friends = Friend.objects.friends(user)
-    return render(request, template_name, {
-        get_friendship_context_object_name(): user,
-        'friendship_context_object_name': get_friendship_context_object_name(),
-        'friends': friends,
-    })
+    return render(
+        request,
+        template_name,
+        {
+            get_friendship_context_object_name(): user,
+            "friendship_context_object_name": get_friendship_context_object_name(),
+            "friends": friends,
+        },
+    )
 
 
 @login_required
@@ -136,22 +142,30 @@ def followers(request, username, template_name="friendship/follow/followers_list
     """ List this user's followers """
     user = get_object_or_404(user_model, username=username)
     followers = Follow.objects.followers(user)
-    return render(request, template_name, {
-        get_friendship_context_object_name(): user,
-        'friendship_context_object_name': get_friendship_context_object_name(),
-        'followers': followers,
-    })
+    return render(
+        request,
+        template_name,
+        {
+            get_friendship_context_object_name(): user,
+            "friendship_context_object_name": get_friendship_context_object_name(),
+            "followers": followers,
+        },
+    )
 
 
 def following(request, username, template_name="friendship/follow/following_list.html"):
     """ List who this user follows """
     user = get_object_or_404(user_model, username=username)
     following = Follow.objects.following(user)
-    return render(request, template_name, {
-        get_friendship_context_object_name(): user,
-        'friendship_context_object_name': get_friendship_context_object_name(),
-        'following': following,
-    })
+    return render(
+        request,
+        template_name,
+        {
+            get_friendship_context_object_name(): user,
+            "friendship_context_object_name": get_friendship_context_object_name(),
+            "following": following,
+        },
+    )
 
 
 @login_required
@@ -199,7 +213,7 @@ def all_users(request, template_name="friendship/user_actions.html"):
 def blocking(request, username, template_name="friendship/block/blockers_list.html"):
     """ List this user's followers """
     user = get_object_or_404(user_model, username=username)
-    blockers = Block.objects.blocked(user)
+    Block.objects.blocked(user)
 
     return render(
         request,
@@ -214,7 +228,7 @@ def blocking(request, username, template_name="friendship/block/blockers_list.ht
 def blockers(request, username, template_name="friendship/block/blocking_list.html"):
     """ List who this user follows """
     user = get_object_or_404(user_model, username=username)
-    blocking = Block.objects.blocking(user)
+    Block.objects.blocking(user)
 
     return render(
         request,

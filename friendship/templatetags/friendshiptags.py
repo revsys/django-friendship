@@ -1,6 +1,6 @@
 from django import template
 
-from friendship.models import Friend, Follow, FriendshipRequest, Block
+from friendship.models import Block, Follow, Friend
 
 register = template.Library()
 

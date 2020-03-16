@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from django.contrib import admin
 
-from .models import Follow, Friend, FriendshipRequest, Block
+from .models import Block, Follow, Friend, FriendshipRequest
 
 
 class BlockAdmin(admin.ModelAdmin):

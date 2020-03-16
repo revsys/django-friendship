@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
 import django.utils.timezone
+
 from django.conf import settings
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -14,57 +15,117 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Follow',
+            name="Follow",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('followee', models.ForeignKey(related_name='followers', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('follower', models.ForeignKey(related_name='following', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "followee",
+                    models.ForeignKey(
+                        related_name="followers",
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "follower",
+                    models.ForeignKey(
+                        related_name="following",
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Following Relationship',
-                'verbose_name_plural': 'Following Relationships',
+                "verbose_name": "Following Relationship",
+                "verbose_name_plural": "Following Relationships",
             },
         ),
         migrations.CreateModel(
-            name='Friend',
+            name="Friend",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('from_user', models.ForeignKey(related_name='_unused_friend_relation', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('to_user', models.ForeignKey(related_name='friends', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "from_user",
+                    models.ForeignKey(
+                        related_name="_unused_friend_relation",
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "to_user",
+                    models.ForeignKey(
+                        related_name="friends",
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-            options={
-                'verbose_name': 'Friend',
-                'verbose_name_plural': 'Friends',
-            },
+            options={"verbose_name": "Friend", "verbose_name_plural": "Friends"},
         ),
         migrations.CreateModel(
-            name='FriendshipRequest',
+            name="FriendshipRequest",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('message', models.TextField(verbose_name='Message', blank=True)),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('rejected', models.DateTimeField(null=True, blank=True)),
-                ('viewed', models.DateTimeField(null=True, blank=True)),
-                ('from_user', models.ForeignKey(related_name='friendship_requests_sent', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('to_user', models.ForeignKey(related_name='friendship_requests_received', on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("message", models.TextField(verbose_name="Message", blank=True)),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                ("rejected", models.DateTimeField(null=True, blank=True)),
+                ("viewed", models.DateTimeField(null=True, blank=True)),
+                (
+                    "from_user",
+                    models.ForeignKey(
+                        related_name="friendship_requests_sent",
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "to_user",
+                    models.ForeignKey(
+                        related_name="friendship_requests_received",
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Friendship Request',
-                'verbose_name_plural': 'Friendship Requests',
+                "verbose_name": "Friendship Request",
+                "verbose_name_plural": "Friendship Requests",
             },
         ),
         migrations.AlterUniqueTogether(
-            name='friendshiprequest',
-            unique_together=set([('from_user', 'to_user')]),
+            name="friendshiprequest", unique_together=set([("from_user", "to_user")]),
         ),
         migrations.AlterUniqueTogether(
-            name='friend',
-            unique_together=set([('from_user', 'to_user')]),
+            name="friend", unique_together=set([("from_user", "to_user")]),
         ),
         migrations.AlterUniqueTogether(
-            name='follow',
-            unique_together=set([('follower', 'followee')]),
+            name="follow", unique_together=set([("follower", "followee")]),
         ),
     ]
