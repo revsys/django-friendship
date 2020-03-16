@@ -1,4 +1,4 @@
-Version 2.0.0
+Version 1.9.0
 -------------
 
 *Released March 16th, 2020*
