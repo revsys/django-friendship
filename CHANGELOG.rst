@@ -1,3 +1,11 @@
+Version 2.0.0
+-------------
+
+*Released March 16th, 2020*
+
+- Drop support for Python 2
+- Add support for Django 3.0
+
 Version 1.8.2
 -------------
 
