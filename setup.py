@@ -10,7 +10,7 @@ f.close()
 
 setup(
     name="django-friendship",
-    version="1.8.2",
+    version="1.9.0",
     description="django-friendship provides an easy extensible interface for following and friendship",
     long_description=readme,
     long_description_content_type="text/markdown",
