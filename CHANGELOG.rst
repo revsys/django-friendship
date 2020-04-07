@@ -1,7 +1,7 @@
 Version 1.9.0
 -------------
 
-*TBD*
+*Released April 7th, 2020*
 
 - Drop support for Python 2
 - Add support for Django 3.0
