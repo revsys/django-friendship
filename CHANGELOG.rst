@@ -1,3 +1,10 @@
+Version 1.9.1
+-------------
+
+*Released April 9th, 2020*
+
+- Add missing migration.
+
 Version 1.9.0
 -------------
 
