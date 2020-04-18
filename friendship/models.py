@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import python_2_unicode_compatible
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.signals import (
@@ -82,7 +81,6 @@ def bust_cache(type, user_pk):
     cache.delete_many(keys)
 
 
-@python_2_unicode_compatible
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
 
@@ -113,24 +111,19 @@ class FriendshipRequest(models.Model):
 
     def accept(self):
         """ Accept this friendship request """
-        relation1 = Friend.objects.create(
-            from_user=self.from_user, to_user=self.to_user
-        )
+        Friend.objects.create(from_user=self.from_user, to_user=self.to_user)
 
-        relation2 = Friend.objects.create(
-            from_user=self.to_user, to_user=self.from_user
-        )
+        Friend.objects.create(from_user=self.to_user, to_user=self.from_user)
 
-        friendship_request_accepted.send(
-            sender=self, from_user=self.from_user, to_user=self.to_user
-        )
+        friendship_request_accepted.send(sender=self,
+                                         from_user=self.from_user,
+                                         to_user=self.to_user)
 
         self.delete()
 
         # Delete any reverse requests
-        FriendshipRequest.objects.filter(
-            from_user=self.to_user, to_user=self.from_user
-        ).delete()
+        FriendshipRequest.objects.filter(from_user=self.to_user,
+                                         to_user=self.from_user).delete()
 
         # Bust requests cache - request is deleted
         bust_cache("requests", self.to_user.pk)
@@ -169,18 +162,14 @@ class FriendshipRequest(models.Model):
 
 class FriendshipManager(models.Manager):
     """ Friendship manager """
-
     def friends(self, user):
         """ Return a list of all friends """
         key = cache_key("friends", user.pk)
         friends = cache.get(key)
 
         if friends is None:
-            qs = (
-                Friend.objects.select_related("from_user", "to_user")
-                .filter(to_user=user)
-                .all()
-            )
+            qs = (Friend.objects.select_related(
+                "from_user", "to_user").filter(to_user=user).all())
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
 
@@ -192,11 +181,8 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user)
-                .all()
-            )
+            qs = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user).all())
             requests = list(qs)
             cache.set(key, requests)
 
@@ -208,11 +194,8 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(from_user=user)
-                .all()
-            )
+            qs = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(from_user=user).all())
             requests = list(qs)
             cache.set(key, requests)
 
@@ -224,11 +207,9 @@ class FriendshipManager(models.Manager):
         unread_requests = cache.get(key)
 
         if unread_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=True)
-                .all()
-            )
+            qs = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user,
+                                               viewed__isnull=True).all())
             unread_requests = list(qs)
             cache.set(key, unread_requests)
 
@@ -240,11 +221,9 @@ class FriendshipManager(models.Manager):
         count = cache.get(key)
 
         if count is None:
-            count = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=True)
-                .count()
-            )
+            count = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user,
+                                               viewed__isnull=True).count())
             cache.set(key, count)
 
         return count
@@ -255,11 +234,9 @@ class FriendshipManager(models.Manager):
         read_requests = cache.get(key)
 
         if read_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=False)
-                .all()
-            )
+            qs = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user,
+                                               viewed__isnull=False).all())
             read_requests = list(qs)
             cache.set(key, read_requests)
 
@@ -271,11 +248,9 @@ class FriendshipManager(models.Manager):
         rejected_requests = cache.get(key)
 
         if rejected_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=False)
-                .all()
-            )
+            qs = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user,
+                                               rejected__isnull=False).all())
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
 
@@ -287,11 +262,9 @@ class FriendshipManager(models.Manager):
         unrejected_requests = cache.get(key)
 
         if unrejected_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=True)
-                .all()
-            )
+            qs = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user,
+                                               rejected__isnull=True).all())
             unrejected_requests = list(qs)
             cache.set(key, unrejected_requests)
 
@@ -303,11 +276,9 @@ class FriendshipManager(models.Manager):
         count = cache.get(key)
 
         if count is None:
-            count = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=True)
-                .count()
-            )
+            count = (FriendshipRequest.objects.select_related(
+                "from_user", "to_user").filter(to_user=user,
+                                               rejected__isnull=True).count())
             cache.set(key, count)
 
         return count
@@ -327,8 +298,7 @@ class FriendshipManager(models.Manager):
             message = ""
 
         request, created = FriendshipRequest.objects.get_or_create(
-            from_user=from_user, to_user=to_user
-        )
+            from_user=from_user, to_user=to_user)
 
         if created is False:
             raise AlreadyExistsError("Friendship already requested")
@@ -348,9 +318,8 @@ class FriendshipManager(models.Manager):
         if from_user == to_user:
             return False
 
-        if not FriendshipRequest.objects.filter(
-            from_user=from_user, to_user=to_user
-        ).exists():
+        if not FriendshipRequest.objects.filter(from_user=from_user,
+                                                to_user=to_user).exists():
             return False
 
         return True
@@ -358,19 +327,14 @@ class FriendshipManager(models.Manager):
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
         try:
-            qs = (
-                Friend.objects.filter(
-                    Q(to_user=to_user, from_user=from_user)
-                    | Q(to_user=from_user, from_user=to_user)
-                )
-                .distinct()
-                .all()
-            )
+            qs = (Friend.objects.filter(
+                Q(to_user=to_user, from_user=from_user)
+                | Q(to_user=from_user, from_user=to_user)).distinct().all())
 
             if qs:
-                friendship_removed.send(
-                    sender=qs[0], from_user=from_user, to_user=to_user
-                )
+                friendship_removed.send(sender=qs[0],
+                                        from_user=from_user,
+                                        to_user=to_user)
                 qs.delete()
                 bust_cache("friends", to_user.pk)
                 bust_cache("friends", from_user.pk)
@@ -396,14 +360,15 @@ class FriendshipManager(models.Manager):
                 return False
 
 
-@python_2_unicode_compatible
 class Friend(models.Model):
     """ Model to represent Friendships """
 
-    to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="friends")
-    from_user = models.ForeignKey(
-        AUTH_USER_MODEL, models.CASCADE, related_name="_unused_friend_relation"
-    )
+    to_user = models.ForeignKey(AUTH_USER_MODEL,
+                                models.CASCADE,
+                                related_name="friends")
+    from_user = models.ForeignKey(AUTH_USER_MODEL,
+                                  models.CASCADE,
+                                  related_name="_unused_friend_relation")
     created = models.DateTimeField(default=timezone.now)
 
     objects = FriendshipManager()
@@ -414,7 +379,8 @@ class Friend(models.Model):
         unique_together = ("from_user", "to_user")
 
     def __str__(self):
-        return "User #%s is friends with #%s" % (self.to_user_id, self.from_user_id)
+        return "User #%s is friends with #%s" % (self.to_user_id,
+                                                 self.from_user_id)
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
@@ -425,7 +391,6 @@ class Friend(models.Model):
 
 class FollowingManager(models.Manager):
     """ Following manager """
-
     def followers(self, user):
         """ Return a list of all followers """
         key = cache_key("followers", user.pk)
@@ -455,14 +420,12 @@ class FollowingManager(models.Manager):
         if follower == followee:
             raise ValidationError("Users cannot follow themselves")
 
-        relation, created = Follow.objects.get_or_create(
-            follower=follower, followee=followee
-        )
+        relation, created = Follow.objects.get_or_create(follower=follower,
+                                                         followee=followee)
 
         if created is False:
-            raise AlreadyExistsError(
-                "User '%s' already follows '%s'" % (follower, followee)
-            )
+            raise AlreadyExistsError("User '%s' already follows '%s'" %
+                                     (follower, followee))
 
         follower_created.send(sender=self, follower=follower)
         followee_created.send(sender=self, followee=followee)
@@ -497,19 +460,19 @@ class FollowingManager(models.Manager):
         elif following and follower in following:
             return True
         else:
-            return Follow.objects.filter(follower=follower, followee=followee).exists()
+            return Follow.objects.filter(follower=follower,
+                                         followee=followee).exists()
 
 
-@python_2_unicode_compatible
 class Follow(models.Model):
     """ Model to represent Following relationships """
 
-    follower = models.ForeignKey(
-        AUTH_USER_MODEL, models.CASCADE, related_name="following"
-    )
-    followee = models.ForeignKey(
-        AUTH_USER_MODEL, models.CASCADE, related_name="followers"
-    )
+    follower = models.ForeignKey(AUTH_USER_MODEL,
+                                 models.CASCADE,
+                                 related_name="following")
+    followee = models.ForeignKey(AUTH_USER_MODEL,
+                                 models.CASCADE,
+                                 related_name="followers")
     created = models.DateTimeField(default=timezone.now)
     note = models.TextField(blank=True, default="")
 
@@ -532,7 +495,6 @@ class Follow(models.Model):
 
 class BlockManager(models.Manager):
     """ Following manager """
-
     def blocked(self, user):
         """ Return a list of all blocks """
         key = cache_key("blocked", user.pk)
@@ -562,14 +524,12 @@ class BlockManager(models.Manager):
         if blocker == blocked:
             raise ValidationError("Users cannot block themselves")
 
-        relation, created = Block.objects.get_or_create(
-            blocker=blocker, blocked=blocked
-        )
+        relation, created = Block.objects.get_or_create(blocker=blocker,
+                                                        blocked=blocked)
 
         if created is False:
-            raise AlreadyExistsError(
-                "User '%s' already blocks '%s'" % (blocker, blocked)
-            )
+            raise AlreadyExistsError("User '%s' already blocks '%s'" %
+                                     (blocker, blocked))
 
         block_created.send(sender=self, blocker=blocker)
         block_created.send(sender=self, blocked=blocked)
@@ -610,16 +570,15 @@ class BlockManager(models.Manager):
                 return False
 
 
-@python_2_unicode_compatible
 class Block(models.Model):
     """ Model to represent Following relationships """
 
-    blocker = models.ForeignKey(
-        AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocking"
-    )
-    blocked = models.ForeignKey(
-        AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blockees"
-    )
+    blocker = models.ForeignKey(AUTH_USER_MODEL,
+                                on_delete=models.CASCADE,
+                                related_name="blocking")
+    blocked = models.ForeignKey(AUTH_USER_MODEL,
+                                on_delete=models.CASCADE,
+                                related_name="blockees")
     created = models.DateTimeField(default=timezone.now)
 
     objects = BlockManager()
