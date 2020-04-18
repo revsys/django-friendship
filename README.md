@@ -1,3 +1,5 @@
+forked from https://github.com/revsys/django-friendship
+
 # django-friendship
 
 <a href="http://travis-ci.org/revsys/django-friendship"><img src="https://secure.travis-ci.org/revsys/django-friendship.svg" /></a>
@@ -18,7 +20,7 @@ This application enables you to create and manage follows, blocks and bi-directi
 
 ## Installation
 
-1. `pip install django-friendship`
+1. `pip install django2-friendship`
 2. add `"friendship"` to `INSTALLED_APPS` and run `python manage.py migrate`.
 3. Use the friendship manager in your own views, or wire up the URLconf to include the builtin views:
 

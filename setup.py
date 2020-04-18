@@ -8,14 +8,17 @@ readme = f.read()
 f.close()
 
 setup(
-    name="django-friendship",
+    name="django2-friendship",
     version=".".join(map(str, VERSION)),
-    description="django-friendship provides an easy extensible interface for following and friendship",
+    description=(
+        "django-friendship provides an easy extensible "
+        "interface for following and friendship"
+    ),
     long_description=readme,
     long_description_content_type="text/markdown",
     author="Frank Wiles",
-    author_email="frank@revsys.com",
-    url="https://github.com/revsys/django-friendship/",
+    author_email="ramwin@qq.com",
+    url="https://github.com/ramwin/django-friendship/",
     include_package_data=True,
     packages=find_packages(),
     zip_safe=False,
