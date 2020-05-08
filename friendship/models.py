@@ -582,7 +582,7 @@ class BlockManager(models.Manager):
             bust_cache("blocked", blocked.pk)
             bust_cache("blocking", blocker.pk)
             return True
-        except Follow.DoesNotExist:
+        except Block.DoesNotExist:
             return False
 
     def is_blocked(self, user1, user2):
