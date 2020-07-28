@@ -25,7 +25,7 @@ This application enables you to create and manage follows, blocks and bi-directi
 ```python
 urlpatterns = [
     ...
-    url(r'^friendship/', include('friendship.urls'))
+    path('friendship/', include('friendship.urls'))
     ...
 ]
 ```
