@@ -135,7 +135,6 @@ class FriendshipRequest(models.Model):
         # Bust friends cache - new friends added
         bust_cache("friends", self.to_user.pk)
         bust_cache("friends", self.from_user.pk)
-
         return True
 
     def reject(self):
@@ -144,6 +143,7 @@ class FriendshipRequest(models.Model):
         self.save()
         friendship_request_rejected.send(sender=self)
         bust_cache("requests", self.to_user.pk)
+        return True
 
     def cancel(self):
         """ cancel this friendship request """
