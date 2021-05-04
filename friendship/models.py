@@ -352,18 +352,12 @@ class FriendshipManager(models.Manager):
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
         try:
-            qs = (
-                Friend.objects.filter(
-                    Q(to_user=to_user, from_user=from_user)
-                    | Q(to_user=from_user, from_user=to_user)
-                )
-                .distinct()
-                .all()
-            )
+            qs = Friend.objects.filter(Q(to_user=to_user, from_user=from_user) | Q(to_user=from_user, from_user=to_user))
+            distinct_qs = qs.distinct().all()
 
-            if qs:
+            if distinct_qs:
                 friendship_removed.send(
-                    sender=qs[0], from_user=from_user, to_user=to_user
+                    sender=distinct_qs[0], from_user=from_user, to_user=to_user
                 )
                 qs.delete()
                 bust_cache("friends", to_user.pk)
