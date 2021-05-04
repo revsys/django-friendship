@@ -32,3 +32,4 @@ with contributions from:
     predatell - https://github.com/predatell
     Sean Callaway - https://callaway.dev/
     Pritam Soni - https://github.com/pritamsoni-hsr
+    Hisham Mahmood - https://github.com/Hisham-Pak
