@@ -516,7 +516,7 @@ class BlockManager(models.Manager):
 
         if blocked is None:
             qs = Block.objects.filter(blocked=user).all()
-            blocked = [u.blocked for u in qs]
+            blocked = [u.blocker for u in qs]
             cache.set(key, blocked)
 
         return blocked
