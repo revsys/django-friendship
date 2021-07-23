@@ -534,7 +534,7 @@ class BlockManager(models.Manager):
         return blocking
 
     def add_block(self, blocker, blocked):
-        """ Create 'follower' follows 'followee' relationship """
+        """ Create 'blocker' blocks 'blocked' relationship """
         if blocker == blocked:
             raise ValidationError("Users cannot block themselves")
 
