@@ -314,8 +314,11 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if self.can_request_send(from_user, to_user):
-            raise AlreadyExistsError("Friendship already requested")
+        if (FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists()):
+            raise AlreadyExistsError("You already requested friendship from this user.")
+
+        if (FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user).exists()):
+            raise AlreadyExistsError("This user already requested friendship from you.")
 
         if message is None:
             message = ""
@@ -336,18 +339,6 @@ class FriendshipManager(models.Manager):
         friendship_request_created.send(sender=request)
 
         return request
-
-    def can_request_send(self, from_user, to_user):
-        """ Checks if a request was sent """
-        if from_user == to_user:
-            return False
-
-        if not FriendshipRequest.objects.filter(
-            from_user=from_user, to_user=to_user
-        ).exists():
-            return False
-
-        return True
 
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """

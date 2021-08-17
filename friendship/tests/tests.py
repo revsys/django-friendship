@@ -70,10 +70,6 @@ class FriendshipModelTests(BaseTestCase):
         # Bob wants to be friends with Steve
         req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
-        # Ensure that the request can be sent
-        self.assertFalse(Friend.objects.can_request_send(self.user_bob, self.user_bob))
-        self.assertTrue(Friend.objects.can_request_send(self.user_bob, self.user_steve))
-
         # Ensure neither have friends already
         self.assertEqual(Friend.objects.friends(self.user_bob), [])
         self.assertEqual(Friend.objects.friends(self.user_steve), [])
@@ -103,6 +99,14 @@ class FriendshipModelTests(BaseTestCase):
 
         # Ensure they aren't friends at this point
         self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_steve))
+
+        # Ensure Bob can't request another friendship request from Steve.
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+        # Ensure Steve can't request a friendship request from Bob.
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_steve, self.user_bob)
 
         # Accept the request
         req1.accept()
@@ -173,6 +177,9 @@ class FriendshipModelTests(BaseTestCase):
         with self.assertRaises(AlreadyFriendsError):
             Friend.objects.add_friend(self.user_bob, self.user_steve)
 
+        with self.assertRaises(AlreadyFriendsError):
+            Friend.objects.add_friend(self.user_steve, self.user_bob)
+
     def test_multiple_friendship_requests(self):
         """ Ensure multiple friendship requests are handled properly """
         # Bob wants to be friends with Steve
@@ -192,7 +199,8 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1)
 
         # Steve also wants to be friends with Bob before Bob replies
-        Friend.objects.add_friend(self.user_steve, self.user_bob)
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_steve, self.user_bob)
 
         # Ensure they aren't friends at this point
         self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_steve))
@@ -358,7 +366,18 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse200(response)
             self.assertTrue("errors" in response.context)
             self.assertEqual(
-                response.context["errors"], ["Friendship already requested"]
+                response.context["errors"], ["You already requested friendship from this user."]
+            )
+
+        url = reverse(
+            "friendship_add_friend", kwargs={"to_username": self.user_bob.username}
+        )
+        with self.login(self.user_amy.username, self.user_pw):
+            response = self.client.post(url)
+            self.assertResponse200(response)
+            self.assertTrue("errors" in response.context)
+            self.assertEqual(
+                response.context["errors"], ["This user already requested friendship from you."]
             )
 
     def test_friendship_requests(self):
