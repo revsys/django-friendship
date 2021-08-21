@@ -580,11 +580,9 @@ class BlockManager(models.Manager):
         if block2 and user1 in block2:
             return True
 
-        try:
-            Block.objects.get(blocker=user1, blocked=user2)
-            return True
-        except Block.DoesNotExist:
-            return False
+        return Block.objects.\
+            filter(Q(blocker=user1, blocked=user2) | Q(blocker=user2, blocked=user1)).\
+            exists()
 
 
 class Block(models.Model):
