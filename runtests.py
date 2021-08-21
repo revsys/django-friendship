@@ -22,6 +22,7 @@ OUR_MIDDLEWARE.extend(
 
 settings.configure(
     DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory;"}},
+    SECRET_KEY="secret",
     INSTALLED_APPS=[
         "django.contrib.auth",
         "django.contrib.sessions",
