@@ -573,17 +573,16 @@ class BlockManager(models.Manager):
     def is_blocked(self, user1, user2):
         """ Are these two users blocked? """
         block1 = cache.get(cache_key("blocks", user1.pk))
-        block2 = cache.get(cache_key("blocks", user2.pk))
         if block1 and user2 in block1:
             return True
-        elif block2 and user1 in block2:
+
+        block2 = cache.get(cache_key("blocks", user2.pk))
+        if block2 and user1 in block2:
             return True
-        else:
-            try:
-                Block.objects.get(blocker=user1, blocked=user2)
-                return True
-            except Block.DoesNotExist:
-                return False
+
+        return Block.objects.\
+            filter(Q(blocker=user1, blocked=user2) | Q(blocker=user2, blocked=user1)).\
+            exists()
 
 
 class Block(models.Model):

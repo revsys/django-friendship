@@ -265,6 +265,7 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Block.objects.blocking(self.user_bob)), 1)
         self.assertEqual(len(Block.objects.blocked(self.user_steve)), 1)
         self.assertEqual(Block.objects.is_blocked(self.user_bob, self.user_steve), True)
+        self.assertEqual(Block.objects.is_blocked(self.user_steve, self.user_bob), True)
 
         # Duplicated requests raise a more specific subclass of IntegrityError.
         with self.assertRaises(IntegrityError):
