@@ -92,7 +92,7 @@ Friend.objects.add_friend(
 ```python
 from friendship.models import FriendshipRequest
 
-friend_request = FriendshipRequest.objects.get(to_user=1)
+friend_request = FriendshipRequest.objects.get(from_user=request.user, to_user=other_user)
 friend_request.accept()
 # or friend_request.reject()
 ```
