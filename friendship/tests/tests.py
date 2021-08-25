@@ -13,12 +13,12 @@ from friendship.models import Block, Follow, Friend, FriendshipRequest
 TEST_TEMPLATES = os.path.join(os.path.dirname(__file__), "templates")
 
 
-class login(object):
+class login:
     def __init__(self, testcase, user, password):
         self.testcase = testcase
         success = testcase.client.login(username=user, password=password)
         self.testcase.assertTrue(
-            success, "login with username=%r, password=%r failed" % (user, password)
+            success, f"login with username={user!r}, password={password!r} failed"
         )
 
     def __enter__(self):
@@ -290,7 +290,7 @@ class FriendshipModelTests(BaseTestCase):
 
 class FriendshipViewTests(BaseTestCase):
     def setUp(self):
-        super(FriendshipViewTests, self).setUp()
+        super().setUp()
         self.friendship_request = Friend.objects.add_friend(
             self.user_steve, self.user_bob
         )

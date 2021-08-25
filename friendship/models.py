@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -392,13 +390,13 @@ class Friend(models.Model):
         unique_together = ("from_user", "to_user")
 
     def __str__(self):
-        return "User #%s is friends with #%s" % (self.to_user_id, self.from_user_id)
+        return f"User #{self.to_user_id} is friends with #{self.from_user_id}"
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
         if self.to_user == self.from_user:
             raise ValidationError("Users cannot be friends with themselves.")
-        super(Friend, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class FollowingManager(models.Manager):
@@ -439,7 +437,7 @@ class FollowingManager(models.Manager):
 
         if created is False:
             raise AlreadyExistsError(
-                "User '%s' already follows '%s'" % (follower, followee)
+                f"User '{follower}' already follows '{followee}'"
             )
 
         follower_created.send(sender=self, follower=follower)
@@ -497,13 +495,13 @@ class Follow(models.Model):
         unique_together = ("follower", "followee")
 
     def __str__(self):
-        return "User #%s follows #%s" % (self.follower_id, self.followee_id)
+        return f"User #{self.follower_id} follows #{self.followee_id}"
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
         if self.follower == self.followee:
             raise ValidationError("Users cannot follow themselves.")
-        super(Follow, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class BlockManager(models.Manager):
@@ -544,7 +542,7 @@ class BlockManager(models.Manager):
 
         if created is False:
             raise AlreadyExistsError(
-                "User '%s' already blocks '%s'" % (blocker, blocked)
+                f"User '{blocker}' already blocks '{blocked}'"
             )
 
         block_created.send(sender=self, blocker=blocker)
@@ -604,10 +602,10 @@ class Block(models.Model):
         unique_together = ("blocker", "blocked")
 
     def __str__(self):
-        return "User #%s blocks #%s" % (self.blocker_id, self.blocked_id)
+        return f"User #{self.blocker_id} blocks #{self.blocked_id}"
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
         if self.blocker == self.blocked:
             raise ValidationError("Users cannot block themselves.")
-        super(Block, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
