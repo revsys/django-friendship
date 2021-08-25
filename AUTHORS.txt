@@ -33,3 +33,4 @@ with contributions from:
     Sean Callaway - https://callaway.dev/
     Pritam Soni - https://github.com/pritamsoni-hsr
     Hisham Mahmood - https://github.com/Hisham-Pak
+    Nikolaos Michas - https://github.com/nikosmichas
