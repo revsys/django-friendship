@@ -71,7 +71,7 @@ from friendship.models import Friend, Follow, Block
 
 ### Getting Data about Blocks
 
-- List of a user's blockers: `Block.objects.blockers(request.user)`
+- List of a user's blockers: `Block.objects.blocked(request.user)`
 - List of who a user is blocking: `Block.objects.blocking(request.user)`
 - Test if a user is blocked: `Block.objects.is_blocked(request.user, other_user) == True`
 
