@@ -1,6 +1,6 @@
 # django-friendship
 
-<a href="http://travis-ci.org/revsys/django-friendship"><img src="https://secure.travis-ci.org/revsys/django-friendship.svg" /></a>
+[![CI](https://github.com/revsys/django-friendship/actions/workflows/actions.yml/badge.svg)](https://github.com/revsys/django-friendship/actions/workflows/actions.yml)
 
 This application enables you to create and manage follows, blocks and bi-directional friendships between users. It features:
 
@@ -14,7 +14,9 @@ This application enables you to create and manage follows, blocks and bi-directi
 
 ## Requirements
 
-**Django 1.11+** since v1.7.0 (latest release supporting **Django 1.10** is v1.6.0)
+** Django 3.2 since v1.9.1 **
+
+Previously: **Django 1.11+** since v1.7.0 (latest release supporting **Django 1.10** is v1.6.0)
 
 ## Installation
 

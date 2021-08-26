@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # django-friendship documentation build configuration file, created by
 # sphinx-quickstart on Wed Aug 24 15:58:40 2011.
@@ -38,8 +37,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"django-friendship"
-copyright = u"2011, Frank Wiles"
+project = "django-friendship"
+copyright = "2011, Frank Wiles"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -176,8 +175,8 @@ latex_documents = [
     (
         "index",
         "django-friendship.tex",
-        u"django-friendship Documentation",
-        u"Frank Wiles",
+        "django-friendship Documentation",
+        "Frank Wiles",
         "manual",
     ),
 ]

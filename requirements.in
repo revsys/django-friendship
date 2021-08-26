@@ -1,0 +1,11 @@
+Django<4.0
+pytest
+pytest-django
+pytest-cov
+pytest-pythonpath
+factory-boy
+flake8
+pyflakes
+bumpversion
+twine
+check-manifest
