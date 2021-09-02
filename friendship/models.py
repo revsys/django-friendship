@@ -171,7 +171,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 Friend.objects.select_related("from_user", "to_user")
                 .filter(to_user=user)
-                .all()
             )
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
@@ -187,7 +186,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 FriendshipRequest.objects.select_related("from_user", "to_user")
                 .filter(to_user=user)
-                .all()
             )
             requests = list(qs)
             cache.set(key, requests)
@@ -203,7 +201,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 FriendshipRequest.objects.select_related("from_user", "to_user")
                 .filter(from_user=user)
-                .all()
             )
             requests = list(qs)
             cache.set(key, requests)
@@ -219,7 +216,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 FriendshipRequest.objects.select_related("from_user", "to_user")
                 .filter(to_user=user, viewed__isnull=True)
-                .all()
             )
             unread_requests = list(qs)
             cache.set(key, unread_requests)
@@ -250,7 +246,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 FriendshipRequest.objects.select_related("from_user", "to_user")
                 .filter(to_user=user, viewed__isnull=False)
-                .all()
             )
             read_requests = list(qs)
             cache.set(key, read_requests)
@@ -266,7 +261,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 FriendshipRequest.objects.select_related("from_user", "to_user")
                 .filter(to_user=user, rejected__isnull=False)
-                .all()
             )
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
@@ -282,7 +276,6 @@ class FriendshipManager(models.Manager):
             qs = (
                 FriendshipRequest.objects.select_related("from_user", "to_user")
                 .filter(to_user=user, rejected__isnull=True)
-                .all()
             )
             unrejected_requests = list(qs)
             cache.set(key, unrejected_requests)
@@ -342,7 +335,7 @@ class FriendshipManager(models.Manager):
         """ Destroy a friendship relationship """
         try:
             qs = Friend.objects.filter(to_user__in=[to_user, from_user], from_user__in=[from_user, to_user])
-            distinct_qs = qs.distinct().all()
+            distinct_qs = qs.distinct()
 
             if distinct_qs:
                 friendship_removed.send(
@@ -408,7 +401,7 @@ class FollowingManager(models.Manager):
         followers = cache.get(key)
 
         if followers is None:
-            qs = Follow.objects.filter(followee=user).all()
+            qs = Follow.objects.filter(followee=user)
             followers = [u.follower for u in qs]
             cache.set(key, followers)
 
@@ -420,7 +413,7 @@ class FollowingManager(models.Manager):
         following = cache.get(key)
 
         if following is None:
-            qs = Follow.objects.filter(follower=user).all()
+            qs = Follow.objects.filter(follower=user)
             following = [u.followee for u in qs]
             cache.set(key, following)
 
@@ -513,7 +506,7 @@ class BlockManager(models.Manager):
         blocked = cache.get(key)
 
         if blocked is None:
-            qs = Block.objects.filter(blocked=user).all().only("blocker")
+            qs = Block.objects.filter(blocked=user).only("blocker")
             blocked = [u.blocker for u in qs]
             cache.set(key, blocked)
 
@@ -525,7 +518,7 @@ class BlockManager(models.Manager):
         blocking = cache.get(key)
 
         if blocking is None:
-            qs = Block.objects.filter(blocker=user).all().only("blocked")
+            qs = Block.objects.filter(blocker=user).only("blocked")
             blocking = [u.blocked for u in qs]
             cache.set(key, blocking)
 
