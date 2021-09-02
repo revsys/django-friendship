@@ -1,10 +1,12 @@
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.signals import (
@@ -78,6 +80,18 @@ def bust_cache(type, user_pk):
     keys = [CACHE_TYPES[k] % user_pk for k in bust_keys]
     cache.delete_many(keys)
 
+class FriendShipRequestManager(models.Manager):
+
+        def has_request(self, from_user, to_user):
+            """ Has a user sent a friend request to the other? """
+            sent_requests = cache.get(cache_key("sent_requests", from_user.pk))
+            received_requests = cache.get(cache_key("requests", to_user.pk))
+            if sent_requests and any(r.to_user == to_user for r in sent_requests):
+                return True
+            elif received_requests and any(r.from_user == from_user for r in received_requests):
+                return True
+            else:
+                return FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists()
 
 class FriendshipRequest(models.Model):
     """ Model to represent friendship requests """
@@ -98,6 +112,8 @@ class FriendshipRequest(models.Model):
     created = models.DateTimeField(default=timezone.now)
     rejected = models.DateTimeField(blank=True, null=True)
     viewed = models.DateTimeField(blank=True, null=True)
+
+    objects = FriendShipRequestManager()
 
     class Meta:
         verbose_name = _("Friendship Request")
@@ -133,6 +149,7 @@ class FriendshipRequest(models.Model):
         # Bust friends cache - new friends added
         bust_cache("friends", self.to_user.pk)
         bust_cache("friends", self.from_user.pk)
+
         return True
 
     def reject(self):
@@ -141,7 +158,6 @@ class FriendshipRequest(models.Model):
         self.save()
         friendship_request_rejected.send(sender=self)
         bust_cache("requests", self.to_user.pk)
-        return True
 
     def cancel(self):
         """ cancel this friendship request """
@@ -312,11 +328,8 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if (FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists()):
-            raise AlreadyExistsError("You already requested friendship from this user.")
-
-        if (FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user).exists()):
-            raise AlreadyExistsError("This user already requested friendship from you.")
+        if self.can_request_send(from_user, to_user):
+            raise AlreadyExistsError("Friendship already requested")
 
         if message is None:
             message = ""
@@ -338,15 +351,33 @@ class FriendshipManager(models.Manager):
 
         return request
 
+    def can_request_send(self, from_user, to_user):
+        """ Checks if a request was sent """
+        if from_user == to_user:
+            return False
+
+        if not FriendshipRequest.objects.filter(
+            from_user=from_user, to_user=to_user
+        ).exists():
+            return False
+
+        return True
+
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
         try:
-            qs = Friend.objects.filter(Q(to_user=to_user, from_user=from_user) | Q(to_user=from_user, from_user=to_user))
-            distinct_qs = qs.distinct().all()
+            qs = (
+                Friend.objects.filter(
+                    Q(to_user=to_user, from_user=from_user)
+                    | Q(to_user=from_user, from_user=to_user)
+                )
+                .distinct()
+                .all()
+            )
 
-            if distinct_qs:
+            if qs:
                 friendship_removed.send(
-                    sender=distinct_qs[0], from_user=from_user, to_user=to_user
+                    sender=qs[0], from_user=from_user, to_user=to_user
                 )
                 qs.delete()
                 bust_cache("friends", to_user.pk)
@@ -373,6 +404,7 @@ class FriendshipManager(models.Manager):
                 return False
 
 
+
 class Friend(models.Model):
     """ Model to represent Friendships """
 
@@ -390,13 +422,13 @@ class Friend(models.Model):
         unique_together = ("from_user", "to_user")
 
     def __str__(self):
-        return f"User #{self.to_user_id} is friends with #{self.from_user_id}"
+        return "User #%s is friends with #%s" % (self.to_user_id, self.from_user_id)
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
         if self.to_user == self.from_user:
             raise ValidationError("Users cannot be friends with themselves.")
-        super().save(*args, **kwargs)
+        super(Friend, self).save(*args, **kwargs)
 
 
 class FollowingManager(models.Manager):
@@ -437,7 +469,7 @@ class FollowingManager(models.Manager):
 
         if created is False:
             raise AlreadyExistsError(
-                f"User '{follower}' already follows '{followee}'"
+                "User '%s' already follows '%s'" % (follower, followee)
             )
 
         follower_created.send(sender=self, follower=follower)
@@ -495,13 +527,13 @@ class Follow(models.Model):
         unique_together = ("follower", "followee")
 
     def __str__(self):
-        return f"User #{self.follower_id} follows #{self.followee_id}"
+        return "User #%s follows #%s" % (self.follower_id, self.followee_id)
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
         if self.follower == self.followee:
             raise ValidationError("Users cannot follow themselves.")
-        super().save(*args, **kwargs)
+        super(Follow, self).save(*args, **kwargs)
 
 
 class BlockManager(models.Manager):
@@ -514,7 +546,7 @@ class BlockManager(models.Manager):
 
         if blocked is None:
             qs = Block.objects.filter(blocked=user).all()
-            blocked = [u.blocker for u in qs]
+            blocked = [u.blocked for u in qs]
             cache.set(key, blocked)
 
         return blocked
@@ -532,7 +564,7 @@ class BlockManager(models.Manager):
         return blocking
 
     def add_block(self, blocker, blocked):
-        """ Create 'blocker' blocks 'blocked' relationship """
+        """ Create 'follower' follows 'followee' relationship """
         if blocker == blocked:
             raise ValidationError("Users cannot block themselves")
 
@@ -542,7 +574,7 @@ class BlockManager(models.Manager):
 
         if created is False:
             raise AlreadyExistsError(
-                f"User '{blocker}' already blocks '{blocked}'"
+                "User '%s' already blocks '%s'" % (blocker, blocked)
             )
 
         block_created.send(sender=self, blocker=blocker)
@@ -565,22 +597,23 @@ class BlockManager(models.Manager):
             bust_cache("blocked", blocked.pk)
             bust_cache("blocking", blocker.pk)
             return True
-        except Block.DoesNotExist:
+        except Follow.DoesNotExist:
             return False
 
     def is_blocked(self, user1, user2):
         """ Are these two users blocked? """
         block1 = cache.get(cache_key("blocks", user1.pk))
+        block2 = cache.get(cache_key("blocks", user2.pk))
         if block1 and user2 in block1:
             return True
-
-        block2 = cache.get(cache_key("blocks", user2.pk))
-        if block2 and user1 in block2:
+        elif block2 and user1 in block2:
             return True
-
-        return Block.objects.\
-            filter(Q(blocker=user1, blocked=user2) | Q(blocker=user2, blocked=user1)).\
-            exists()
+        else:
+            try:
+                Block.objects.get(blocker=user1, blocked=user2)
+                return True
+            except Block.DoesNotExist:
+                return False
 
 
 class Block(models.Model):
@@ -602,10 +635,10 @@ class Block(models.Model):
         unique_together = ("blocker", "blocked")
 
     def __str__(self):
-        return f"User #{self.blocker_id} blocks #{self.blocked_id}"
+        return "User #%s blocks #%s" % (self.blocker_id, self.blocked_id)
 
     def save(self, *args, **kwargs):
         # Ensure users can't be friends with themselves
         if self.blocker == self.blocked:
             raise ValidationError("Users cannot block themselves.")
-        super().save(*args, **kwargs)
+        super(Block, self).save(*args, **kwargs)

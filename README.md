@@ -64,6 +64,7 @@ from friendship.models import Friend, Follow, Block
 - List all rejected friendship requests: `Friend.objects.rejected_requests(user=request.user)`
 - Count of all rejected friendship requests: `Friend.objects.rejected_request_count(user=request.user)`
 - List of all sent friendship requests: `Friend.objects.sent_requests(user=request.user)`
+- Test if a friendship request exists between two users: `FriendshipRequest.objects.has_request(request.user, other_user) == True`
 - Test if two users are friends: `Friend.objects.are_friends(request.user, other_user) == True`
 
 ### Getting Data about Follows
