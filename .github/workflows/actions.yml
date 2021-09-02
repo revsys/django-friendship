@@ -24,7 +24,6 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10-dev"
-          - "pypy2"
           - "pypy3"
 
     steps:
