@@ -105,7 +105,7 @@ class FriendshipRequest(models.Model):
         unique_together = ("from_user", "to_user")
 
     def __str__(self):
-        return "%s" % self.from_user_id
+        return f"User #{self.from_user_id} friendship requested #{self.to_user_id}"
 
     def accept(self):
         """ Accept this friendship request """
