@@ -513,7 +513,7 @@ class BlockManager(models.Manager):
         blocked = cache.get(key)
 
         if blocked is None:
-            qs = Block.objects.filter(blocked=user).all()
+            qs = Block.objects.filter(blocked=user).all().only("blocker")
             blocked = [u.blocker for u in qs]
             cache.set(key, blocked)
 
@@ -525,7 +525,7 @@ class BlockManager(models.Manager):
         blocking = cache.get(key)
 
         if blocking is None:
-            qs = Block.objects.filter(blocker=user).all()
+            qs = Block.objects.filter(blocker=user).all().only("blocked")
             blocking = [u.blocked for u in qs]
             cache.set(key, blocking)
 
