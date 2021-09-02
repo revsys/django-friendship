@@ -168,9 +168,8 @@ class FriendshipManager(models.Manager):
         friends = cache.get(key)
 
         if friends is None:
-            qs = (
-                Friend.objects.select_related("from_user", "to_user")
-                .filter(to_user=user)
+            qs = Friend.objects.select_related("from_user", "to_user").filter(
+                to_user=user
             )
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
@@ -183,10 +182,9 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user)
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user)
             requests = list(qs)
             cache.set(key, requests)
 
@@ -198,10 +196,9 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(from_user=user)
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(from_user=user)
             requests = list(qs)
             cache.set(key, requests)
 
@@ -213,10 +210,9 @@ class FriendshipManager(models.Manager):
         unread_requests = cache.get(key)
 
         if unread_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=True)
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, viewed__isnull=True)
             unread_requests = list(qs)
             cache.set(key, unread_requests)
 
@@ -243,10 +239,9 @@ class FriendshipManager(models.Manager):
         read_requests = cache.get(key)
 
         if read_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=False)
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, viewed__isnull=False)
             read_requests = list(qs)
             cache.set(key, read_requests)
 
@@ -258,10 +253,9 @@ class FriendshipManager(models.Manager):
         rejected_requests = cache.get(key)
 
         if rejected_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=False)
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, rejected__isnull=False)
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
 
@@ -273,10 +267,9 @@ class FriendshipManager(models.Manager):
         unrejected_requests = cache.get(key)
 
         if unrejected_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=True)
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, rejected__isnull=True)
             unrejected_requests = list(qs)
             cache.set(key, unrejected_requests)
 
@@ -305,10 +298,14 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if (FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists()):
+        if FriendshipRequest.objects.filter(
+            from_user=from_user, to_user=to_user
+        ).exists():
             raise AlreadyExistsError("You already requested friendship from this user.")
 
-        if (FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user).exists()):
+        if FriendshipRequest.objects.filter(
+            from_user=to_user, to_user=from_user
+        ).exists():
             raise AlreadyExistsError("This user already requested friendship from you.")
 
         if message is None:
