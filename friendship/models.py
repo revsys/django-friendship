@@ -341,7 +341,7 @@ class FriendshipManager(models.Manager):
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
         try:
-            qs = Friend.objects.filter(Q(to_user=to_user, from_user=from_user) | Q(to_user=from_user, from_user=to_user))
+            qs = Friend.objects.filter(to_user__in=[to_user, from_user], from_user__in=[from_user, to_user])
             distinct_qs = qs.distinct().all()
 
             if distinct_qs:
@@ -578,9 +578,7 @@ class BlockManager(models.Manager):
         if block2 and user1 in block2:
             return True
 
-        return Block.objects.\
-            filter(Q(blocker=user1, blocked=user2) | Q(blocker=user2, blocked=user1)).\
-            exists()
+        return Block.objects.filter(blocker__in=[user1, user2], blocked__in=[user1, user2]).exists()
 
 
 class Block(models.Model):
