@@ -168,9 +168,7 @@ class FriendshipManager(models.Manager):
         friends = cache.get(key)
 
         if friends is None:
-            qs = Friend.objects.select_related("from_user", "to_user").filter(
-                to_user=user
-            )
+            qs = Friend.objects.select_related("from_user").filter(to_user=user)
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
 
@@ -398,7 +396,7 @@ class FollowingManager(models.Manager):
         followers = cache.get(key)
 
         if followers is None:
-            qs = Follow.objects.filter(followee=user)
+            qs = Follow.objects.filter(followee=user).select_related("follower")
             followers = [u.follower for u in qs]
             cache.set(key, followers)
 
@@ -410,7 +408,7 @@ class FollowingManager(models.Manager):
         following = cache.get(key)
 
         if following is None:
-            qs = Follow.objects.filter(follower=user)
+            qs = Follow.objects.filter(follower=user).select_related("followee")
             following = [u.followee for u in qs]
             cache.set(key, following)
 
@@ -503,7 +501,7 @@ class BlockManager(models.Manager):
         blocked = cache.get(key)
 
         if blocked is None:
-            qs = Block.objects.filter(blocked=user).only("blocker")
+            qs = Block.objects.filter(blocked=user).select_related("blocker")
             blocked = [u.blocker for u in qs]
             cache.set(key, blocked)
 
@@ -515,7 +513,7 @@ class BlockManager(models.Manager):
         blocking = cache.get(key)
 
         if blocking is None:
-            qs = Block.objects.filter(blocker=user).only("blocked")
+            qs = Block.objects.filter(blocker=user).select_related("blocked")
             blocking = [u.blocked for u in qs]
             cache.set(key, blocking)
 
