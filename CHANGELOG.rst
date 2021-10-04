@@ -1,3 +1,16 @@
+Version 1.9.3
+-------------
+*Released October 4th, 2021*
+
+- Fix PyPI deploy process to use main instead of master (actually release what should have been in 1.9.2)
+- Fix Django deprecation warnings
+
+Version 1.9.2
+-------------
+*Released August 25th 2021*
+
+- Broken release, mostly a duplicate of 1.9.1 due to branch renaming issue
+
 Version 1.9.1
 -------------
 
