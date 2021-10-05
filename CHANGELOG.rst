@@ -1,3 +1,9 @@
+Version 1.9.4
+-------------
+*Released October 5th, 2021*
+
+- Fix bumpversion related release issue
+
 Version 1.9.3
 -------------
 *Released October 4th, 2021*
