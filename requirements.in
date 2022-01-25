@@ -1,4 +1,4 @@
-Django<4.0
+Django<4.1
 pytest
 pytest-django
 pytest-cov
