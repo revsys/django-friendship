@@ -168,11 +168,7 @@ class FriendshipManager(models.Manager):
         friends = cache.get(key)
 
         if friends is None:
-            qs = (
-                Friend.objects.select_related("from_user", "to_user")
-                .filter(to_user=user)
-                .all()
-            )
+            qs = Friend.objects.select_related("from_user").filter(to_user=user)
             friends = [u.from_user for u in qs]
             cache.set(key, friends)
 
@@ -184,11 +180,9 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user)
-                .all()
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user)
             requests = list(qs)
             cache.set(key, requests)
 
@@ -200,11 +194,9 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(from_user=user)
-                .all()
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(from_user=user)
             requests = list(qs)
             cache.set(key, requests)
 
@@ -216,11 +208,9 @@ class FriendshipManager(models.Manager):
         unread_requests = cache.get(key)
 
         if unread_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=True)
-                .all()
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, viewed__isnull=True)
             unread_requests = list(qs)
             cache.set(key, unread_requests)
 
@@ -247,11 +237,9 @@ class FriendshipManager(models.Manager):
         read_requests = cache.get(key)
 
         if read_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, viewed__isnull=False)
-                .all()
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, viewed__isnull=False)
             read_requests = list(qs)
             cache.set(key, read_requests)
 
@@ -263,11 +251,9 @@ class FriendshipManager(models.Manager):
         rejected_requests = cache.get(key)
 
         if rejected_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=False)
-                .all()
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, rejected__isnull=False)
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
 
@@ -279,11 +265,9 @@ class FriendshipManager(models.Manager):
         unrejected_requests = cache.get(key)
 
         if unrejected_requests is None:
-            qs = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
-                .filter(to_user=user, rejected__isnull=True)
-                .all()
-            )
+            qs = FriendshipRequest.objects.select_related(
+                "from_user", "to_user"
+            ).filter(to_user=user, rejected__isnull=True)
             unrejected_requests = list(qs)
             cache.set(key, unrejected_requests)
 
@@ -312,10 +296,14 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if (FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists()):
+        if FriendshipRequest.objects.filter(
+            from_user=from_user, to_user=to_user
+        ).exists():
             raise AlreadyExistsError("You already requested friendship from this user.")
 
-        if (FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user).exists()):
+        if FriendshipRequest.objects.filter(
+            from_user=to_user, to_user=from_user
+        ).exists():
             raise AlreadyExistsError("This user already requested friendship from you.")
 
         if message is None:
@@ -341,12 +329,11 @@ class FriendshipManager(models.Manager):
     def remove_friend(self, from_user, to_user):
         """ Destroy a friendship relationship """
         try:
-            qs = Friend.objects.filter(Q(to_user=to_user, from_user=from_user) | Q(to_user=from_user, from_user=to_user))
-            distinct_qs = qs.distinct().all()
+            qs = Friend.objects.filter(to_user__in=[to_user, from_user], from_user__in=[from_user, to_user])
 
-            if distinct_qs:
+            if qs:
                 friendship_removed.send(
-                    sender=distinct_qs[0], from_user=from_user, to_user=to_user
+                    sender=qs[0], from_user=from_user, to_user=to_user
                 )
                 qs.delete()
                 bust_cache("friends", to_user.pk)
@@ -408,7 +395,7 @@ class FollowingManager(models.Manager):
         followers = cache.get(key)
 
         if followers is None:
-            qs = Follow.objects.filter(followee=user).all()
+            qs = Follow.objects.filter(followee=user).select_related("follower")
             followers = [u.follower for u in qs]
             cache.set(key, followers)
 
@@ -420,7 +407,7 @@ class FollowingManager(models.Manager):
         following = cache.get(key)
 
         if following is None:
-            qs = Follow.objects.filter(follower=user).all()
+            qs = Follow.objects.filter(follower=user).select_related("followee")
             following = [u.followee for u in qs]
             cache.set(key, following)
 
@@ -513,7 +500,7 @@ class BlockManager(models.Manager):
         blocked = cache.get(key)
 
         if blocked is None:
-            qs = Block.objects.filter(blocked=user).all()
+            qs = Block.objects.filter(blocked=user).select_related("blocker")
             blocked = [u.blocker for u in qs]
             cache.set(key, blocked)
 
@@ -525,7 +512,7 @@ class BlockManager(models.Manager):
         blocking = cache.get(key)
 
         if blocking is None:
-            qs = Block.objects.filter(blocker=user).all()
+            qs = Block.objects.filter(blocker=user).select_related("blocked")
             blocking = [u.blocked for u in qs]
             cache.set(key, blocking)
 
@@ -578,9 +565,7 @@ class BlockManager(models.Manager):
         if block2 and user1 in block2:
             return True
 
-        return Block.objects.\
-            filter(Q(blocker=user1, blocked=user2) | Q(blocker=user2, blocked=user1)).\
-            exists()
+        return Block.objects.filter(blocker__in=[user1, user2], blocked__in=[user1, user2]).exists()
 
 
 class Block(models.Model):
