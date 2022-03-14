@@ -1,3 +1,15 @@
+Version 1.9.6
+-------------
+*Released March 13th, 2022*
+
+- ORM performance improvements
+
+Version 1.9.5
+-------------
+*Released March 13th, 2022*
+
+- Officially support Django 4.0 in trove classifiers
+
 Version 1.9.4
 -------------
 *Released October 5th, 2021*
