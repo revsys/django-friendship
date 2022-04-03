@@ -161,6 +161,8 @@ Then use any of the following:
 
 ### Settings
 
+`django-friendship` supports the following settings:
+
 ```python
 FRIENDSHIP_CONTEXT_OBJECT_NAME = 'user'
 FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME = 'users'
