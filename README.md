@@ -164,6 +164,7 @@ Then use any of the following:
 ```python
 FRIENDSHIP_CONTEXT_OBJECT_NAME = 'user'
 FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME = 'users'
+FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY = 'select_related'  # ('select_related', 'prefetch_related', 'none')
 ```
 
 ### Contributing

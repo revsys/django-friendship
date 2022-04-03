@@ -354,7 +354,12 @@ class FriendshipManager(models.Manager):
                 return False
 
     def _friendship_request_select_related(self, qs, *fields):
-        return qs.select_related(*fields)
+        strategy = getattr(settings, "FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY", "select_related")
+        if strategy == "select_related":
+            qs = qs.select_related(*fields)
+        elif strategy == "prefetch_related":
+            qs = qs.prefetch_related(*fields)
+        return qs
 
 
 class Friend(models.Model):
