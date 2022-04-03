@@ -223,7 +223,7 @@ class FriendshipManager(models.Manager):
 
         if count is None:
             count = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
+                FriendshipRequest.objects
                 .filter(to_user=user, viewed__isnull=True)
                 .count()
             )
@@ -280,7 +280,7 @@ class FriendshipManager(models.Manager):
 
         if count is None:
             count = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
+                FriendshipRequest.objects
                 .filter(to_user=user, rejected__isnull=True)
                 .count()
             )
