@@ -1,3 +1,9 @@
+Version 2.0.0
+-------------
+*Not released yet*
+
+- Add ability to use `prefetch_related` rather than `select_related` for memory/cache size reduction
+
 Version 1.9.6
 -------------
 *Released March 13th, 2022*
