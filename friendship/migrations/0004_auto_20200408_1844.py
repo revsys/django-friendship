@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('friendship', '0003_block_unique_together'),
+        ("friendship", "0003_block_unique_together"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='block',
-            options={'verbose_name': 'Blocked Relationship', 'verbose_name_plural': 'Blocked Relationships'},
+            name="block",
+            options={
+                "verbose_name": "Blocked Relationship",
+                "verbose_name_plural": "Blocked Relationships",
+            },
         ),
     ]

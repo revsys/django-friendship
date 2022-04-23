@@ -181,7 +181,7 @@ class FriendshipModelTests(BaseTestCase):
             Friend.objects.add_friend(self.user_steve, self.user_bob)
 
     def test_multiple_friendship_requests(self):
-        """ Ensure multiple friendship requests are handled properly """
+        """Ensure multiple friendship requests are handled properly"""
         # Bob wants to be friends with Steve
         req1 = Friend.objects.add_friend(self.user_bob, self.user_steve)
 
@@ -223,7 +223,7 @@ class FriendshipModelTests(BaseTestCase):
         )
 
     def test_multiple_calls_add_friend(self):
-        """ Ensure multiple calls with same friends, but different message works as expected """
+        """Ensure multiple calls with same friends, but different message works as expected"""
         Friend.objects.add_friend(self.user_bob, self.user_steve, message="Testing")
 
         with self.assertRaises(AlreadyExistsError):
@@ -369,7 +369,8 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse200(response)
             self.assertTrue("errors" in response.context)
             self.assertEqual(
-                response.context["errors"], ["You already requested friendship from this user."]
+                response.context["errors"],
+                ["You already requested friendship from this user."],
             )
 
         url = reverse(
@@ -380,7 +381,8 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse200(response)
             self.assertTrue("errors" in response.context)
             self.assertEqual(
-                response.context["errors"], ["This user already requested friendship from you."]
+                response.context["errors"],
+                ["This user already requested friendship from you."],
             )
 
     def test_friendship_requests(self):

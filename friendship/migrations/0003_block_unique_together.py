@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="block", unique_together={("blocker", "blocked")},
+            name="block",
+            unique_together={("blocker", "blocked")},
         ),
     ]

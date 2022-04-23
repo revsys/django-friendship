@@ -80,7 +80,7 @@ def bust_cache(type, user_pk):
 
 
 class FriendshipRequest(models.Model):
-    """ Model to represent friendship requests """
+    """Model to represent friendship requests"""
 
     from_user = models.ForeignKey(
         AUTH_USER_MODEL,
@@ -108,7 +108,7 @@ class FriendshipRequest(models.Model):
         return f"User #{self.from_user_id} friendship requested #{self.to_user_id}"
 
     def accept(self):
-        """ Accept this friendship request """
+        """Accept this friendship request"""
         Friend.objects.create(from_user=self.from_user, to_user=self.to_user)
 
         Friend.objects.create(from_user=self.to_user, to_user=self.from_user)
@@ -136,7 +136,7 @@ class FriendshipRequest(models.Model):
         return True
 
     def reject(self):
-        """ reject this friendship request """
+        """reject this friendship request"""
         self.rejected = timezone.now()
         self.save()
         friendship_request_rejected.send(sender=self)
@@ -144,7 +144,7 @@ class FriendshipRequest(models.Model):
         return True
 
     def cancel(self):
-        """ cancel this friendship request """
+        """cancel this friendship request"""
         friendship_request_canceled.send(sender=self)
         self.delete()
         bust_cache("requests", self.to_user.pk)
@@ -160,10 +160,10 @@ class FriendshipRequest(models.Model):
 
 
 class FriendshipManager(models.Manager):
-    """ Friendship manager """
+    """Friendship manager"""
 
     def friends(self, user):
-        """ Return a list of all friends """
+        """Return a list of all friends"""
         key = cache_key("friends", user.pk)
         friends = cache.get(key)
 
@@ -175,7 +175,7 @@ class FriendshipManager(models.Manager):
         return friends
 
     def requests(self, user):
-        """ Return a list of friendship requests """
+        """Return a list of friendship requests"""
         key = cache_key("requests", user.pk)
         requests = cache.get(key)
 
@@ -188,7 +188,7 @@ class FriendshipManager(models.Manager):
         return requests
 
     def sent_requests(self, user):
-        """ Return a list of friendship requests from user """
+        """Return a list of friendship requests from user"""
         key = cache_key("sent_requests", user.pk)
         requests = cache.get(key)
 
@@ -201,7 +201,7 @@ class FriendshipManager(models.Manager):
         return requests
 
     def unread_requests(self, user):
-        """ Return a list of unread friendship requests """
+        """Return a list of unread friendship requests"""
         key = cache_key("unread_requests", user.pk)
         unread_requests = cache.get(key)
 
@@ -214,22 +214,20 @@ class FriendshipManager(models.Manager):
         return unread_requests
 
     def unread_request_count(self, user):
-        """ Return a count of unread friendship requests """
+        """Return a count of unread friendship requests"""
         key = cache_key("unread_request_count", user.pk)
         count = cache.get(key)
 
         if count is None:
-            count = (
-                FriendshipRequest.objects
-                .filter(to_user=user, viewed__isnull=True)
-                .count()
-            )
+            count = FriendshipRequest.objects.filter(
+                to_user=user, viewed__isnull=True
+            ).count()
             cache.set(key, count)
 
         return count
 
     def read_requests(self, user):
-        """ Return a list of read friendship requests """
+        """Return a list of read friendship requests"""
         key = cache_key("read_requests", user.pk)
         read_requests = cache.get(key)
 
@@ -242,7 +240,7 @@ class FriendshipManager(models.Manager):
         return read_requests
 
     def rejected_requests(self, user):
-        """ Return a list of rejected friendship requests """
+        """Return a list of rejected friendship requests"""
         key = cache_key("rejected_requests", user.pk)
         rejected_requests = cache.get(key)
 
@@ -255,7 +253,7 @@ class FriendshipManager(models.Manager):
         return rejected_requests
 
     def unrejected_requests(self, user):
-        """ All requests that haven't been rejected """
+        """All requests that haven't been rejected"""
         key = cache_key("unrejected_requests", user.pk)
         unrejected_requests = cache.get(key)
 
@@ -268,22 +266,20 @@ class FriendshipManager(models.Manager):
         return unrejected_requests
 
     def unrejected_request_count(self, user):
-        """ Return a count of unrejected friendship requests """
+        """Return a count of unrejected friendship requests"""
         key = cache_key("unrejected_request_count", user.pk)
         count = cache.get(key)
 
         if count is None:
-            count = (
-                FriendshipRequest.objects
-                .filter(to_user=user, rejected__isnull=True)
-                .count()
-            )
+            count = FriendshipRequest.objects.filter(
+                to_user=user, rejected__isnull=True
+            ).count()
             cache.set(key, count)
 
         return count
 
     def add_friend(self, from_user, to_user, message=None):
-        """ Create a friendship request """
+        """Create a friendship request"""
         if from_user == to_user:
             raise ValidationError("Users cannot be friends with themselves")
 
@@ -321,9 +317,11 @@ class FriendshipManager(models.Manager):
         return request
 
     def remove_friend(self, from_user, to_user):
-        """ Destroy a friendship relationship """
+        """Destroy a friendship relationship"""
         try:
-            qs = Friend.objects.filter(to_user__in=[to_user, from_user], from_user__in=[from_user, to_user])
+            qs = Friend.objects.filter(
+                to_user__in=[to_user, from_user], from_user__in=[from_user, to_user]
+            )
 
             if qs:
                 friendship_removed.send(
@@ -339,7 +337,7 @@ class FriendshipManager(models.Manager):
             return False
 
     def are_friends(self, user1, user2):
-        """ Are these two users friends? """
+        """Are these two users friends?"""
         friends1 = cache.get(cache_key("friends", user1.pk))
         friends2 = cache.get(cache_key("friends", user2.pk))
         if friends1 and user2 in friends1:
@@ -354,7 +352,11 @@ class FriendshipManager(models.Manager):
                 return False
 
     def _friendship_request_select_related(self, qs, *fields):
-        strategy = getattr(settings, "FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY", "select_related")
+        strategy = getattr(
+            settings,
+            "FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY",
+            "select_related",
+        )
         if strategy == "select_related":
             qs = qs.select_related(*fields)
         elif strategy == "prefetch_related":
@@ -363,7 +365,7 @@ class FriendshipManager(models.Manager):
 
 
 class Friend(models.Model):
-    """ Model to represent Friendships """
+    """Model to represent Friendships"""
 
     to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="friends")
     from_user = models.ForeignKey(
@@ -389,10 +391,10 @@ class Friend(models.Model):
 
 
 class FollowingManager(models.Manager):
-    """ Following manager """
+    """Following manager"""
 
     def followers(self, user):
-        """ Return a list of all followers """
+        """Return a list of all followers"""
         key = cache_key("followers", user.pk)
         followers = cache.get(key)
 
@@ -404,7 +406,7 @@ class FollowingManager(models.Manager):
         return followers
 
     def following(self, user):
-        """ Return a list of all users the given user follows """
+        """Return a list of all users the given user follows"""
         key = cache_key("following", user.pk)
         following = cache.get(key)
 
@@ -416,7 +418,7 @@ class FollowingManager(models.Manager):
         return following
 
     def add_follower(self, follower, followee):
-        """ Create 'follower' follows 'followee' relationship """
+        """Create 'follower' follows 'followee' relationship"""
         if follower == followee:
             raise ValidationError("Users cannot follow themselves")
 
@@ -425,9 +427,7 @@ class FollowingManager(models.Manager):
         )
 
         if created is False:
-            raise AlreadyExistsError(
-                f"User '{follower}' already follows '{followee}'"
-            )
+            raise AlreadyExistsError(f"User '{follower}' already follows '{followee}'")
 
         follower_created.send(sender=self, follower=follower)
         followee_created.send(sender=self, followee=followee)
@@ -439,7 +439,7 @@ class FollowingManager(models.Manager):
         return relation
 
     def remove_follower(self, follower, followee):
-        """ Remove 'follower' follows 'followee' relationship """
+        """Remove 'follower' follows 'followee' relationship"""
         try:
             rel = Follow.objects.get(follower=follower, followee=followee)
             follower_removed.send(sender=rel, follower=rel.follower)
@@ -453,7 +453,7 @@ class FollowingManager(models.Manager):
             return False
 
     def follows(self, follower, followee):
-        """ Does follower follow followee? Smartly uses caches if exists """
+        """Does follower follow followee? Smartly uses caches if exists"""
         followers = cache.get(cache_key("following", follower.pk))
         following = cache.get(cache_key("followers", followee.pk))
 
@@ -466,7 +466,7 @@ class FollowingManager(models.Manager):
 
 
 class Follow(models.Model):
-    """ Model to represent Following relationships """
+    """Model to represent Following relationships"""
 
     follower = models.ForeignKey(
         AUTH_USER_MODEL, models.CASCADE, related_name="following"
@@ -494,10 +494,10 @@ class Follow(models.Model):
 
 
 class BlockManager(models.Manager):
-    """ Following manager """
+    """Following manager"""
 
     def blocked(self, user):
-        """ Return a list of all blocks """
+        """Return a list of all blocks"""
         key = cache_key("blocked", user.pk)
         blocked = cache.get(key)
 
@@ -509,7 +509,7 @@ class BlockManager(models.Manager):
         return blocked
 
     def blocking(self, user):
-        """ Return a list of all users the given user blocks """
+        """Return a list of all users the given user blocks"""
         key = cache_key("blocking", user.pk)
         blocking = cache.get(key)
 
@@ -521,7 +521,7 @@ class BlockManager(models.Manager):
         return blocking
 
     def add_block(self, blocker, blocked):
-        """ Create 'blocker' blocks 'blocked' relationship """
+        """Create 'blocker' blocks 'blocked' relationship"""
         if blocker == blocked:
             raise ValidationError("Users cannot block themselves")
 
@@ -530,9 +530,7 @@ class BlockManager(models.Manager):
         )
 
         if created is False:
-            raise AlreadyExistsError(
-                f"User '{blocker}' already blocks '{blocked}'"
-            )
+            raise AlreadyExistsError(f"User '{blocker}' already blocks '{blocked}'")
 
         block_created.send(sender=self, blocker=blocker)
         block_created.send(sender=self, blocked=blocked)
@@ -544,7 +542,7 @@ class BlockManager(models.Manager):
         return relation
 
     def remove_block(self, blocker, blocked):
-        """ Remove 'blocker' blocks 'blocked' relationship """
+        """Remove 'blocker' blocks 'blocked' relationship"""
         try:
             rel = Block.objects.get(blocker=blocker, blocked=blocked)
             block_removed.send(sender=rel, blocker=rel.blocker)
@@ -558,7 +556,7 @@ class BlockManager(models.Manager):
             return False
 
     def is_blocked(self, user1, user2):
-        """ Are these two users blocked? """
+        """Are these two users blocked?"""
         block1 = cache.get(cache_key("blocks", user1.pk))
         if block1 and user2 in block1:
             return True
@@ -567,11 +565,13 @@ class BlockManager(models.Manager):
         if block2 and user1 in block2:
             return True
 
-        return Block.objects.filter(blocker__in=[user1, user2], blocked__in=[user1, user2]).exists()
+        return Block.objects.filter(
+            blocker__in=[user1, user2], blocked__in=[user1, user2]
+        ).exists()
 
 
 class Block(models.Model):
-    """ Model to represent Following relationships """
+    """Model to represent Following relationships"""
 
     blocker = models.ForeignKey(
         AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocking"

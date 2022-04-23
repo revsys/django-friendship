@@ -117,12 +117,15 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.AlterUniqueTogether(
-            name="friendshiprequest", unique_together={("from_user", "to_user")},
+            name="friendshiprequest",
+            unique_together={("from_user", "to_user")},
         ),
         migrations.AlterUniqueTogether(
-            name="friend", unique_together={("from_user", "to_user")},
+            name="friend",
+            unique_together={("from_user", "to_user")},
         ),
         migrations.AlterUniqueTogether(
-            name="follow", unique_together={("follower", "followee")},
+            name="follow",
+            unique_together={("follower", "followee")},
         ),
     ]
