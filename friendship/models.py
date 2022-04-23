@@ -180,9 +180,8 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = FriendshipRequest.objects.select_related(
-                "from_user", "to_user"
-            ).filter(to_user=user)
+            qs = FriendshipRequest.objects.filter(to_user=user)
+            qs = self._friendship_request_select_related(qs, "from_user", "to_user")
             requests = list(qs)
             cache.set(key, requests)
 
@@ -194,9 +193,8 @@ class FriendshipManager(models.Manager):
         requests = cache.get(key)
 
         if requests is None:
-            qs = FriendshipRequest.objects.select_related(
-                "from_user", "to_user"
-            ).filter(from_user=user)
+            qs = FriendshipRequest.objects.filter(from_user=user)
+            qs = self._friendship_request_select_related(qs, "from_user", "to_user")
             requests = list(qs)
             cache.set(key, requests)
 
@@ -208,9 +206,8 @@ class FriendshipManager(models.Manager):
         unread_requests = cache.get(key)
 
         if unread_requests is None:
-            qs = FriendshipRequest.objects.select_related(
-                "from_user", "to_user"
-            ).filter(to_user=user, viewed__isnull=True)
+            qs = FriendshipRequest.objects.filter(to_user=user, viewed__isnull=True)
+            qs = self._friendship_request_select_related(qs, "from_user", "to_user")
             unread_requests = list(qs)
             cache.set(key, unread_requests)
 
@@ -223,7 +220,7 @@ class FriendshipManager(models.Manager):
 
         if count is None:
             count = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
+                FriendshipRequest.objects
                 .filter(to_user=user, viewed__isnull=True)
                 .count()
             )
@@ -237,9 +234,8 @@ class FriendshipManager(models.Manager):
         read_requests = cache.get(key)
 
         if read_requests is None:
-            qs = FriendshipRequest.objects.select_related(
-                "from_user", "to_user"
-            ).filter(to_user=user, viewed__isnull=False)
+            qs = FriendshipRequest.objects.filter(to_user=user, viewed__isnull=False)
+            qs = self._friendship_request_select_related(qs, "from_user", "to_user")
             read_requests = list(qs)
             cache.set(key, read_requests)
 
@@ -251,9 +247,8 @@ class FriendshipManager(models.Manager):
         rejected_requests = cache.get(key)
 
         if rejected_requests is None:
-            qs = FriendshipRequest.objects.select_related(
-                "from_user", "to_user"
-            ).filter(to_user=user, rejected__isnull=False)
+            qs = FriendshipRequest.objects.filter(to_user=user, rejected__isnull=False)
+            qs = self._friendship_request_select_related(qs, "from_user", "to_user")
             rejected_requests = list(qs)
             cache.set(key, rejected_requests)
 
@@ -265,9 +260,8 @@ class FriendshipManager(models.Manager):
         unrejected_requests = cache.get(key)
 
         if unrejected_requests is None:
-            qs = FriendshipRequest.objects.select_related(
-                "from_user", "to_user"
-            ).filter(to_user=user, rejected__isnull=True)
+            qs = FriendshipRequest.objects.filter(to_user=user, rejected__isnull=True)
+            qs = self._friendship_request_select_related(qs, "from_user", "to_user")
             unrejected_requests = list(qs)
             cache.set(key, unrejected_requests)
 
@@ -280,7 +274,7 @@ class FriendshipManager(models.Manager):
 
         if count is None:
             count = (
-                FriendshipRequest.objects.select_related("from_user", "to_user")
+                FriendshipRequest.objects
                 .filter(to_user=user, rejected__isnull=True)
                 .count()
             )
@@ -358,6 +352,14 @@ class FriendshipManager(models.Manager):
                 return True
             except Friend.DoesNotExist:
                 return False
+
+    def _friendship_request_select_related(self, qs, *fields):
+        strategy = getattr(settings, "FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY", "select_related")
+        if strategy == "select_related":
+            qs = qs.select_related(*fields)
+        elif strategy == "prefetch_related":
+            qs = qs.prefetch_related(*fields)
+        return qs
 
 
 class Friend(models.Model):
