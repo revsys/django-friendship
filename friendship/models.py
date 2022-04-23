@@ -145,8 +145,8 @@ class FriendshipRequest(models.Model):
 
     def cancel(self):
         """ cancel this friendship request """
-        self.delete()
         friendship_request_canceled.send(sender=self)
+        self.delete()
         bust_cache("requests", self.to_user.pk)
         bust_cache("sent_requests", self.from_user.pk)
         return True
