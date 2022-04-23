@@ -3,6 +3,7 @@ Version 2.0.0
 *Not released yet*
 
 - Add ability to use `prefetch_related` rather than `select_related` for memory/cache size reduction
+- Fix signal sending issue on cancel after object is deleted
 
 Version 1.9.6
 -------------
