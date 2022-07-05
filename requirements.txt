@@ -30,7 +30,7 @@ coverage[toml]==6.2
     # via pytest-cov
 cryptography==36.0.1
     # via secretstorage
-django==4.0.2
+django==4.0.6
     # via -r requirements.in
 docutils==0.18.1
     # via readme-renderer
