@@ -141,7 +141,11 @@ class FriendshipModelTests(BaseTestCase):
         req3 = Friend.objects.add_friend(self.user_susan, self.user_amy)
         self.assertEqual(Friend.objects.friends(self.user_susan), [])
         self.assertEqual(Friend.objects.friends(self.user_amy), [])
+        self.assertEqual(len(Friend.objects.sent_requests(self.user_susan)), 1)
+        self.assertIsNone(Friend.objects.sent_requests(self.user_susan)[0].rejected)
         req3.reject()
+        self.assertEqual(len(Friend.objects.sent_requests(self.user_susan)), 1)
+        self.assertIsNotNone(Friend.objects.sent_requests(self.user_susan)[0].rejected)
 
         # Duplicated requests raise a more specific subclass of IntegrityError.
         with self.assertRaises(AlreadyExistsError):
