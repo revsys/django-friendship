@@ -252,7 +252,7 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Follow.objects.following(self.user_bob)), 0)
         self.assertFalse(Follow.objects.follows(self.user_bob, self.user_steve))
 
-        # Ensure we canot follow ourselves
+        # Ensure we cannot follow ourselves
         with self.assertRaises(ValidationError):
             Follow.objects.add_follower(self.user_bob, self.user_bob)
 
@@ -280,7 +280,7 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Block.objects.blocking(self.user_steve)), 0)
         self.assertEqual(len(Block.objects.blocked(self.user_bob)), 0)
 
-        # Ensure we canot block ourselves
+        # Ensure we cannot block ourselves
         with self.assertRaises(ValidationError):
             Block.objects.add_block(self.user_bob, self.user_bob)
 
