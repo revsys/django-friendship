@@ -1,6 +1,6 @@
 bumpversion
 check-manifest
-Django<4.2
+Django<5.0
 factory-boy
 flake8
 nox
