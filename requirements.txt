@@ -1,0 +1,12 @@
+bumpversion
+check-manifest
+Django<5.0
+factory-boy
+flake8
+nox
+pyflakes
+pytest
+pytest-cov
+pytest-django
+pytest-pythonpath
+twine
