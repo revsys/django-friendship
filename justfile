@@ -5,13 +5,16 @@
     just --fmt --unstable
 
 @nox *ARGS:
-    nox --no-install --reuse-existing-virtualenvs {{ ARGS }}
+    python -m nox --no-install --reuse-existing-virtualenvs {{ ARGS }}
 
 @pip-compile:
-    pip-compile --resolver=backtracking
+    python -m piptools compile --resolver=backtracking
 
 @pre-commit:
     git ls-files -- . | xargs pre-commit run --config=.pre-commit-config.yaml --files
 
 @test *ARGS:
-    nox --reuse-existing-virtualenvs {{ ARGS }}
+    python -m nox --reuse-existing-virtualenvs \
+        --session "test_django_version" \
+        --session "test_python_version" \
+        {{ ARGS }}
