@@ -30,7 +30,7 @@ def test_django_version(session: nox.Session, django: str) -> None:
     if django == "main":
         session.install("https://github.com/django/django/archive/refs/heads/main.zip")
     else:
-        session.install(f"django~={django}")
+        session.install(f"django~={django}.0")
 
     session.run("pytest", *session.posargs)
 
@@ -42,5 +42,5 @@ def test_python_version(session: nox.Session, django: str) -> None:
         session.skip()
 
     session.install(".[test]")
-    session.install(f"django~={django}")
+    session.install(f"django~={django}.0")
     session.run("pytest", *session.posargs)

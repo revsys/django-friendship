@@ -16,6 +16,9 @@
 @test *ARGS:
     python -m nox --reuse-existing-virtualenvs \
         --session "test_django_version" \
+        {{ ARGS }}
+
+    python -m nox --reuse-existing-virtualenvs \
         --session "test_python_version" \
         {{ ARGS }}
 
