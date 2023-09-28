@@ -18,3 +18,6 @@
         --session "test_django_version" \
         --session "test_python_version" \
         {{ ARGS }}
+
+lint:
+    python -m nox --reuse-existing-virtualenvs --session "lint"
