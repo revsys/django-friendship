@@ -2,6 +2,9 @@ name: CI
 
 on:
   pull_request:
+    paths:
+      - ".github/workflows/actions.yml"
+      - "**.py"
   push:
     branches:
       - main
