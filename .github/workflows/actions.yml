@@ -21,31 +21,48 @@ jobs:
     strategy:
       matrix:
         django-version:
-          - "3.2"
-          - "4.1"
           - "4.2"
+          - "5.0"
+          - "5.1"
         python-version:
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
+        exclude:
+          # Django 5.0 is compatible with Python 3.10+
+          - python-version: "3.8"
+            django-version: "5.0"
+          - python-version: "3.9"
+            django-version: "5.0"
+          # Django 5.1 is compatible with Python 3.10+
+          - python-version: "3.8"
+            django-version: "5.1"
+          - python-version: "3.9"
+            django-version: "5.1"
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
+          cache-dependency-path: '**/setup.cfg'
           cache: 'pip'
           python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies
+        run: |
+          python -m pip install uv
+
       - name: Upgrade django version
         run: |
-          python -m pip install "Django~=${{ matrix.django-version }}.0"
+          python -m uv pip install "Django~=${{ matrix.django-version }}.0"
 
       - name: Install dependencies
         run: |
-          python -m pip install -e ".[test]"
+          python -m uv pip install --system -e ".[test]"
 
       - name: Run django-friendship tests
         run: |
