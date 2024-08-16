@@ -4,13 +4,16 @@ import nox
 # and should *not* appear in DJANGO_VERSIONS
 
 DJANGO_STABLE_VERSION = "4.2"
-DJANGO_VERSIONS = ["3.2", "4.1", "main"]
+DJANGO_VERSIONS = ["4.2", "5.0", "5.1", "main"]
 
 # PYTHON_STABLE_VERSION should be set to the latest stable Python version
 # and should *not* appear in PYTHON_VERSIONS
 
 PYTHON_STABLE_VERSION = "3.11"
-PYTHON_VERSIONS = ["3.8", "3.9", "3.10"]
+PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+nox.options.default_venv_backend = "uv|venv"
+nox.options.reuse_existing_virtualenvs = True
 
 
 @nox.session
