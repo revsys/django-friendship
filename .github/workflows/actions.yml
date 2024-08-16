@@ -52,18 +52,23 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
+          cache-dependency-path: '**/setup.cfg'
           cache: 'pip'
           python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies
+        run: |
+          python -m pip install uv
+
       - name: Upgrade django version
         run: |
-          python -m pip install "Django~=${{ matrix.django-version }}.0"
+          python -m uv pip install "Django~=${{ matrix.django-version }}.0"
 
       - name: Install dependencies
         run: |
-          python -m pip install -e ".[test]"
+          python -m uv pip install --system -e ".[test]"
 
       - name: Run django-friendship tests
         run: |
