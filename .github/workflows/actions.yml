@@ -31,12 +31,6 @@ jobs:
           - "3.11"
           - "3.12"
         exclude:
-          # # Python 3.11 is compatible with Django 4.0+
-          # - python-version: "3.11"
-          #   django-version: "3.2"
-          # # Python 3.12 is compatible with Django 4.0+
-          # - python-version: "3.12"
-          #   django-version: "3.2"
           # Django 5.0 is compatible with Python 3.10+
           - python-version: "3.8"
             django-version: "5.0"
