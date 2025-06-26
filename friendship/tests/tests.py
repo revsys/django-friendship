@@ -227,7 +227,8 @@ class FriendshipModelTests(BaseTestCase):
         )
 
     def test_multiple_calls_add_friend(self):
-        """Ensure multiple calls with same friends, but different message works as expected"""
+        """Ensure multiple calls with same friends, but different
+        message works as expected"""
         Friend.objects.add_friend(self.user_bob, self.user_steve, message="Testing")
 
         with self.assertRaises(AlreadyExistsError):

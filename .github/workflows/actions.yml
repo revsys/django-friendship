@@ -22,26 +22,20 @@ jobs:
       matrix:
         django-version:
           - "4.2"
-          - "5.0"
           - "5.1"
+          - "5.2"
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
         exclude:
           # Django 5.0 is compatible with Python 3.10+
-          - python-version: "3.8"
-            django-version: "5.0"
-          - python-version: "3.9"
-            django-version: "5.0"
-          # Django 5.1 is compatible with Python 3.10+
-          - python-version: "3.8"
-            django-version: "5.1"
           - python-version: "3.9"
             django-version: "5.1"
-
+          - python-version: "3.9"
+            django-version: "5.2"
     steps:
       - uses: actions/checkout@v4
 
