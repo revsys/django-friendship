@@ -4,7 +4,7 @@ import nox
 # and should *not* appear in DJANGO_VERSIONS
 
 DJANGO_STABLE_VERSION = "5.2"
-DJANGO_VERSIONS = ["4.2", "5.1", "main"]
+DJANGO_VERSIONS = ["4.2", "5.1", "5.2", "main"]
 
 # PYTHON_STABLE_VERSION should be set to the latest stable Python version
 # and should *not* appear in PYTHON_VERSIONS
