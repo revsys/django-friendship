@@ -3,14 +3,21 @@ import nox
 # DJANGO_STABLE_VERSION should be set to the latest Django LTS version
 # and should *not* appear in DJANGO_VERSIONS
 
-DJANGO_STABLE_VERSION = "4.2"
-DJANGO_VERSIONS = ["4.2", "5.0", "5.1", "main"]
+DJANGO_STABLE_VERSION = "5.2"
+DJANGO_VERSIONS = ["4.2", "5.1", "main"]
 
 # PYTHON_STABLE_VERSION should be set to the latest stable Python version
 # and should *not* appear in PYTHON_VERSIONS
 
-PYTHON_STABLE_VERSION = "3.11"
-PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+PYTHON_STABLE_VERSION = "3.13"
+PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
+
+
+INVALID_PYTHON_DJANGO_SESSIONS = [
+    ("3.9", "5.1"),
+    ("3.9", "5.2"),
+]
+
 
 nox.options.default_venv_backend = "uv|venv"
 nox.options.reuse_existing_virtualenvs = True
@@ -41,8 +48,10 @@ def test_django_version(session: nox.Session, django: str) -> None:
 @nox.session(python=PYTHON_VERSIONS, tags=["python"])
 @nox.parametrize("django", [DJANGO_STABLE_VERSION])
 def test_python_version(session: nox.Session, django: str) -> None:
-    if session.python == PYTHON_STABLE_VERSION:
-        session.skip()
+    if (session.python, django) in INVALID_PYTHON_DJANGO_SESSIONS:
+        session.skip(
+            f"Skipping invalid combination: Python {session.python} + Django {django}"
+        )
 
     session.install(".[test]")
     session.install(f"django~={django}.0")
