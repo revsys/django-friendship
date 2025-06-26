@@ -14,9 +14,9 @@ This application enables you to create and manage follows, blocks and bi-directi
 
 ## Requirements
 
-Django 5.0 and 5.1 + Python 3.11 and Python 3.12 support added **>v1.9.6**
+Django 4.2, 5.1, and 5.2 + Python 3.9, 3.10, 3.11, 3.12, and 3.13 support added **>v1.9.6**
 
-Previously:
+Previously: 
 
 - **Django 3.2 since v1.9.1**
 - **Django 1.11+** since v1.7.0 (latest release supporting **Django 1.10** is v1.6.0)
@@ -29,8 +29,9 @@ Previously:
 
 ```python
 urlpatterns = [
-    # other paths
-    path("friendship/", include("friendship.urls"))
+    ...
+    path('friendship/', include('friendship.urls'))
+    ...
 ]
 ```
 
@@ -86,10 +87,9 @@ from friendship.models import Friend, Follow, Block
 ```python
 other_user = User.objects.get(pk=1)
 Friend.objects.add_friend(
-    request.user,  # The sender
-    other_user,  # The recipient
-    message="Hi! I would like to add you",
-)  # This message is optional
+    request.user,                               # The sender
+    other_user,                                 # The recipient
+    message='Hi! I would like to add you')      # This message is optional
 ```
 
 #### Let the user who received the request respond:
@@ -97,9 +97,7 @@ Friend.objects.add_friend(
 ```python
 from friendship.models import FriendshipRequest
 
-friend_request = FriendshipRequest.objects.get(
-    from_user=request.user, to_user=other_user
-)
+friend_request = FriendshipRequest.objects.get(from_user=request.user, to_user=other_user)
 friend_request.accept()
 # or friend_request.reject()
 ```
@@ -169,11 +167,9 @@ Then use any of the following:
 `django-friendship` supports the following settings:
 
 ```python
-FRIENDSHIP_CONTEXT_OBJECT_NAME = "user"
-FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME = "users"
-FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY = (
-    "select_related"  # ('select_related', 'prefetch_related', 'none')
-)
+FRIENDSHIP_CONTEXT_OBJECT_NAME = 'user'
+FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME = 'users'
+FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY = 'select_related'  # ('select_related', 'prefetch_related', 'none')
 ```
 
 ### Contributing
