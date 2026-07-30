@@ -8,6 +8,7 @@ version = "1.9.6"
 description = "django-friendship provides an easy extensible interface for following and friendship"
 authors = [
     { name = "Frank Wiles", email = "frank@revsys.com" },
+    { name = "Jeff Triplett", email = "jeff@revsys.com" },
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
