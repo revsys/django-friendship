@@ -2,66 +2,90 @@ name: CI
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/actions.yml"
-      - "**.py"
   push:
     branches:
       - main
 
-concurrency:
-  group: test-${{ github.head_ref }}
-  cancel-in-progress: true
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Tests with Python
-
+    env:
+      PYTHONDONTWRITEBYTECODE: true
+      PYTHONPATH: example
     strategy:
+      # By default, GitHub will maximize the number of jobs run in parallel
+      # depending on the available runners on GitHub-hosted virtual machines.
+      # max-parallel: 8
+      fail-fast: false
       matrix:
-        django-version:
-          - "4.2"
-          - "5.1"
-          - "5.2"
         python-version:
-          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
+          - "3.14t"
+        django-version:
+          - "4.2"  # LTS
+          - "5.1"
+          - "5.2"  # LTS
+          - "6.0"
+          - "6.1"
         exclude:
-          # Django 5.0 is compatible with Python 3.10+
-          - python-version: "3.9"
+
+          # Django 6.0 is compatible with Python 3.12+
+          - python-version: "3.10"
+            django-version: "6.0"
+          - python-version: "3.11"
+            django-version: "6.0"
+          # Django 6.1 is compatible with Python 3.12+
+          - python-version: "3.10"
+            django-version: "6.1"
+          - python-version: "3.11"
+            django-version: "6.1"
+          # Django 4.2 is not compatible with Python 3.14+
+          - python-version: "3.14"
+            django-version: "4.2"
+          - python-version: "3.14t"
+            django-version: "4.2"
+          # Django 5.1 is not compatible with Python 3.14+
+          - python-version: "3.14"
             django-version: "5.1"
-          - python-version: "3.9"
-            django-version: "5.2"
+          - python-version: "3.14t"
+            django-version: "5.1"
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          cache-dependency-path: '**/setup.cfg'
-          cache: 'pip'
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: '**/pyproject.toml'
 
       - name: Install dependencies
         run: |
           python -m pip install uv
 
-      - name: Upgrade django version
+      - name: Resolve Django ${{ matrix.django-version }} specifier
         run: |
-          python -m uv pip install "Django~=${{ matrix.django-version }}.0"
+          # Django versions without a final release need a specifier that opts
+          # in to pre-releases. Naming the pre-release also lets the same spec
+          # pick up the final release once it ships, so these cases can just be
+          # dropped then.
+          case "${{ matrix.django-version }}" in
+            6.1) echo 'DJANGO_SPEC=Django>=6.1rc1,<6.2' >> "$GITHUB_ENV" ;;
+            *)   echo 'DJANGO_SPEC=Django~=${{ matrix.django-version }}.0' >> "$GITHUB_ENV" ;;
+          esac
+
+      - name: Install Django ${{ matrix.django-version }}
+        run: |
+          python -m uv pip install --system "$DJANGO_SPEC"
 
       - name: Install dependencies
         run: |
           python -m uv pip install --system -e ".[test]"
 
-      - name: Run django-friendship tests
-        run: |
-          python runtests.py
-
-      # - name: Format with black
-      #   run: |
-      #     black --check .
+      - run: |
+          pytest .

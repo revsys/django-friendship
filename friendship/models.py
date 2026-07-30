@@ -112,16 +112,12 @@ class FriendshipRequest(models.Model):
 
         Friend.objects.create(from_user=self.to_user, to_user=self.from_user)
 
-        friendship_request_accepted.send(
-            sender=self, from_user=self.from_user, to_user=self.to_user
-        )
+        friendship_request_accepted.send(sender=self, from_user=self.from_user, to_user=self.to_user)
 
         self.delete()
 
         # Delete any reverse requests
-        FriendshipRequest.objects.filter(
-            from_user=self.to_user, to_user=self.from_user
-        ).delete()
+        FriendshipRequest.objects.filter(from_user=self.to_user, to_user=self.from_user).delete()
 
         # Bust requests cache - request is deleted
         bust_cache("requests", self.to_user.pk)
@@ -219,9 +215,7 @@ class FriendshipManager(models.Manager):
         count = cache.get(key)
 
         if count is None:
-            count = FriendshipRequest.objects.filter(
-                to_user=user, viewed__isnull=True
-            ).count()
+            count = FriendshipRequest.objects.filter(to_user=user, viewed__isnull=True).count()
             cache.set(key, count)
 
         return count
@@ -271,9 +265,7 @@ class FriendshipManager(models.Manager):
         count = cache.get(key)
 
         if count is None:
-            count = FriendshipRequest.objects.filter(
-                to_user=user, rejected__isnull=True
-            ).count()
+            count = FriendshipRequest.objects.filter(to_user=user, rejected__isnull=True).count()
             cache.set(key, count)
 
         return count
@@ -286,22 +278,16 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if FriendshipRequest.objects.filter(
-            from_user=from_user, to_user=to_user
-        ).exists():
+        if FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists():
             raise AlreadyExistsError("You already requested friendship from this user.")
 
-        if FriendshipRequest.objects.filter(
-            from_user=to_user, to_user=from_user
-        ).exists():
+        if FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user).exists():
             raise AlreadyExistsError("This user already requested friendship from you.")
 
         if message is None:
             message = ""
 
-        request, created = FriendshipRequest.objects.get_or_create(
-            from_user=from_user, to_user=to_user
-        )
+        request, created = FriendshipRequest.objects.get_or_create(from_user=from_user, to_user=to_user)
 
         if created is False:
             raise AlreadyExistsError("Friendship already requested")
@@ -319,14 +305,10 @@ class FriendshipManager(models.Manager):
     def remove_friend(self, from_user, to_user):
         """Destroy a friendship relationship"""
         try:
-            qs = Friend.objects.filter(
-                to_user__in=[to_user, from_user], from_user__in=[from_user, to_user]
-            )
+            qs = Friend.objects.filter(to_user__in=[to_user, from_user], from_user__in=[from_user, to_user])
 
             if qs:
-                friendship_removed.send(
-                    sender=qs[0], from_user=from_user, to_user=to_user
-                )
+                friendship_removed.send(sender=qs[0], from_user=from_user, to_user=to_user)
                 qs.delete()
                 bust_cache("friends", to_user.pk)
                 bust_cache("friends", from_user.pk)
@@ -340,9 +322,7 @@ class FriendshipManager(models.Manager):
         """Are these two users friends?"""
         friends1 = cache.get(cache_key("friends", user1.pk))
         friends2 = cache.get(cache_key("friends", user2.pk))
-        if friends1 and user2 in friends1:
-            return True
-        elif friends2 and user1 in friends2:
+        if friends1 and user2 in friends1 or friends2 and user1 in friends2:
             return True
         else:
             try:
@@ -368,9 +348,7 @@ class Friend(models.Model):
     """Model to represent Friendships"""
 
     to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="friends")
-    from_user = models.ForeignKey(
-        AUTH_USER_MODEL, models.CASCADE, related_name="_unused_friend_relation"
-    )
+    from_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="_unused_friend_relation")
     created = models.DateTimeField(default=timezone.now)
 
     objects = FriendshipManager()
@@ -422,9 +400,7 @@ class FollowingManager(models.Manager):
         if follower == followee:
             raise ValidationError("Users cannot follow themselves")
 
-        relation, created = Follow.objects.get_or_create(
-            follower=follower, followee=followee
-        )
+        relation, created = Follow.objects.get_or_create(follower=follower, followee=followee)
 
         if created is False:
             raise AlreadyExistsError(f"User '{follower}' already follows '{followee}'")
@@ -457,9 +433,7 @@ class FollowingManager(models.Manager):
         followers = cache.get(cache_key("following", follower.pk))
         following = cache.get(cache_key("followers", followee.pk))
 
-        if followers and followee in followers:
-            return True
-        elif following and follower in following:
+        if followers and followee in followers or following and follower in following:
             return True
         else:
             return Follow.objects.filter(follower=follower, followee=followee).exists()
@@ -468,12 +442,8 @@ class FollowingManager(models.Manager):
 class Follow(models.Model):
     """Model to represent Following relationships"""
 
-    follower = models.ForeignKey(
-        AUTH_USER_MODEL, models.CASCADE, related_name="following"
-    )
-    followee = models.ForeignKey(
-        AUTH_USER_MODEL, models.CASCADE, related_name="followers"
-    )
+    follower = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="following")
+    followee = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="followers")
     created = models.DateTimeField(default=timezone.now)
 
     objects = FollowingManager()
@@ -525,9 +495,7 @@ class BlockManager(models.Manager):
         if blocker == blocked:
             raise ValidationError("Users cannot block themselves")
 
-        relation, created = Block.objects.get_or_create(
-            blocker=blocker, blocked=blocked
-        )
+        relation, created = Block.objects.get_or_create(blocker=blocker, blocked=blocked)
 
         if created is False:
             raise AlreadyExistsError(f"User '{blocker}' already blocks '{blocked}'")
@@ -565,20 +533,14 @@ class BlockManager(models.Manager):
         if block2 and user1 in block2:
             return True
 
-        return Block.objects.filter(
-            blocker__in=[user1, user2], blocked__in=[user1, user2]
-        ).exists()
+        return Block.objects.filter(blocker__in=[user1, user2], blocked__in=[user1, user2]).exists()
 
 
 class Block(models.Model):
     """Model to represent Following relationships"""
 
-    blocker = models.ForeignKey(
-        AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocking"
-    )
-    blocked = models.ForeignKey(
-        AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blockees"
-    )
+    blocker = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocking")
+    blocked = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blockees")
     created = models.DateTimeField(default=timezone.now)
 
     objects = BlockManager()

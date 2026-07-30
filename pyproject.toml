@@ -1,0 +1,118 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-friendship"
+version = "1.9.6"
+description = "django-friendship provides an easy extensible interface for following and friendship"
+authors = [
+    { name = "Frank Wiles", email = "frank@revsys.com" },
+    { name = "Jeff Triplett", email = "jeff@revsys.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Free Threading :: 3 - Stable",
+]
+dependencies = []
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Changelog = "https://github.com/revsys/django-friendship/blob/main/CHANGELOG.rst"
+Homepage = "https://github.com/revsys/django-friendship/"
+
+[project.optional-dependencies]
+lint = ["prek"]
+test = ["factory-boy", "pytest", "pytest-cov", "pytest-django"]
+testing = ["django-friendship[test]"]
+
+[tool.bumpver]
+current_version = "1.9.6"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "Bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"friendship/__init__.py" = ['__version__ = "{version}"']
+
+[tool.coverage.paths]
+source = ["friendship"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if DEBUG:",
+    "if not DEBUG:",
+    "if settings.DEBUG:",
+    "if TYPE_CHECKING:",
+    'def __str__\(self\)\s?\-?\>?\s?\w*\:',
+]
+fail_under = 60
+
+[tool.coverage.run]
+omit = [
+    "docs/*",
+    "example/*",
+    "friendship/tests/*",
+    "friendship/migrations/*",
+]
+source = ["friendship"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["friendship"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/friendship",
+    "/CHANGELOG.rst",
+    "/README.md",
+]
+
+[tool.isort]
+profile = "black"
+honor_noqa = true
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.per-file-ignores]
+# Django declares these as plain class attributes by convention; ClassVar
+# annotations would be wrong here (migrations are generated code).
+"**/migrations/*.py" = ["RUF012"]
+"**/forms.py" = ["RUF012"]
+"**/models.py" = ["RUF012"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "sample.settings"
+addopts = "--reuse-db"
+norecursedirs = ".* build dist docs .eggs/* *.egg-info htmlcov .git .tox .nox"
+python_files = "test*.py *_tests.py"
+pythonpath = ["example"]
+testpaths = ["friendship"]
