@@ -1,4 +1,5 @@
 from django.urls import path
+
 from friendship.views import (
     all_users,
     block_add,

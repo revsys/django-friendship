@@ -1,58 +1,57 @@
 import nox
 
-# DJANGO_STABLE_VERSION should be set to the latest Django LTS version
-# and should *not* appear in DJANGO_VERSIONS
+DJANGO_VERSIONS = ["4.2", "5.0", "5.1", "5.2", "6.0", "6.1"]
+PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t"]
 
-DJANGO_STABLE_VERSION = "5.2"
-DJANGO_VERSIONS = ["4.2", "5.1", "5.2", "main"]
-
-# PYTHON_STABLE_VERSION should be set to the latest stable Python version
-# and should *not* appear in PYTHON_VERSIONS
-
-PYTHON_STABLE_VERSION = "3.13"
-PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
-
+# Django versions that have no final release yet need a specifier that opts in
+# to pre-releases. Naming the pre-release also lets the same spec pick up the
+# final release once it ships, so these entries can just be deleted then.
+DJANGO_SPECS = {
+    "6.1": "django>=6.1rc1,<6.2",
+}
 
 INVALID_PYTHON_DJANGO_SESSIONS = [
-    ("3.9", "5.1"),
-    ("3.9", "5.2"),
+    ("3.10", "6.0"),
+    ("3.11", "6.0"),
+    ("3.10", "6.1"),
+    ("3.11", "6.1"),
+    ("3.14", "4.2"),
+    ("3.14", "5.1"),
+    ("3.14t", "4.2"),
+    ("3.14t", "5.1"),
 ]
-
 
 nox.options.default_venv_backend = "uv|venv"
 nox.options.reuse_existing_virtualenvs = True
 
 
-@nox.session
-def lint(session):
-    session.install(".[lint]")
-    session.run("python", "-m", "pre_commit", "run", "--all-files")
-
-
-@nox.session(python=[PYTHON_STABLE_VERSION], tags=["django"])
+@nox.session(python=PYTHON_VERSIONS, tags=["django"], venv_backend="uv")
 @nox.parametrize("django", DJANGO_VERSIONS)
-def test_django_version(session: nox.Session, django: str) -> None:
-    if django == DJANGO_STABLE_VERSION:
+def tests(session: nox.Session, django: str) -> None:
+    if (session.python, django) in INVALID_PYTHON_DJANGO_SESSIONS:
         session.skip()
-
-    session.install(".[test]")
-
-    if django == "main":
-        session.install("https://github.com/django/django/archive/refs/heads/main.zip")
-    else:
-        session.install(f"django~={django}.0")
-
+    # Editable so pytest collects ./friendship/tests rather than colliding with
+    # a second copy installed into site-packages.
+    session.install("-e", ".[test]")
+    session.install(DJANGO_SPECS.get(django, f"django~={django}"))
     session.run("pytest", *session.posargs)
 
 
-@nox.session(python=PYTHON_VERSIONS, tags=["python"])
-@nox.parametrize("django", [DJANGO_STABLE_VERSION])
-def test_python_version(session: nox.Session, django: str) -> None:
-    if (session.python, django) in INVALID_PYTHON_DJANGO_SESSIONS:
-        session.skip(
-            f"Skipping invalid combination: Python {session.python} + Django {django}"
-        )
+@nox.session(venv_backend="uv")
+def lint(session: nox.Session) -> None:
+    session.install(".[lint]")
+    session.run("prek", "run", "--all-files", *session.posargs)
 
-    session.install(".[test]")
-    session.install(f"django~={django}.0")
+
+@nox.session(venv_backend="uv")
+def coverage(session: nox.Session) -> None:
+    # Editable, so coverage measures ./friendship rather than a copy in
+    # site-packages that it would never see reported.
+    session.install("-e", ".[test]", "django")
+    session.run("pytest", "--cov", "--cov-report=term-missing", *session.posargs)
+
+
+@nox.session(venv_backend="none")
+def tests_env(session: nox.Session) -> None:
+    """Run the tests in the active environment, without building a virtualenv."""
     session.run("pytest", *session.posargs)

@@ -17,9 +17,7 @@ class login:
     def __init__(self, testcase, user, password):
         self.testcase = testcase
         success = testcase.client.login(username=user, password=password)
-        self.testcase.assertTrue(
-            success, f"login with username={user!r}, password={password!r} failed"
-        )
+        self.testcase.assertTrue(success, f"login with username={user!r}, password={password!r} failed")
 
     def __enter__(self):
         pass
@@ -75,12 +73,8 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(Friend.objects.friends(self.user_steve), [])
 
         # Ensure FriendshipRequest is created
-        self.assertEqual(
-            FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 1
-        )
-        self.assertEqual(
-            FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 1
-        )
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 1)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 1)
         self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1)
 
         # Ensure the proper sides have requests or not
@@ -112,12 +106,8 @@ class FriendshipModelTests(BaseTestCase):
         req1.accept()
 
         # Ensure neither have pending requests
-        self.assertEqual(
-            FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 0
-        )
-        self.assertEqual(
-            FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 0
-        )
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 0)
 
         # Ensure both are in each other's friend lists
         self.assertEqual(Friend.objects.friends(self.user_bob), [self.user_steve])
@@ -194,12 +184,8 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(Friend.objects.friends(self.user_steve), [])
 
         # Ensure FriendshipRequest is created
-        self.assertEqual(
-            FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 1
-        )
-        self.assertEqual(
-            FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 1
-        )
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 1)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 1)
         self.assertEqual(Friend.objects.unread_request_count(self.user_steve), 1)
 
         # Steve also wants to be friends with Bob before Bob replies
@@ -213,18 +199,10 @@ class FriendshipModelTests(BaseTestCase):
         req1.accept()
 
         # Ensure neither have pending requests
-        self.assertEqual(
-            FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 0
-        )
-        self.assertEqual(
-            FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 0
-        )
-        self.assertEqual(
-            FriendshipRequest.objects.filter(from_user=self.user_steve).count(), 0
-        )
-        self.assertEqual(
-            FriendshipRequest.objects.filter(to_user=self.user_bob).count(), 0
-        )
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_bob).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_steve).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(from_user=self.user_steve).count(), 0)
+        self.assertEqual(FriendshipRequest.objects.filter(to_user=self.user_bob).count(), 0)
 
     def test_multiple_calls_add_friend(self):
         """Ensure multiple calls with same friends, but different message
@@ -296,9 +274,7 @@ class FriendshipModelTests(BaseTestCase):
 class FriendshipViewTests(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.friendship_request = Friend.objects.add_friend(
-            self.user_steve, self.user_bob
-        )
+        self.friendship_request = Friend.objects.add_friend(self.user_steve, self.user_bob)
 
     def test_friendship_view_users(self):
         url = reverse("friendship_view_users")
@@ -316,26 +292,20 @@ class FriendshipViewTests(BaseTestCase):
             self.assertTrue("object_list" in response.context)
 
     def test_friendship_view_friends(self):
-        url = reverse(
-            "friendship_view_friends", kwargs={"username": self.user_bob.username}
-        )
+        url = reverse("friendship_view_friends", kwargs={"username": self.user_bob.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
         self.assertResponse200(response)
         self.assertTrue("user" in response.context)
 
-        with self.settings(
-            FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)
-        ):
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)):
             response = self.client.get(url)
             self.assertResponse200(response)
             self.assertTrue("object" in response.context)
 
     def test_friendship_add_friend(self):
-        url = reverse(
-            "friendship_add_friend", kwargs={"to_username": self.user_amy.username}
-        )
+        url = reverse("friendship_add_friend", kwargs={"to_username": self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
@@ -355,9 +325,7 @@ class FriendshipViewTests(BaseTestCase):
             self.assertTrue(redirect_url in response["Location"])
 
     def test_friendship_add_friend_dupe(self):
-        url = reverse(
-            "friendship_add_friend", kwargs={"to_username": self.user_amy.username}
-        )
+        url = reverse("friendship_add_friend", kwargs={"to_username": self.user_amy.username})
 
         with self.login(self.user_bob.username, self.user_pw):
             # if we don't POST the view should return the
@@ -378,9 +346,7 @@ class FriendshipViewTests(BaseTestCase):
                 ["You already requested friendship from this user."],
             )
 
-        url = reverse(
-            "friendship_add_friend", kwargs={"to_username": self.user_bob.username}
-        )
+        url = reverse("friendship_add_friend", kwargs={"to_username": self.user_bob.username})
         with self.login(self.user_amy.username, self.user_pw):
             response = self.client.post(url)
             self.assertResponse200(response)
@@ -437,9 +403,7 @@ class FriendshipViewTests(BaseTestCase):
             # friendship_view_friends view
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse(
-                "friendship_view_friends", kwargs={"username": self.user_bob.username}
-            )
+            redirect_url = reverse("friendship_view_friends", kwargs={"username": self.user_bob.username})
             self.assertTrue(redirect_url in response["Location"])
 
         with self.login(self.user_steve.username, self.user_pw):
@@ -540,9 +504,7 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
-        with self.settings(
-            FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)
-        ):
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)):
             response = self.client.get(url)
             self.assertResponse200(response)
             self.assertTrue("object" in response.context)
@@ -554,17 +516,13 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
-        with self.settings(
-            FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)
-        ):
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)):
             response = self.client.get(url)
             self.assertResponse200(response)
             self.assertTrue("object" in response.context)
 
     def test_follower_add(self):
-        url = reverse(
-            "follower_add", kwargs={"followee_username": self.user_amy.username}
-        )
+        url = reverse("follower_add", kwargs={"followee_username": self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
@@ -578,25 +536,19 @@ class FriendshipViewTests(BaseTestCase):
             # friendship_following view
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse(
-                "friendship_following", kwargs={"username": self.user_bob.username}
-            )
+            redirect_url = reverse("friendship_following", kwargs={"username": self.user_bob.username})
             self.assertTrue(redirect_url in response["Location"])
 
             response = self.client.post(url)
             self.assertResponse200(response)
             self.assertTrue("errors" in response.context)
-            self.assertEqual(
-                response.context["errors"], ["User 'bob' already follows 'amy'"]
-            )
+            self.assertEqual(response.context["errors"], ["User 'bob' already follows 'amy'"])
 
     def test_follower_remove(self):
         # create a follow relationship so we can test removing a follower
         Follow.objects.add_follower(self.user_bob, self.user_amy)
 
-        url = reverse(
-            "follower_remove", kwargs={"followee_username": self.user_amy.username}
-        )
+        url = reverse("follower_remove", kwargs={"followee_username": self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
@@ -608,9 +560,7 @@ class FriendshipViewTests(BaseTestCase):
 
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse(
-                "friendship_following", kwargs={"username": self.user_bob.username}
-            )
+            redirect_url = reverse("friendship_following", kwargs={"username": self.user_bob.username})
             self.assertTrue(redirect_url in response["Location"])
 
     def test_friendship_blockers(self):
@@ -620,9 +570,7 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
-        with self.settings(
-            FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)
-        ):
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)):
             response = self.client.get(url)
             self.assertResponse200(response)
             self.assertTrue("object" in response.context)
@@ -634,9 +582,7 @@ class FriendshipViewTests(BaseTestCase):
         response = self.client.get(url)
         self.assertResponse200(response)
 
-        with self.settings(
-            FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)
-        ):
+        with self.settings(FRIENDSHIP_CONTEXT_OBJECT_NAME="object", TEMPLATE_DIRS=(TEST_TEMPLATES,)):
             response = self.client.get(url)
             self.assertResponse200(response)
             self.assertTrue("object" in response.context)
@@ -656,25 +602,19 @@ class FriendshipViewTests(BaseTestCase):
             # friendship_following view
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse(
-                "friendship_blocking", kwargs={"username": self.user_bob.username}
-            )
+            redirect_url = reverse("friendship_blocking", kwargs={"username": self.user_bob.username})
             self.assertTrue(redirect_url in response["Location"])
 
             response = self.client.post(url)
             self.assertResponse200(response)
             self.assertTrue("errors" in response.context)
-            self.assertEqual(
-                response.context["errors"], ["User 'bob' already blocks 'amy'"]
-            )
+            self.assertEqual(response.context["errors"], ["User 'bob' already blocks 'amy'"])
 
     def test_block_remove(self):
         # create a follow relationship so we can test removing a block
         Block.objects.add_block(self.user_bob, self.user_amy)
 
-        url = reverse(
-            "block_remove", kwargs={"blocked_username": self.user_amy.username}
-        )
+        url = reverse("block_remove", kwargs={"blocked_username": self.user_amy.username})
 
         # test that the view requires authentication to access it
         response = self.client.get(url)
@@ -686,7 +626,5 @@ class FriendshipViewTests(BaseTestCase):
 
             response = self.client.post(url)
             self.assertResponse302(response)
-            redirect_url = reverse(
-                "friendship_blocking", kwargs={"username": self.user_bob.username}
-            )
+            redirect_url = reverse("friendship_blocking", kwargs={"username": self.user_bob.username})
             self.assertTrue(redirect_url in response["Location"])

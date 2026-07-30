@@ -1,30 +1,54 @@
 @_default:
     just --list
 
+# Install development dependencies
 @bootstrap:
-    python -m pip install --upgrade pip uv nox
-    uv pip install --upgrade --requirement requirements.in
+    python -m pip install --upgrade pip uv
+    python -m uv pip install --upgrade nox
 
+# Run bumpver with optional arguments
+@bump *ARGS="--help":
+    uv tool run bumpver {{ ARGS }}
+
+# Bump patch version (dry run by default, use ARGS="" to apply)
+@bump-patch *ARGS="--dry":
+    uv tool run bumpver update --patch {{ ARGS }}
+
+# Bump minor version (dry run by default, use ARGS="" to apply)
+@bump-minor *ARGS="--dry":
+    uv tool run bumpver update --minor {{ ARGS }}
+
+# Run test coverage report
+@coverage *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }} --session "coverage"
+
+# Format justfile
 @fmt:
     just --fmt --unstable
 
-@lint:
-    python -m nox --reuse-existing-virtualenvs --session "lint"
+# Run linting checks
+@lint *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }} --session "lint"
 
-@nox *ARGS:
-    python -m nox --no-install --reuse-existing-virtualenvs {{ ARGS }}
+# Run all nox sessions
+@nox *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }}
 
-@pip-compile:
-    python -m uv pip compile --resolver=backtracking
+# Build and publish a release to PyPI
+@release:
+    rm -rf build dist
+    uv build
+    git push --tags
+    uv publish
 
-@pre-commit:
-    git ls-files -- . | xargs pre-commit run --config=.pre-commit-config.yaml --files
+# Run all tests
+@test *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }}
 
-@test *ARGS:
-    python -m nox --reuse-existing-virtualenvs \
-        --session "test_django_version" \
-        {{ ARGS }}
+# Run tests in current environment
+@test-env *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }} --session "tests_env"
 
-    python -m nox --reuse-existing-virtualenvs \
-        --session "test_python_version" \
-        {{ ARGS }}
+# Run tests with latest Python and Django versions
+@test-latest *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }} --session "tests-3.14(django='6.1')"
