@@ -13,6 +13,11 @@ _Not released yet_
 - Add `FriendshipManager.request_exists(from_user, to_user)` to check for a
   pending friendship request in either direction without duplicating the
   queries (#198)
+- Allow a friendship request to be sent again after it was rejected, instead of
+  raising `AlreadyExistsError` forever. The previously rejected request is
+  revived as a fresh, unread request; use the block feature to stop unwanted
+  requests. **Behavior change:** a single rejection no longer permanently blocks
+  future requests (#193)
 
 ## Version 1.10.0
 
