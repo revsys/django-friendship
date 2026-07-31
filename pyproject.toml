@@ -46,7 +46,7 @@ Changelog = "https://github.com/revsys/django-friendship/blob/main/CHANGELOG.md"
 Homepage = "https://github.com/revsys/django-friendship/"
 
 [project.optional-dependencies]
-docs = ["zensical"]
+docs = ["zensical", "mkdocstrings-python"]
 lint = ["prek"]
 test = ["factory-boy", "pytest", "pytest-cov", "pytest-django"]
 testing = ["django-friendship[test]"]

@@ -33,6 +33,7 @@ ORDER = [
     "index",
     "usage",
     "signals",
+    "reference",
 ]
 
 SKIP = {"404"}

@@ -10,7 +10,7 @@ build:
     python: "3.13"
   jobs:
     install:
-      - pip install zensical
+      - pip install zensical mkdocstrings-python
     build:
       html:
         - zensical build
