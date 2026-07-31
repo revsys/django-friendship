@@ -17,7 +17,7 @@ Signals
     ``sender``
         The FriendshipRequest instance that has just been created
 
-* **friendship_request_canceled`**
+* **friendship_request_canceled**
     Sent after FriendshipRequest.cancel deletes the ``sender`` FriendshipRequest object.
 
     ``sender``
@@ -54,26 +54,75 @@ Signals
 
     ``to_user``
 
+.. admonition:: Note
+
+    The follow and block ``*_created`` signals send the **model class** as
+    ``sender`` (``Follow`` or ``Block``), so you can connect a receiver with
+    ``sender=Follow`` / ``sender=Block``. The ``*_removed`` signals send the
+    removed instance.
+
 * **follower_created**
+    Sent by FollowingManager.add_follower.
 
     ``sender``
+        The ``Follow`` model class.
 
     ``follower``
+        The user who is now following someone.
 
-* **following_created**
+* **followee_created**
+    Sent by FollowingManager.add_follower.
 
     ``sender``
+        The ``Follow`` model class.
 
     ``followee``
+        The user who is now being followed.
 
-* **follower_removed**
-
-    ``sender``
-
-    ``follower``
-
-* **following_removed**
+* **following_created**
+    Sent by FollowingManager.add_follower.
 
     ``sender``
+        The ``Follow`` model class.
 
     ``following``
+        The newly created ``Follow`` instance.
+
+* **follower_removed**
+    Sent by FollowingManager.remove_follower.
+
+    ``sender``
+        The removed ``Follow`` instance.
+
+    ``follower``
+        The user who was following.
+
+* **followee_removed**
+    Sent by FollowingManager.remove_follower.
+
+    ``sender``
+        The removed ``Follow`` instance.
+
+    ``followee``
+        The user who was being followed.
+
+* **following_removed**
+    Sent by FollowingManager.remove_follower.
+
+    ``sender``
+        The removed ``Follow`` instance.
+
+    ``following``
+        The removed ``Follow`` instance.
+
+* **block_created**
+    Sent by BlockManager.add_block, once each with ``blocker``, ``blocked``, and ``blocking``.
+
+    ``sender``
+        The ``Block`` model class.
+
+* **block_removed**
+    Sent by BlockManager.remove_block, once each with ``blocker``, ``blocked``, and ``blocking``.
+
+    ``sender``
+        The removed ``Block`` instance.
