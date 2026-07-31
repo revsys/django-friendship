@@ -33,6 +33,7 @@ urlpatterns = [
 ## Where to next
 
 - [Usage](usage.md): the manager API, settings, and template tags
+- [Cookbook](cookbook.md): task-oriented recipes for common flows
 - [Signals](signals.md): the signals the app emits
 - [API reference](reference.md): the managers, models, and exceptions
 
