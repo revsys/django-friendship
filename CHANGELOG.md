@@ -4,6 +4,10 @@
 
 _Not released yet_
 
+## Version 1.11.0
+
+_Released July 31st, 2026_
+
 - Fix `Follow` and `Block` `*_created` signals to send the model class as
   `sender` so receivers connected with `sender=Follow` / `sender=Block`
   fire (#89)
