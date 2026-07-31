@@ -43,6 +43,7 @@ content-type = "text/markdown"
 
 [project.urls]
 Changelog = "https://github.com/revsys/django-friendship/blob/main/CHANGELOG.md"
+Documentation = "https://django-friendship.readthedocs.io/"
 Homepage = "https://github.com/revsys/django-friendship/"
 
 [project.optional-dependencies]
