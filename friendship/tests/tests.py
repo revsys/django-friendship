@@ -709,3 +709,31 @@ class UsernameUrlTests(BaseTestCase):
         with self.login(self.user_bob.username, self.user_pw):
             response = self.client.get(reverse("friendship_view_users"))
             self.assertResponse200(response)
+
+
+class RequestExistsTests(BaseTestCase):
+    """Tests for FriendshipManager.request_exists (#198)."""
+
+    def test_false_when_no_request(self):
+        self.assertFalse(Friend.objects.request_exists(self.user_bob, self.user_steve))
+
+    def test_true_in_both_directions(self):
+        Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+        # request_exists is direction-agnostic: it reports the pending request
+        # regardless of which user is passed first.
+        self.assertTrue(Friend.objects.request_exists(self.user_bob, self.user_steve))
+        self.assertTrue(Friend.objects.request_exists(self.user_steve, self.user_bob))
+
+    def test_unaffected_by_unrelated_users(self):
+        Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+        self.assertFalse(Friend.objects.request_exists(self.user_bob, self.user_susan))
+        self.assertFalse(Friend.objects.request_exists(self.user_susan, self.user_amy))
+
+    def test_matches_add_friend_guard(self):
+        # Whenever request_exists is True, add_friend should refuse.
+        Friend.objects.add_friend(self.user_bob, self.user_steve)
+        self.assertTrue(Friend.objects.request_exists(self.user_steve, self.user_bob))
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_steve, self.user_bob)

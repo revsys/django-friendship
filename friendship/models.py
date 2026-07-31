@@ -270,6 +270,17 @@ class FriendshipManager(models.Manager):
 
         return count
 
+    def request_exists(self, from_user, to_user):
+        """Return ``True`` if a friendship request exists between the two users
+        in either direction.
+
+        Useful for checking whether ``add_friend`` would raise
+        ``AlreadyExistsError`` without having to duplicate the queries here.
+        """
+        return FriendshipRequest.objects.filter(
+            models.Q(from_user=from_user, to_user=to_user) | models.Q(from_user=to_user, to_user=from_user)
+        ).exists()
+
     def add_friend(self, from_user, to_user, message=None):
         """Create a friendship request"""
         if from_user == to_user:
