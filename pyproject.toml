@@ -42,7 +42,7 @@ file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
-Changelog = "https://github.com/revsys/django-friendship/blob/main/CHANGELOG.rst"
+Changelog = "https://github.com/revsys/django-friendship/blob/main/CHANGELOG.md"
 Homepage = "https://github.com/revsys/django-friendship/"
 
 [project.optional-dependencies]
@@ -91,7 +91,7 @@ packages = ["friendship"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/friendship",
-    "/CHANGELOG.rst",
+    "/CHANGELOG.md",
     "/README.md",
 ]
 
