@@ -22,8 +22,6 @@ Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1 + Python 3.10, 3.11, 3.12, 3.13, and 3.1
 Previously:
 
 - Django 4.2, 5.1, 5.2 + Python 3.9–3.13 since **v1.9.6**
-- **Django 3.2 since v1.9.1**
-- **Django 1.11+** since v1.7.0 (latest release supporting **Django 1.10** is v1.6.0)
 
 ## Installation
 
@@ -36,20 +34,6 @@ urlpatterns = [
     # other paths
     path("friendship/", include("friendship.urls"))
 ]
-```
-
-Note: If you are migrating from django-friendship `v1.6.x`, you'll need to rollback your migrations and fake
-migration `0002`
-
-```shell
-$ ./manage.py migrate friendship 0001
-$ ./manage.py migrate friendship 0002 --fake
-```
-
-If you're migrating from `v1.7.x`, you'll likely have to fake `0003` as well:
-
-```shell
-$ ./manage.py migrate friendship 0003 --fake
 ```
 
 ## Usage
