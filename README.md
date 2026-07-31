@@ -14,10 +14,11 @@ This application enables you to create and manage follows, blocks and bi-directi
 
 ## Requirements
 
-Django 4.2, 5.1, and 5.2 + Python 3.9, 3.10, 3.11, 3.12, and 3.13 support added **>v1.9.6**
+Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1 + Python 3.10, 3.11, 3.12, 3.13, and 3.14 (including free-threading) since **v1.10.0**
 
 Previously:
 
+- Django 4.2, 5.1, 5.2 + Python 3.9–3.13 since **v1.9.6**
 - **Django 3.2 since v1.9.1**
 - **Django 1.11+** since v1.7.0 (latest release supporting **Django 1.10** is v1.6.0)
 
@@ -60,13 +61,14 @@ from friendship.models import Friend, Follow, Block
 ### Getting Data about Friendships
 
 - List all of a user's friends: `Friend.objects.friends(request.user)`
+- Count of a user's friends: `Friend.objects.friend_count(request.user)`
 - List all unread friendship requests: `Friend.objects.unread_requests(user=request.user)`
 - List all unrejected friendship requests: `Friend.objects.unrejected_requests(user=request.user)`
 - Count of all unrejected friendship requests: `Friend.objects.unrejected_request_count(user=request.user)`
 - List all rejected friendship requests: `Friend.objects.rejected_requests(user=request.user)`
-- Count of all rejected friendship requests: `Friend.objects.rejected_request_count(user=request.user)`
 - List of all sent friendship requests: `Friend.objects.sent_requests(user=request.user)`
 - Test if two users are friends: `Friend.objects.are_friends(request.user, other_user) == True`
+- Test if a friendship request already exists between two users (either direction): `Friend.objects.request_exists(from_user, to_user) == True`
 
 ### Getting Data about Follows
 
@@ -154,18 +156,37 @@ Then use any of the following:
 
 ### Signals
 
-`django-friendship` emits the following signals:
+`django-friendship` emits the following signals (from `friendship.signals`):
 
 - friendship_request_created
 - friendship_request_rejected
 - friendship_request_canceled
+- friendship_request_viewed
 - friendship_request_accepted
 - friendship_removed
 - follower_created
-- following_created
 - follower_removed
+- followee_created
+- followee_removed
+- following_created
 - following_removed
 - block_created
+- block_removed
+
+Each signal's `sender` is the emitting model, so you can connect a receiver
+scoped to it:
+
+```python
+from django.dispatch import receiver
+
+from friendship.models import Follow
+from friendship.signals import follower_created
+
+
+@receiver(follower_created, sender=Follow)
+def on_follow(sender, follower, **kwargs):
+    ...
+```
 - block_removed
 
 ### Settings
