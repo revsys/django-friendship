@@ -23,12 +23,12 @@ from friendship.views import (
 urlpatterns = [
     path("users/", view=all_users, name="friendship_view_users"),
     path(
-        "friends/<slug:username>/",
+        "friends/<str:username>/",
         view=view_friends,
         name="friendship_view_friends",
     ),
     path(
-        "friend/add/<slug:to_username>/",
+        "friend/add/<str:to_username>/",
         view=friendship_add_friend,
         name="friendship_add_friend",
     ),
@@ -63,42 +63,42 @@ urlpatterns = [
         name="friendship_requests_detail",
     ),
     path(
-        "followers/<slug:username>/",
+        "followers/<str:username>/",
         view=followers,
         name="friendship_followers",
     ),
     path(
-        "following/<slug:username>/",
+        "following/<str:username>/",
         view=following,
         name="friendship_following",
     ),
     path(
-        "follower/add/<slug:followee_username>/",
+        "follower/add/<str:followee_username>/",
         view=follower_add,
         name="follower_add",
     ),
     path(
-        "follower/remove/<slug:followee_username>/",
+        "follower/remove/<str:followee_username>/",
         view=follower_remove,
         name="follower_remove",
     ),
     path(
-        "blockers/<slug:username>/",
+        "blockers/<str:username>/",
         view=blockers,
         name="friendship_blockers",
     ),
     path(
-        "blocking/<slug:username>/",
+        "blocking/<str:username>/",
         view=blocking,
         name="friendship_blocking",
     ),
     path(
-        "block/add/<slug:blocked_username>/",
+        "block/add/<str:blocked_username>/",
         view=block_add,
         name="block_add",
     ),
     path(
-        "block/remove/<slug:blocked_username>/",
+        "block/remove/<str:blocked_username>/",
         view=block_remove,
         name="block_remove",
     ),

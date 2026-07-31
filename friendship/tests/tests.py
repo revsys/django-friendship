@@ -673,3 +673,39 @@ class SignalTests(BaseTestCase):
 
         # add_block emits block_created three times (blocker, blocked, blocking)
         self.assertEqual(len(blocks), 3)
+
+
+class UsernameUrlTests(BaseTestCase):
+    """
+    Usernames may contain characters outside the slug charset (Django's default
+    validator allows ``@``, ``.``, ``+``, ``-``, ``_`` and unicode). The bundled
+    URLs must reverse for those usernames. Regression test for #109.
+    """
+
+    # A username the ``slug`` converter would reject but ``UsernameValidator`` allows.
+    DOTTED = "bob.smith"
+
+    def test_username_urls_reverse_with_non_slug_characters(self):
+        for name, kwarg in [
+            ("friendship_view_friends", "username"),
+            ("friendship_add_friend", "to_username"),
+            ("friendship_followers", "username"),
+            ("friendship_following", "username"),
+            ("follower_add", "followee_username"),
+            ("follower_remove", "followee_username"),
+            ("friendship_blockers", "username"),
+            ("friendship_blocking", "username"),
+            ("block_add", "blocked_username"),
+            ("block_remove", "blocked_username"),
+        ]:
+            with self.subTest(url=name):
+                # Previously raised NoReverseMatch under the ``slug`` converter.
+                reverse(name, kwargs={kwarg: self.DOTTED})
+
+    def test_users_page_renders_when_a_username_has_a_dot(self):
+        # The user list template reverses ``friendship_add_friend`` for every
+        # user, so a single dotted username used to 500 the whole page.
+        self.create_user(self.DOTTED, "dotted@example.com", self.user_pw)
+        with self.login(self.user_bob.username, self.user_pw):
+            response = self.client.get(reverse("friendship_view_users"))
+            self.assertResponse200(response)
