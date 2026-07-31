@@ -9,6 +9,12 @@ from django.urls import reverse
 
 from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 from friendship.models import Block, Follow, Friend, FriendshipRequest
+from friendship.signals import (
+    block_created,
+    followee_created,
+    follower_created,
+    following_created,
+)
 
 TEST_TEMPLATES = os.path.join(os.path.dirname(__file__), "templates")
 
@@ -628,3 +634,42 @@ class FriendshipViewTests(BaseTestCase):
             self.assertResponse302(response)
             redirect_url = reverse("friendship_blocking", kwargs={"username": self.user_bob.username})
             self.assertTrue(redirect_url in response["Location"])
+
+
+class SignalTests(BaseTestCase):
+    """
+    Signals should be sent with ``sender`` set to the model class so that
+    receivers connected with ``sender=Follow`` / ``sender=Block`` actually fire.
+    Regression test for #89.
+    """
+
+    def _collect(self, signal, sender):
+        received = []
+
+        def handler(sender, **kwargs):
+            received.append(kwargs)
+
+        signal.connect(handler, sender=sender, weak=False)
+        self.addCleanup(signal.disconnect, handler, sender=sender)
+        return received
+
+    def test_follow_created_signals_fire_with_model_sender(self):
+        followers = self._collect(follower_created, Follow)
+        followees = self._collect(followee_created, Follow)
+        followings = self._collect(following_created, Follow)
+
+        Follow.objects.add_follower(self.user_bob, self.user_steve)
+
+        self.assertEqual(len(followers), 1)
+        self.assertEqual(followers[0]["follower"], self.user_bob)
+        self.assertEqual(len(followees), 1)
+        self.assertEqual(followees[0]["followee"], self.user_steve)
+        self.assertEqual(len(followings), 1)
+
+    def test_block_created_signals_fire_with_model_sender(self):
+        blocks = self._collect(block_created, Block)
+
+        Block.objects.add_block(self.user_bob, self.user_steve)
+
+        # add_block emits block_created three times (blocker, blocked, blocking)
+        self.assertEqual(len(blocks), 3)

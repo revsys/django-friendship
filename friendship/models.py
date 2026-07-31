@@ -405,9 +405,9 @@ class FollowingManager(models.Manager):
         if created is False:
             raise AlreadyExistsError(f"User '{follower}' already follows '{followee}'")
 
-        follower_created.send(sender=self, follower=follower)
-        followee_created.send(sender=self, followee=followee)
-        following_created.send(sender=self, following=relation)
+        follower_created.send(sender=self.model, follower=follower)
+        followee_created.send(sender=self.model, followee=followee)
+        following_created.send(sender=self.model, following=relation)
 
         bust_cache("followers", followee.pk)
         bust_cache("following", follower.pk)
@@ -500,9 +500,9 @@ class BlockManager(models.Manager):
         if created is False:
             raise AlreadyExistsError(f"User '{blocker}' already blocks '{blocked}'")
 
-        block_created.send(sender=self, blocker=blocker)
-        block_created.send(sender=self, blocked=blocked)
-        block_created.send(sender=self, blocking=relation)
+        block_created.send(sender=self.model, blocker=blocker)
+        block_created.send(sender=self.model, blocked=blocked)
+        block_created.send(sender=self.model, blocking=relation)
 
         bust_cache("blocked", blocked.pk)
         bust_cache("blocking", blocker.pk)
