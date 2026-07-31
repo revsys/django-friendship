@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
+from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError, MaxFriendsExceededError
 from friendship.models import Block, Follow, Friend, FriendshipRequest
 from friendship.signals import (
     block_created,
@@ -785,3 +785,49 @@ class ResubmitAfterRejectionTests(BaseTestCase):
         Friend.objects.add_friend(self.user_bob, self.user_steve).reject()
         req = Friend.objects.add_friend(self.user_steve, self.user_bob)
         self.assertIsNone(req.rejected)
+
+
+class MaxFriendsTests(BaseTestCase):
+    """Optional FRIENDSHIP_MAX_FRIENDS cap enforced at accept time (#82)."""
+
+    def _make_friends(self, user_a, user_b):
+        Friend.objects.add_friend(user_a, user_b).accept()
+
+    def test_friend_count(self):
+        self.assertEqual(Friend.objects.friend_count(self.user_bob), 0)
+        self._make_friends(self.user_bob, self.user_steve)
+        self.assertEqual(Friend.objects.friend_count(self.user_bob), 1)
+
+    def test_unlimited_by_default(self):
+        # No setting configured: behavior is unchanged (backwards compatible).
+        self._make_friends(self.user_bob, self.user_steve)
+        self._make_friends(self.user_bob, self.user_susan)
+        self._make_friends(self.user_bob, self.user_amy)
+        self.assertEqual(Friend.objects.friend_count(self.user_bob), 3)
+
+    @override_settings(FRIENDSHIP_MAX_FRIENDS=2)
+    def test_accept_allowed_under_limit(self):
+        self._make_friends(self.user_bob, self.user_steve)
+        # bob has 1 friend, limit is 2 -> a second acceptance is fine.
+        self._make_friends(self.user_bob, self.user_susan)
+        self.assertEqual(Friend.objects.friend_count(self.user_bob), 2)
+
+    @override_settings(FRIENDSHIP_MAX_FRIENDS=1)
+    def test_accept_blocked_when_requester_at_limit(self):
+        self._make_friends(self.user_bob, self.user_steve)  # bob now has 1 (== limit)
+        req = Friend.objects.add_friend(self.user_bob, self.user_susan)
+        with self.assertRaises(MaxFriendsExceededError):
+            req.accept()
+        # No partial state: no friendship formed, request still pending.
+        self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_susan))
+        self.assertEqual(Friend.objects.friend_count(self.user_bob), 1)
+        self.assertTrue(Friend.objects.request_exists(self.user_bob, self.user_susan))
+
+    @override_settings(FRIENDSHIP_MAX_FRIENDS=1)
+    def test_accept_blocked_when_addressee_at_limit(self):
+        # susan is at the limit; bob (with room) requesting her still can't be accepted.
+        self._make_friends(self.user_susan, self.user_steve)
+        req = Friend.objects.add_friend(self.user_bob, self.user_susan)
+        with self.assertRaises(MaxFriendsExceededError):
+            req.accept()
+        self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_susan))

@@ -104,6 +104,10 @@ friend_request.accept()
 # or friend_request.reject()
 ```
 
+A rejected request does not block future requests — the sender may request
+again later. To cap how many friends a user can have, see
+[`FRIENDSHIP_MAX_FRIENDS`](#settings) under Settings.
+
 #### To remove the friendship relationship between `request.user` and `other_user`, do the following:
 
 ```python
@@ -174,6 +178,32 @@ FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME = "users"
 FRIENDSHIP_MANAGER_FRIENDSHIP_REQUEST_SELECT_RELATED_STRATEGY = (
     "select_related"  # ('select_related', 'prefetch_related', 'none')
 )
+
+# Optional cap on the number of friends each user may have. Unset (the
+# default) means unlimited, so existing projects are unaffected. When set,
+# accepting a request that would put either user over the limit raises
+# friendship.exceptions.MaxFriendsExceededError.
+FRIENDSHIP_MAX_FRIENDS = 800
+```
+
+#### Limiting the number of friends
+
+By default a user may have unlimited friends. Set `FRIENDSHIP_MAX_FRIENDS` to
+cap it. The limit is checked when a request is accepted — if either user is
+already at the limit, `accept()` raises `MaxFriendsExceededError` and no
+friendship is created (the request is left intact so it can be accepted later,
+e.g. after removing another friend):
+
+```python
+from friendship.exceptions import MaxFriendsExceededError
+
+try:
+    friend_request.accept()
+except MaxFriendsExceededError:
+    ...  # tell the user their friend list is full
+
+# You can check a user's current friend count directly:
+Friend.objects.friend_count(request.user)
 ```
 
 ### Contributing
