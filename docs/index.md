@@ -26,5 +26,35 @@ urlpatterns = [
 ]
 ```
 
-See [Usage](usage.md) for the manager API and template tags, and
-[Signals](signals.md) for the signals the app emits.
+## Where to next
+
+- [Usage](usage.md): the manager API, settings, and template tags
+- [Signals](signals.md): the signals the app emits
+- [API reference](reference.md): the managers, models, and exceptions
+
+## llms.txt
+
+This documentation is available in the [llms.txt](https://llmstxt.org/) format, a
+Markdown convention suited to LLMs and AI coding assistants.
+
+Two files are published:
+
+- [`llms.txt`](https://django-friendship.readthedocs.io/en/latest/llms.txt): a
+  short description of the project plus links to each section of the
+  documentation. The structure is described [here](https://llmstxt.org/#format).
+- [`llms-full.txt`](https://django-friendship.readthedocs.io/en/latest/llms-full.txt):
+  the same index with the content of every page included inline, including the
+  generated API reference.
+
+Every page is also published as Markdown alongside its HTML, so you can link an
+assistant at a single section rather than the whole corpus. Append `.md` to the
+page name:
+
+```text
+https://django-friendship.readthedocs.io/en/latest/usage.md
+https://django-friendship.readthedocs.io/en/latest/signals.md
+https://django-friendship.readthedocs.io/en/latest/reference.md
+```
+
+These files are not picked up automatically by IDEs or coding agents today, but
+most will use them if you supply a link or paste the text.

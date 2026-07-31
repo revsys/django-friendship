@@ -15,4 +15,19 @@ nav = [
   { "Overview" = "index.md" },
   { "Usage" = "usage.md" },
   { "Signals" = "signals.md" },
+  { "API reference" = "reference.md" },
 ]
+
+# mkdocstrings analyses the source statically with griffe, so unlike Sphinx
+# autodoc it does not import friendship and needs no django.setup().
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["."]
+inventories = [
+  "https://docs.python.org/3/objects.inv",
+  "https://docs.djangoproject.com/en/stable/_objects/",
+]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+show_source = false
+show_root_heading = true
+members_order = "source"
