@@ -10,6 +10,9 @@ _Not released yet_
 - Use the `str` URL converter for usernames so usernames containing `.`,
   `@`, `+` or unicode reverse correctly instead of raising
   `NoReverseMatch` (#109)
+- Add `FriendshipManager.request_exists(from_user, to_user)` to check for a
+  pending friendship request in either direction without duplicating the
+  queries (#198)
 
 ## Version 1.10.0
 
