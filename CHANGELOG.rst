@@ -1,8 +1,26 @@
-Version 2.0.0
--------------
+Unreleased
+----------
+
 *Not released yet*
 
-- Add ability to use `prefetch_related` rather than `select_related` for memory/cache size reduction
+- Fix ``Follow`` and ``Block`` ``*_created`` signals to send the model class as
+  ``sender`` so receivers connected with ``sender=Follow`` / ``sender=Block``
+  fire (#89)
+- Use the ``str`` URL converter for usernames so usernames containing ``.``,
+  ``@``, ``+`` or unicode reverse correctly instead of raising
+  ``NoReverseMatch`` (#109)
+
+Version 1.10.0
+--------------
+
+*Released July 30th, 2026*
+
+- Add support for Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1
+- Add support for Python 3.10 through 3.14, including free-threaded 3.14
+- Move packaging to ``pyproject.toml`` with the hatchling build backend and
+  modernize tooling (nox test matrix, ruff/prek pre-commit, split CI workflows)
+- Add ability to use ``prefetch_related`` rather than ``select_related`` for
+  memory/cache size reduction
 - Fix signal sending issue on cancel after object is deleted
 
 Version 1.9.6
@@ -170,6 +188,8 @@ Version 1.1.0
 
 Version 1.0.0
 -------------
+
+*Released November 13th, 2013*
 
 - Fixed bug where FriendRequests could be left hanging if both sides requested friendship prior to
   one side accepting.  Caused exception if the user accepted the second request.
