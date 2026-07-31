@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
+from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError, MaxFriendsExceededError
 from friendship.signals import (
     block_created,
     block_removed,
@@ -108,6 +108,17 @@ class FriendshipRequest(models.Model):
 
     def accept(self):
         """Accept this friendship request"""
+        # Optional cap on friends per user. Unset (the default) means unlimited,
+        # so existing installs are unaffected. Checked before creating anything
+        # so a rejected accept leaves no partial state and the request stands.
+        max_friends = getattr(settings, "FRIENDSHIP_MAX_FRIENDS", None)
+        if max_friends is not None:
+            for user in (self.from_user, self.to_user):
+                if Friend.objects.friend_count(user) >= max_friends:
+                    raise MaxFriendsExceededError(
+                        f"User '{user}' already has the maximum number of friends ({max_friends})."
+                    )
+
         Friend.objects.create(from_user=self.from_user, to_user=self.to_user)
 
         Friend.objects.create(from_user=self.to_user, to_user=self.from_user)
@@ -169,6 +180,10 @@ class FriendshipManager(models.Manager):
             cache.set(key, friends)
 
         return friends
+
+    def friend_count(self, user):
+        """Return the number of friends ``user`` currently has."""
+        return Friend.objects.filter(to_user=user).count()
 
     def requests(self, user):
         """Return a list of friendship requests"""

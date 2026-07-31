@@ -18,6 +18,10 @@ _Not released yet_
   revived as a fresh, unread request; use the block feature to stop unwanted
   requests. **Behavior change:** a single rejection no longer permanently blocks
   future requests (#193)
+- Add an optional `FRIENDSHIP_MAX_FRIENDS` setting that caps the number of
+  friends per user, enforced when a request is accepted (raises
+  `MaxFriendsExceededError`). Unset by default, so friendships remain unlimited.
+  Adds a `FriendshipManager.friend_count(user)` helper (#82)
 
 ## Version 1.10.0
 
