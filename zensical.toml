@@ -1,0 +1,18 @@
+# Zensical configuration: https://zensical.org/docs/
+#
+# Migration away from Sphinx, matching django-test-plus.
+
+[project]
+site_name = "django-friendship"
+site_url = "https://django-friendship.readthedocs.io/en/latest/"
+site_description = "Create and manage follows, blocks, and bi-directional friendships between users."
+repo_url = "https://github.com/revsys/django-friendship"
+edit_uri = "edit/main/docs/"
+
+# Without this, Zensical orders pages alphabetically. Keep the same order as
+# ORDER in scripts/gen_llms.py.
+nav = [
+  { "Overview" = "index.md" },
+  { "Usage" = "usage.md" },
+  { "Signals" = "signals.md" },
+]

@@ -22,6 +22,10 @@
 @coverage *ARGS="--no-install --reuse-existing-virtualenvs":
     uv tool run nox {{ ARGS }} --session "coverage"
 
+# Build documentation (zensical + llms.txt)
+@docs *ARGS="--no-install --reuse-existing-virtualenvs":
+    uv tool run nox {{ ARGS }} --session "docs"
+
 # Format justfile
 @fmt:
     just --fmt --unstable
