@@ -1,4 +1,5 @@
 import os
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -831,3 +832,24 @@ class MaxFriendsTests(BaseTestCase):
         with self.assertRaises(MaxFriendsExceededError):
             req.accept()
         self.assertFalse(Friend.objects.are_friends(self.user_bob, self.user_susan))
+
+
+class UsernameFieldTests(BaseTestCase):
+    """Views resolve users by USERNAME_FIELD, not a hardcoded 'username' (#57)."""
+
+    def test_default_username_field_lookup(self):
+        # Backwards compatibility: the default model still resolves by username.
+        url = reverse("friendship_view_friends", kwargs={"username": self.user_steve.username})
+        self.assertResponse200(self.client.get(url))
+
+    def test_lookup_honors_custom_username_field(self):
+        # Pretend the project uses email as USERNAME_FIELD. The view should then
+        # resolve the user by email; under the old hardcoded lookup this 404'd.
+        with mock.patch.object(User, "USERNAME_FIELD", "email"):
+            url = reverse("friendship_view_friends", kwargs={"username": self.user_steve.email})
+            self.assertResponse200(self.client.get(url))
+
+    def test_custom_username_field_unknown_value_404s(self):
+        with mock.patch.object(User, "USERNAME_FIELD", "email"):
+            url = reverse("friendship_view_friends", kwargs={"username": "nobody@example.com"})
+            self.assertResponse404(self.client.get(url))

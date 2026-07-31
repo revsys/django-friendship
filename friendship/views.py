@@ -23,9 +23,19 @@ def get_friendship_context_object_list_name():
     return getattr(settings, "FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME", "users")
 
 
+def _username_lookup(value):
+    """Build a lookup dict keyed on the user model's ``USERNAME_FIELD``.
+
+    For the default user model ``USERNAME_FIELD`` is ``"username"``, so this is
+    equivalent to ``{"username": value}`` — behavior is unchanged. Custom user
+    models with a different ``USERNAME_FIELD`` (e.g. email) now work too.
+    """
+    return {user_model.USERNAME_FIELD: value}
+
+
 def view_friends(request, username, template_name="friendship/friend/user_list.html"):
     """View the friends of a user"""
-    user = get_object_or_404(user_model, username=username)
+    user = get_object_or_404(user_model, **_username_lookup(username))
     friends = Friend.objects.friends(user)
     return render(
         request,
@@ -44,7 +54,7 @@ def friendship_add_friend(request, to_username, template_name="friendship/friend
     ctx = {"to_username": to_username}
 
     if request.method == "POST":
-        to_user = user_model.objects.get(username=to_username)
+        to_user = user_model.objects.get(**_username_lookup(to_username))
         from_user = request.user
         try:
             Friend.objects.add_friend(from_user, to_user)
@@ -62,7 +72,7 @@ def friendship_accept(request, friendship_request_id):
     if request.method == "POST":
         f_request = get_object_or_404(request.user.friendship_requests_received, id=friendship_request_id)
         f_request.accept()
-        return redirect("friendship_view_friends", username=request.user.username)
+        return redirect("friendship_view_friends", username=request.user.get_username())
 
     return redirect("friendship_requests_detail", friendship_request_id=friendship_request_id)
 
@@ -118,7 +128,7 @@ def friendship_requests_detail(request, friendship_request_id, template_name="fr
 
 def followers(request, username, template_name="friendship/follow/followers_list.html"):
     """List this user's followers"""
-    user = get_object_or_404(user_model, username=username)
+    user = get_object_or_404(user_model, **_username_lookup(username))
     followers = Follow.objects.followers(user)
     return render(
         request,
@@ -133,7 +143,7 @@ def followers(request, username, template_name="friendship/follow/followers_list
 
 def following(request, username, template_name="friendship/follow/following_list.html"):
     """List who this user follows"""
-    user = get_object_or_404(user_model, username=username)
+    user = get_object_or_404(user_model, **_username_lookup(username))
     following = Follow.objects.following(user)
     return render(
         request,
@@ -152,14 +162,14 @@ def follower_add(request, followee_username, template_name="friendship/follow/ad
     ctx = {"followee_username": followee_username}
 
     if request.method == "POST":
-        followee = user_model.objects.get(username=followee_username)
+        followee = user_model.objects.get(**_username_lookup(followee_username))
         follower = request.user
         try:
             Follow.objects.add_follower(follower, followee)
         except AlreadyExistsError as e:
             ctx["errors"] = [f"{e}"]
         else:
-            return redirect("friendship_following", username=follower.username)
+            return redirect("friendship_following", username=follower.get_username())
 
     return render(request, template_name, ctx)
 
@@ -168,10 +178,10 @@ def follower_add(request, followee_username, template_name="friendship/follow/ad
 def follower_remove(request, followee_username, template_name="friendship/follow/remove.html"):
     """Remove a following relationship"""
     if request.method == "POST":
-        followee = user_model.objects.get(username=followee_username)
+        followee = user_model.objects.get(**_username_lookup(followee_username))
         follower = request.user
         Follow.objects.remove_follower(follower, followee)
-        return redirect("friendship_following", username=follower.username)
+        return redirect("friendship_following", username=follower.get_username())
 
     return render(request, template_name, {"followee_username": followee_username})
 
@@ -184,7 +194,7 @@ def all_users(request, template_name="friendship/user_actions.html"):
 
 def blocking(request, username, template_name="friendship/block/blockers_list.html"):
     """List this user's followers"""
-    user = get_object_or_404(user_model, username=username)
+    user = get_object_or_404(user_model, **_username_lookup(username))
     Block.objects.blocked(user)
 
     return render(
@@ -199,7 +209,7 @@ def blocking(request, username, template_name="friendship/block/blockers_list.ht
 
 def blockers(request, username, template_name="friendship/block/blocking_list.html"):
     """List who this user follows"""
-    user = get_object_or_404(user_model, username=username)
+    user = get_object_or_404(user_model, **_username_lookup(username))
     Block.objects.blocking(user)
 
     return render(
@@ -218,14 +228,14 @@ def block_add(request, blocked_username, template_name="friendship/block/add.htm
     ctx = {"blocked_username": blocked_username}
 
     if request.method == "POST":
-        blocked = user_model.objects.get(username=blocked_username)
+        blocked = user_model.objects.get(**_username_lookup(blocked_username))
         blocker = request.user
         try:
             Block.objects.add_block(blocker, blocked)
         except AlreadyExistsError as e:
             ctx["errors"] = [f"{e}"]
         else:
-            return redirect("friendship_blocking", username=blocker.username)
+            return redirect("friendship_blocking", username=blocker.get_username())
 
     return render(request, template_name, ctx)
 
@@ -234,9 +244,9 @@ def block_add(request, blocked_username, template_name="friendship/block/add.htm
 def block_remove(request, blocked_username, template_name="friendship/block/remove.html"):
     """Remove a following relationship"""
     if request.method == "POST":
-        blocked = user_model.objects.get(username=blocked_username)
+        blocked = user_model.objects.get(**_username_lookup(blocked_username))
         blocker = request.user
         Block.objects.remove_block(blocker, blocked)
-        return redirect("friendship_blocking", username=blocker.username)
+        return redirect("friendship_blocking", username=blocker.get_username())
 
     return render(request, template_name, {"blocked_username": blocked_username})

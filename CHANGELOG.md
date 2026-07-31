@@ -22,6 +22,10 @@ _Not released yet_
   friends per user, enforced when a request is accepted (raises
   `MaxFriendsExceededError`). Unset by default, so friendships remain unlimited.
   Adds a `FriendshipManager.friend_count(user)` helper (#82)
+- The bundled views and templates now resolve users by the user model's
+  `USERNAME_FIELD` (via `get_username()`) instead of a hardcoded `username`, so
+  they work with custom user models that use a different `USERNAME_FIELD` (e.g.
+  email). No change for the default user model (#57)
 
 ## Version 1.10.0
 
