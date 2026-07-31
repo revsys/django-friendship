@@ -21,9 +21,9 @@ from typing import ClassVar
 
 # Read the Docs sets this per version, so /en/stable/ does not advertise
 # /en/latest/ URLs. Falls back to latest for local builds.
-SITE_URL = os.environ.get(
-    "READTHEDOCS_CANONICAL_URL", "https://django-friendship.readthedocs.io/en/latest/"
-).rstrip("/")
+SITE_URL = os.environ.get("READTHEDOCS_CANONICAL_URL", "https://django-friendship.readthedocs.io/en/latest/").rstrip(
+    "/"
+)
 NAME = "django-friendship"
 SUMMARY = "Create and manage follows, blocks, and bi-directional friendships between users."
 

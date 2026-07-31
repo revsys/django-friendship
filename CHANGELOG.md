@@ -26,6 +26,8 @@ _Not released yet_
   `USERNAME_FIELD` (via `get_username()`) instead of a hardcoded `username`, so
   they work with custom user models that use a different `USERNAME_FIELD` (e.g.
   email). No change for the default user model (#57)
+- Migrate the documentation from Sphinx to zensical (Markdown) and generate
+  `llms.txt` / `llms-full.txt` (#214)
 
 ## Version 1.10.0
 
