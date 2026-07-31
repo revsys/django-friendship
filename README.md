@@ -1,6 +1,8 @@
 # django-friendship
 
 [![CI](https://github.com/revsys/django-friendship/actions/workflows/actions.yml/badge.svg)](https://github.com/revsys/django-friendship/actions/workflows/actions.yml)
+[![PyPI](https://img.shields.io/pypi/v/django-friendship.svg)](https://pypi.org/project/django-friendship/)
+[![Python versions](https://img.shields.io/pypi/pyversions/django-friendship.svg)](https://pypi.org/project/django-friendship/)
 
 This application enables you to create and manage follows, blocks and bi-directional friendships between users. It features:
 

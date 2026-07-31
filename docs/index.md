@@ -1,5 +1,8 @@
 # django-friendship
 
+[![PyPI](https://img.shields.io/pypi/v/django-friendship.svg)](https://pypi.org/project/django-friendship/)
+[![Python versions](https://img.shields.io/pypi/pyversions/django-friendship.svg)](https://pypi.org/project/django-friendship/)
+
 Create and manage follows, blocks, and bi-directional friendships between
 users. `django-friendship` features:
 
