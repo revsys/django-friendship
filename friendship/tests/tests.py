@@ -143,16 +143,16 @@ class FriendshipModelTests(BaseTestCase):
         self.assertEqual(len(Friend.objects.sent_requests(self.user_susan)), 1)
         self.assertIsNotNone(Friend.objects.sent_requests(self.user_susan)[0].rejected)
 
-        # Duplicated requests raise a more specific subclass of IntegrityError.
-        with self.assertRaises(AlreadyExistsError):
-            Friend.objects.add_friend(self.user_susan, self.user_amy)
-
+        # After a rejection the sender may request again (#193); the rejected
+        # request is revived as a fresh, unread request rather than raising.
+        req3b = Friend.objects.add_friend(self.user_susan, self.user_amy)
+        self.assertIsNone(req3b.rejected)
+        self.assertEqual(len(Friend.objects.rejected_requests(self.user_amy)), 0)
+        self.assertEqual(len(Friend.objects.unread_requests(self.user_amy)), 1)
         self.assertFalse(Friend.objects.are_friends(self.user_susan, self.user_amy))
-        self.assertEqual(len(Friend.objects.rejected_requests(self.user_amy)), 1)
-        self.assertEqual(len(Friend.objects.rejected_requests(self.user_amy)), 1)
 
         # let's try that again..
-        req3.delete()
+        req3b.delete()
 
         # Susan wants to be friends with Amy, and Amy reads it
         req4 = Friend.objects.add_friend(self.user_susan, self.user_amy)
@@ -737,3 +737,51 @@ class RequestExistsTests(BaseTestCase):
         self.assertTrue(Friend.objects.request_exists(self.user_steve, self.user_bob))
         with self.assertRaises(AlreadyExistsError):
             Friend.objects.add_friend(self.user_steve, self.user_bob)
+
+
+class ResubmitAfterRejectionTests(BaseTestCase):
+    """A rejected request no longer blocks forever; the sender may try again (#193)."""
+
+    def test_can_resubmit_after_rejection(self):
+        req = Friend.objects.add_friend(self.user_bob, self.user_steve)
+        req.reject()
+
+        # Re-requesting succeeds and revives the request as fresh and unread.
+        again = Friend.objects.add_friend(self.user_bob, self.user_steve)
+        self.assertIsNone(again.rejected)
+        self.assertIsNone(again.viewed)
+        self.assertEqual(len(Friend.objects.rejected_requests(self.user_steve)), 0)
+        self.assertEqual(len(Friend.objects.unread_requests(self.user_steve)), 1)
+
+    def test_resubmit_reuses_the_same_row(self):
+        req = Friend.objects.add_friend(self.user_bob, self.user_steve)
+        req.reject()
+        again = Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+        # unique_together means it's the same underlying row, revived in place.
+        self.assertEqual(again.pk, req.pk)
+        self.assertEqual(
+            FriendshipRequest.objects.filter(from_user=self.user_bob, to_user=self.user_steve).count(),
+            1,
+        )
+
+    def test_resubmit_updates_message(self):
+        Friend.objects.add_friend(self.user_bob, self.user_steve, message="hi").reject()
+        again = Friend.objects.add_friend(self.user_bob, self.user_steve, message="please?")
+        self.assertEqual(again.message, "please?")
+
+    def test_pending_request_still_blocks(self):
+        Friend.objects.add_friend(self.user_bob, self.user_steve)
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_bob, self.user_steve)
+
+    def test_reverse_pending_request_still_blocks(self):
+        Friend.objects.add_friend(self.user_bob, self.user_steve)
+        with self.assertRaises(AlreadyExistsError):
+            Friend.objects.add_friend(self.user_steve, self.user_bob)
+
+    def test_reverse_rejected_request_does_not_block(self):
+        # bob asks steve and is rejected; steve is now free to ask bob.
+        Friend.objects.add_friend(self.user_bob, self.user_steve).reject()
+        req = Friend.objects.add_friend(self.user_steve, self.user_bob)
+        self.assertIsNone(req.rejected)

@@ -289,22 +289,33 @@ class FriendshipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise AlreadyFriendsError("Users are already friends")
 
-        if FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user).exists():
+        # A pending (un-rejected) request in either direction still blocks a new
+        # one. A previously rejected request no longer blocks forever: the sender
+        # may request again (#193). Use the Block feature to stop unwanted
+        # requests entirely.
+        if FriendshipRequest.objects.filter(from_user=from_user, to_user=to_user, rejected__isnull=True).exists():
             raise AlreadyExistsError("You already requested friendship from this user.")
 
-        if FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user).exists():
+        if FriendshipRequest.objects.filter(from_user=to_user, to_user=from_user, rejected__isnull=True).exists():
             raise AlreadyExistsError("This user already requested friendship from you.")
 
         if message is None:
             message = ""
 
-        request, created = FriendshipRequest.objects.get_or_create(from_user=from_user, to_user=to_user)
+        request, created = FriendshipRequest.objects.get_or_create(
+            from_user=from_user,
+            to_user=to_user,
+            defaults={"message": message},
+        )
 
-        if created is False:
-            raise AlreadyExistsError("Friendship already requested")
-
-        if message:
+        if not created:
+            # The only row that can already exist here is a previously rejected
+            # request (a pending one would have raised above). Revive it as a
+            # fresh, unread request rather than blocking.
+            request.rejected = None
+            request.viewed = None
             request.message = message
+            request.created = timezone.now()
             request.save()
 
         bust_cache("requests", to_user.pk)
