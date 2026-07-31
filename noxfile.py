@@ -44,6 +44,15 @@ def lint(session: nox.Session) -> None:
 
 
 @nox.session(venv_backend="uv")
+def docs(session: nox.Session) -> None:
+    session.install(".[docs]")
+    session.run("zensical", "build", *session.posargs)
+    # Zensical has no plugin API yet, so generate llms.txt / llms-full.txt and
+    # the per-page .md twins from the rendered site as a post-build step.
+    session.run("python", "scripts/gen_llms.py", "site")
+
+
+@nox.session(venv_backend="uv")
 def coverage(session: nox.Session) -> None:
     # Editable, so coverage measures ./friendship rather than a copy in
     # site-packages that it would never see reported.
