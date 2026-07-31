@@ -206,6 +206,15 @@ except MaxFriendsExceededError:
 Friend.objects.friend_count(request.user)
 ```
 
+### Custom user models
+
+`django-friendship` works with a custom `AUTH_USER_MODEL`. The bundled views and
+templates resolve users by your user model's `USERNAME_FIELD` (via
+`get_username()`), so a model that authenticates by, say, email works out of the
+box — the value captured in the friendship URLs is looked up against
+`USERNAME_FIELD`. For the default user model this is `username`, so nothing
+changes.
+
 ### Contributing
 
 Development [takes place on GitHub](https://github.com/revsys/django-friendship). Bug reports, patches, and fixes are always welcome!
