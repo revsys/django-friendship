@@ -13,10 +13,10 @@ from friendship.models import Block, Friend, Follow
 
 ```python
 # List of this user's friends
-Friend.objects.friends(request.user)
+Friend.objects.friends(user=request.user)
 
 # Number of friends this user has
-Friend.objects.friend_count(request.user)
+Friend.objects.friend_count(user=request.user)
 
 # Requests, filtered by status
 Friend.objects.unread_requests(user=request.user)
@@ -25,10 +25,10 @@ Friend.objects.rejected_requests(user=request.user)
 Friend.objects.sent_requests(user=request.user)
 
 # Are two users friends?
-Friend.objects.are_friends(request.user, other_user)
+Friend.objects.are_friends(user1=request.user, user2=other_user)
 
 # Does a request already exist between two users (either direction)?
-Friend.objects.request_exists(request.user, other_user)
+Friend.objects.request_exists(from_user=request.user, to_user=other_user)
 ```
 
 ## Managing friendships
@@ -38,8 +38,8 @@ other_user = User.objects.get(pk=1)
 
 # Create a friendship request (message is optional)
 Friend.objects.add_friend(
-    request.user,
-    other_user,
+    from_user=request.user,
+    to_user=other_user,
     message="Hi! I would like to add you",
 )
 
@@ -47,7 +47,7 @@ Friend.objects.add_friend(
 # friendship.exceptions.AlreadyExistsError (a subclass of django.db.IntegrityError).
 
 # Remove a friendship
-Friend.objects.remove_friend(request.user, other_user)
+Friend.objects.remove_friend(from_user=request.user, to_user=other_user)
 ```
 
 Accept or reject a request on the `FriendshipRequest` object:
@@ -85,25 +85,25 @@ except MaxFriendsExceededError:
 
 ```python
 # Create / remove a follow
-Follow.objects.add_follower(request.user, other_user)
-Follow.objects.remove_follower(request.user, other_user)
+Follow.objects.add_follower(follower=request.user, followee=other_user)
+Follow.objects.remove_follower(follower=request.user, followee=other_user)
 
 # Read follows
-Follow.objects.followers(request.user)
-Follow.objects.following(request.user)
+Follow.objects.followers(user=request.user)
+Follow.objects.following(user=request.user)
 ```
 
 ## Blocks
 
 ```python
 # Create / remove a block
-Block.objects.add_block(request.user, other_user)
-Block.objects.remove_block(request.user, other_user)
+Block.objects.add_block(blocker=request.user, blocked=other_user)
+Block.objects.remove_block(blocker=request.user, blocked=other_user)
 
 # Read blocks
-Block.objects.blocked(request.user)
-Block.objects.blocking(request.user)
-Block.objects.is_blocked(request.user, other_user)
+Block.objects.blocked(user=request.user)
+Block.objects.blocking(user=request.user)
+Block.objects.is_blocked(user1=request.user, user2=other_user)
 ```
 
 ## Template tags

@@ -47,26 +47,26 @@ from friendship.models import Friend, Follow, Block
 
 ### Getting Data about Friendships
 
-- List all of a user's friends: `Friend.objects.friends(request.user)`
-- Count of a user's friends: `Friend.objects.friend_count(request.user)`
+- List all of a user's friends: `Friend.objects.friends(user=request.user)`
+- Count of a user's friends: `Friend.objects.friend_count(user=request.user)`
 - List all unread friendship requests: `Friend.objects.unread_requests(user=request.user)`
 - List all unrejected friendship requests: `Friend.objects.unrejected_requests(user=request.user)`
 - Count of all unrejected friendship requests: `Friend.objects.unrejected_request_count(user=request.user)`
 - List all rejected friendship requests: `Friend.objects.rejected_requests(user=request.user)`
 - List of all sent friendship requests: `Friend.objects.sent_requests(user=request.user)`
-- Test if two users are friends: `Friend.objects.are_friends(request.user, other_user) == True`
-- Test if a friendship request already exists between two users (either direction): `Friend.objects.request_exists(from_user, to_user) == True`
+- Test if two users are friends: `Friend.objects.are_friends(user1=request.user, user2=other_user) == True`
+- Test if a friendship request already exists between two users (either direction): `Friend.objects.request_exists(from_user=request.user, to_user=other_user) == True`
 
 ### Getting Data about Follows
 
-- List of a user's followers: `Follow.objects.followers(request.user)`
-- List of who a user is following: `Follow.objects.following(request.user)`
+- List of a user's followers: `Follow.objects.followers(user=request.user)`
+- List of who a user is following: `Follow.objects.following(user=request.user)`
 
 ### Getting Data about Blocks
 
-- List of a user's blockers: `Block.objects.blocked(request.user)`
-- List of who a user is blocking: `Block.objects.blocking(request.user)`
-- Test if a user is blocked: `Block.objects.is_blocked(request.user, other_user) == True`
+- List of a user's blockers: `Block.objects.blocked(user=request.user)`
+- List of who a user is blocking: `Block.objects.blocking(user=request.user)`
+- Test if a user is blocked: `Block.objects.is_blocked(user1=request.user, user2=other_user) == True`
 
 ### Managing Friendships and Follows
 
@@ -75,10 +75,10 @@ from friendship.models import Friend, Follow, Block
 ```python
 other_user = User.objects.get(pk=1)
 Friend.objects.add_friend(
-    request.user,  # The sender
-    other_user,  # The recipient
-    message="Hi! I would like to add you",
-)  # This message is optional
+    from_user=request.user,  # The sender
+    to_user=other_user,  # The recipient
+    message="Hi! I would like to add you",  # optional
+)
 ```
 
 #### Let the user who received the request respond:
@@ -100,26 +100,26 @@ again later. To cap how many friends a user can have, see
 #### To remove the friendship relationship between `request.user` and `other_user`, do the following:
 
 ```python
-Friend.objects.remove_friend(request.user, other_user)
+Friend.objects.remove_friend(from_user=request.user, to_user=other_user)
 ```
 
 #### Make request.user a follower of other_user:
 
 ```python
-Follow.objects.add_follower(request.user, other_user)
+Follow.objects.add_follower(follower=request.user, followee=other_user)
 ```
 
 
 #### Make request.user block other_user:
 
 ```python
-Block.objects.add_block(request.user, other_user)
+Block.objects.add_block(blocker=request.user, blocked=other_user)
 ```
 
 #### Make request.user unblock other_user:
 
 ```python
-Block.objects.remove_block(request.user, other_user)
+Block.objects.remove_block(blocker=request.user, blocked=other_user)
 ```
 
 ### Templates
@@ -210,7 +210,7 @@ except MaxFriendsExceededError:
     ...  # tell the user their friend list is full
 
 # You can check a user's current friend count directly:
-Friend.objects.friend_count(request.user)
+Friend.objects.friend_count(user=request.user)
 ```
 
 ### Custom user models
