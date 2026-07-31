@@ -70,6 +70,8 @@ from friendship.models import Friend, Follow, Block
 
 ### Managing Friendships and Follows
 
+See the [cookbook](https://django-friendship.readthedocs.io/en/latest/cookbook/) for more task-oriented recipes.
+
 #### Create a friendship request:
 
 ```python

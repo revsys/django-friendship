@@ -32,6 +32,7 @@ SUMMARY = "Create and manage follows, blocks, and bi-directional friendships bet
 ORDER = [
     "index",
     "usage",
+    "cookbook",
     "signals",
     "reference",
 ]
