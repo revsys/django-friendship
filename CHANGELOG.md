@@ -4,6 +4,10 @@
 
 _Not released yet_
 
+## Version 1.11.1
+
+_Released August 1st, 2026_
+
 - Test against Python 3.15, including the free-threaded build (3.15t). It is
   still in beta, so the trove classifier is published but support is not
   promised until the final release.
