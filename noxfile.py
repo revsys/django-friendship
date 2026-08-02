@@ -1,7 +1,7 @@
 import nox
 
 DJANGO_VERSIONS = ["4.2", "5.1", "5.2", "6.0", "6.1"]
-PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t"]
+PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]
 
 # Django versions that have no final release yet need a specifier that opts in
 # to pre-releases. Naming the pre-release also lets the same spec pick up the
@@ -19,6 +19,11 @@ INVALID_PYTHON_DJANGO_SESSIONS = [
     ("3.14", "5.1"),
     ("3.14t", "4.2"),
     ("3.14t", "5.1"),
+    # Django 4.2 and 5.1 are not compatible with Python 3.15 either
+    ("3.15", "4.2"),
+    ("3.15", "5.1"),
+    ("3.15t", "4.2"),
+    ("3.15t", "5.1"),
 ]
 
 nox.options.default_venv_backend = "uv|venv"

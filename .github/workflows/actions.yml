@@ -25,6 +25,8 @@ jobs:
           - "3.13"
           - "3.14"
           - "3.14t"
+          - "3.15"
+          - "3.15t"
         django-version:
           - "4.2"  # LTS
           - "5.1"
@@ -53,6 +55,15 @@ jobs:
             django-version: "5.1"
           - python-version: "3.14t"
             django-version: "5.1"
+          # Django 4.2 and 5.1 are not compatible with Python 3.15 either
+          - python-version: "3.15"
+            django-version: "4.2"
+          - python-version: "3.15t"
+            django-version: "4.2"
+          - python-version: "3.15"
+            django-version: "5.1"
+          - python-version: "3.15t"
+            django-version: "5.1"
 
     steps:
       - uses: actions/checkout@v4
@@ -61,6 +72,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          # 3.15 has no final release yet. Harmless for the others, and can be
+          # dropped once 3.15 ships.
+          allow-prereleases: true
           cache: "pip"
           cache-dependency-path: '**/pyproject.toml'
 
