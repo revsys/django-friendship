@@ -4,6 +4,9 @@
 
 _Not released yet_
 
+- Python 3.15 and the free-threaded build (3.15t) are now officially
+  supported, following the final 3.15.0 release.
+
 ## Version 1.11.1
 
 _Released August 1st, 2026_
