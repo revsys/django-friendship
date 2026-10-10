@@ -1,7 +1,7 @@
 import nox
 
 DJANGO_VERSIONS = ["4.2", "5.1", "5.2", "6.0", "6.1"]
-PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]
+PYTHON_VERSIONS = ["3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]
 
 # Django versions that have no final release yet need a specifier that opts in
 # to pre-releases. Naming the pre-release also lets the same spec pick up the
@@ -11,9 +11,7 @@ DJANGO_SPECS = {
 }
 
 INVALID_PYTHON_DJANGO_SESSIONS = [
-    ("3.10", "6.0"),
     ("3.11", "6.0"),
-    ("3.10", "6.1"),
     ("3.11", "6.1"),
     ("3.14", "4.2"),
     ("3.14", "5.1"),

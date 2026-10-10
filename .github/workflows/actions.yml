@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
@@ -36,13 +35,9 @@ jobs:
         exclude:
 
           # Django 6.0 is compatible with Python 3.12+
-          - python-version: "3.10"
-            django-version: "6.0"
           - python-version: "3.11"
             django-version: "6.0"
           # Django 6.1 is compatible with Python 3.12+
-          - python-version: "3.10"
-            django-version: "6.1"
           - python-version: "3.11"
             django-version: "6.1"
           # Django 4.2 is not compatible with Python 3.14+

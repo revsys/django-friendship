@@ -4,6 +4,8 @@
 
 _Not released yet_
 
+- Drop support for Python 3.10, which is end-of-life. Python 3.11 or newer
+  is now required.
 - Python 3.15 and the free-threaded build (3.15t) are now officially
   supported, following the final 3.15.0 release.
 
