@@ -17,7 +17,7 @@ This application enables you to create and manage follows, blocks and bi-directi
 
 ## Requirements
 
-Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1 + Python 3.11, 3.12, 3.13, 3.14, and 3.15 (including free-threaded 3.14t and 3.15t).
+Django 5.2, 6.0, and 6.1 + Python 3.11, 3.12, 3.13, 3.14, and 3.15 (including free-threaded 3.14t and 3.15t) since **v1.12.0**.
 
 Previously:
 

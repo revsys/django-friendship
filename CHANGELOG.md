@@ -1,9 +1,11 @@
 # Changelog
 
-## Unreleased
+## Version 1.12.0
 
-_Not released yet_
+_Released October 13th, 2026_
 
+- The README now lists Django 5.2 and later as the documented support. Older
+  Django versions may still work but are no longer listed.
 - Drop support for Python 3.10, which is end-of-life. Python 3.11 or newer
   is now required.
 - Python 3.15 and the free-threaded build (3.15t) are now officially
